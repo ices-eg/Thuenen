@@ -1,0 +1,16 @@
+Nummer;Code;Beprober;Beschreibung;alt
+01;WIS;Chladek;Wissenchaftler, diverse;PBS,KRM,STP
+02;VLS;Velasco;;
+03;DEM;Labor;Schlachtproben;DRS
+04;JNK;Jankiewicz;;
+05;RHD;Rohde;;
+06;HGM;Hagemann;;HGM
+07;DRS;Dressler;;
+08;HER;Hering;;
+09;SPR;Sprotten;;
+10;nn;nn;nicht verwenden;
+11;STD;Studenten;Studenten und PhD;
+12;BSD;Basedow;;
+13;HEN;Hennings;;
+14;MUK;Neu_Mukran;Heringswerk;
+15;BMS;BMS_Hafen;Hafenproben;

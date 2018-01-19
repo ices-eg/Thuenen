@@ -1,0 +1,34 @@
+
+ALTER TABLE
+ [commercial]_[processing].for_cl_all_vessel_f 
+ADD
+ metier VARCHAR(23) AFTER target_species;
+
+update
+ [commercial]_[processing].for_cl_all_vessel_f av,
+ [commercial]_[parameter].gear_tran gt
+
+set
+ av.GERAET = gt.tran_code
+where
+ av.GERAET = gt.gear_code;                   
+
+update
+ [commercial]_[processing].for_cl_all_vessel_f av,
+ [commercial]_[parameter].baltic_metier bm
+
+set
+ av.metier = bm.metier
+where
+ right(av.Area,2) between bm.area_min and bm.area_max
+and
+ instr(bm.target_species_list,av.target_species)>0
+and
+ av.GERAET = bm.gear_code
+-- and av.Year between year(bm.valid_from) and year(bm.valid_to)
+-- and av.Month between month(bm.valid_from) and month(bm.valid_to)
+and
+ str_to_date(concat(av.Year,if(av.Month<10,concat(0,av.Month),av.Month),'01'),'%Y%m%d') between bm.valid_from and bm.valid_to
+
+;
+                

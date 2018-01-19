@@ -1,0 +1,257 @@
+
+###################################################################################################
+###################################################################################################
+#
+# comment char '#' always   f i r s t   char of a comment line!
+#
+###################################################################################################
+###################################################################################################
+
+###################################################################################################
+#
+# MrktFi DiscFi insert catch segment
+#
+###################################################################################################
+
+set @year = [this_year];
+
+insert into 
+
+ `[commercial]_[sample_final]`.MrktFi
+
+(
+      
+ SCHIFF, 
+ EU_NR, 	
+ REISENR, 	
+ JAHR, 			
+ QUARTAL, 	
+ MONAT, 	
+ STATION, 		
+ STATDATUM,
+ NETZ, 		
+ FISH,
+ ARTCODE, 
+ TAXCODE,
+ FARTNAME, 	
+ STOCK_ID, 
+ GESAMTKG, 	
+ GESAMTSTCK, 			
+ MITTGEW, 	
+ UPKG, 	
+ UPSTCK, 		
+ GEMESSENE, 		
+ PROBEKG_F, 			
+ PROBEST_F, 	
+ PROBEKG_M, 				
+ PROBEST_M,			
+ PROBEKG_U, 		
+ PROBEST_U, 		
+ STATUS, 	
+ KOM_STATUS, 		
+ DATENQCODE, 	
+ MLAENG, 
+ UNMLAENG, 	
+ MINLAENG, 	
+ MAXLAENG, 		
+ INCLAENG, 	
+ MEANLAENG, 		
+ MEANWEIGHT, 	
+ ANZSINGLE, 				
+ NOTIZ, 		
+ FILENAME,
+ FANGART
+)
+
+select 
+
+ ff.SCHIFF, 
+ ff.EU_NR, 	
+ ff.REISENR, 	
+ ff.JAHR, 			
+ ff.QUARTAL, 	
+ ff.MONAT, 	
+ ff.STATION, 		
+ ff.STATDATUM,
+ ff.NETZ, 		
+ ff.FISH,
+ ff.ARTCODE, 
+ ff.TAXCODE,
+ ff.FARTNAME, 	
+ ff.STOCK_ID, 
+ ff.GESAMTKG, 	
+ ff.GESAMTSTCK, 			
+ ff.MITTGEW, 	
+ ff.UPKG, 	
+ ff.UPSTCK, 		
+ ff.GEMESSENE, 		
+ ff.PROBEKG_F, 			
+ ff.PROBEST_F, 	
+ ff.PROBEKG_M, 				
+ ff.PROBEST_M,			
+ ff.PROBEKG_U, 		
+ ff.PROBEST_U, 		
+ ff.STATUS, 	
+ ff.KOM_STATUS, 		
+ ff.DATENQCODE, 	
+ ff.MLAENG, 
+ ff.UNMLAENG, 	
+ ff.MINLAENG, 	
+ ff.MAXLAENG, 		
+ ff.INCLAENG, 	
+ ff.MEANLAENG, 		
+ ff.MEANWEIGHT, 	
+ ff.ANZSINGLE, 				
+ ff.NOTIZ, 		
+ ff.FILENAME,
+ 'C' as FANGART
+
+from 
+
+ `[commercial]_[sample_final]`.FishFi ff
+    
+where 
+
+ ff.JAHR = @year 
+
+and 
+
+ concat(ff.JAHR, ff.REISENR, ff.STATION, ff.FISH) 
+
+ not in 
+ (
+  select 
+
+   concat(mf.JAHR, mf.REISENR, mf.STATION, mf.FISH) 
+
+  from 
+
+   `[commercial]_[sample_final]`.MrktFi mf 
+
+  where  
+
+   mf.JAHR = @year 
+
+  )
+;
+
+insert into 
+
+ `[commercial]_[sample_final]`.DiscFi
+
+(
+ SCHIFF, 
+ EU_NR, 	
+ REISENR, 	
+ JAHR, 			
+ QUARTAL, 	
+ MONAT, 	
+ STATION, 		
+ STATDATUM,
+ NETZ, 		
+ FISH,
+ ARTCODE, 
+ TAXCODE,
+ FARTNAME, 	
+ STOCK_ID, 
+ GESAMTKG, 	
+ GESAMTSTCK, 			
+ MITTGEW, 	
+ UPKG, 	
+ UPSTCK, 		
+ GEMESSENE, 		
+ PROBEKG_F, 			
+ PROBEST_F, 	
+ PROBEKG_M, 				
+ PROBEST_M,			
+ PROBEKG_U, 		
+ PROBEST_U, 		
+ STATUS, 	
+ KOM_STATUS, 		
+ DATENQCODE, 	
+ MLAENG, 
+ UNMLAENG, 	
+ MINLAENG, 	
+ MAXLAENG, 		
+ INCLAENG, 	
+ MEANLAENG, 		
+ MEANWEIGHT, 	
+ ANZSINGLE, 				
+ NOTIZ, 		
+ FILENAME,
+ FANGART
+
+)
+
+select 
+
+ ff.SCHIFF, 
+ ff.EU_NR, 	
+ ff.REISENR, 	
+ ff.JAHR, 			
+ ff.QUARTAL, 	
+ ff.MONAT, 	
+ ff.STATION, 		
+ ff.STATDATUM,
+ ff.NETZ, 		
+ ff.FISH,
+ ff.ARTCODE, 
+ ff.TAXCODE,
+ ff.FARTNAME, 	
+ ff.STOCK_ID, 
+ ff.GESAMTKG, 	
+ ff.GESAMTSTCK, 			
+ ff.MITTGEW, 	
+ ff.UPKG, 	
+ ff.UPSTCK, 		
+ ff.GEMESSENE, 		
+ ff.PROBEKG_F, 			
+ ff.PROBEST_F, 	
+ ff.PROBEKG_M, 				
+ ff.PROBEST_M,			
+ ff.PROBEKG_U, 		
+ ff.PROBEST_U, 		
+ ff.STATUS, 	
+ ff.KOM_STATUS, 		
+ ff.DATENQCODE, 	
+ ff.MLAENG, 
+ ff.UNMLAENG, 	
+ ff.MINLAENG, 	
+ ff.MAXLAENG, 		
+ ff.INCLAENG, 	
+ ff.MEANLAENG, 		
+ ff.MEANWEIGHT, 	
+ ff.ANZSINGLE, 				
+ ff.NOTIZ, 		
+ ff.FILENAME,
+ 'C' as FANGART
+
+from 
+
+ `[commercial]_[sample_final]`.FishFi ff
+    
+where 
+
+ ff.JAHR = @year 
+
+and 
+
+ concat(ff.JAHR, ff.REISENR, ff.STATION, ff.FISH) 
+
+ not in 
+
+ (
+ select 
+
+  concat(mf.JAHR, mf.REISENR, mf.STATION, mf.FISH) 
+
+ from 
+
+  `[commercial]_[sample_final]`.DiscFi mf 
+
+ where 
+
+  mf.JAHR = @year
+
+ )
+;

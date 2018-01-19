@@ -1,0 +1,119 @@
+
+drop table if exists [commercial]_[processing].small_vessel_with_gear_f;
+
+-- select sum(sum_fangkg_ort_monat) from [commercial]_[processing].small_vessel_with_gear_f
+
+create table [commercial]_[processing].small_vessel_with_gear_f (
+ EUNR varchar(12),
+ LUEA int,
+ REISENR int, 
+ Area varchar(4), 
+ ZONE varchar(5), 
+ Statistical_rectangle varchar(4), 
+ Year int,
+ Quarter int,
+ Month int,
+ GERAET varchar(3),
+ MASCHE int,
+ geraet_source varchar(6),
+ FischArt varchar(3), 
+ Harbour int,
+ HAFEN int,
+ Vessel_length_category varchar(6),
+ target_species_assemblage_code varchar(3),
+ sum_fangkg_ort_monat double
+ )
+ 
+select 
+ an.EUNR,
+ fa.LUEA,
+ an.REISENR, 
+ an.GEBIET as Area, 
+ an.ZONE, 
+ an.RECHTECK as Statistical_rectangle, 
+ an.JAHR as  Year,
+ QUARTER(an.LANDDAT) as Quarter,
+ Month(an.LANDDAT) as Month,
+ 'YYY' as GERAET,
+ 0*1 as MASCHE,
+ 'source' as geraet_source,
+ an.FISCHART, 
+ an.LANDORT as Harbour,
+ fa.HAFEN,
+ vc.class_code as Vessel_length_category,
+  -- an.FangKg,
+  -- an.LandDat,
+  sc.target_species_assemblage_code,
+  sum(an.FANGKG) as sum_fangkg_ort_monat
+
+from
+ [commercial]_[fishery]_[final]_[osf]_[2011].ANLANDUNG an
+
+/* 
+left join [commercial]_[fishery]_[final]_[osf]_[2011].REISE_2 rr
+on
+ an.REISENR = rr.REISENR rr
+ 
+left join
+ [commercial]_[fishery].ReisenDEU r
+on
+ an.EUNR = rr.EUNR
+and
+ an.REISENR =r.REISENR
+and 
+ left(an.LandDat,4) = left(r.FAHRDAT,4)
+*/
+
+left join
+ [commercial]_[fishery]_[final]_[osf]_[2011].FIFAAKTIV_bis_2011 fa 
+on
+ an.EUNR = fa.EUNR 
+-- and fa.gueltig = 'Y'
+and
+ date(an.LANDDAT) between fa.gueltig_von and gueltig_bis
+
+left join
+ [commercial]_[parameter].species_class sc
+on
+ an.FischArt=sc.species_code
+            
+left join
+ [commercial]_[parameter].vessel_length_class vc
+on 
+ fa.LUEA between vc.min_length and vc.max_length
+and
+ vc.class_count = 6 
+ 
+where
+ an.JAHR = @year
+-- and fa.LUEA <800 
+
+group by
+ an.EUNR,
+ fa.LUEA, 
+ an.REISENR, 
+ an.GEBIET,
+ an.ZONE, 
+ an.RECHTECK,
+ an.JAHR, 
+ QUARTER(an.LANDDAT),
+ Month(an.LANDDAT),
+ 'YYY',
+ 0*1, 
+ 'source',
+ an.FISCHART,
+ an.LANDORT, 
+ fa.HAFEN,
+ vc.class_code,
+ sc.target_species_assemblage_code
+ 
+order by
+ fa.LUEA
+;
+
+create index inx_svwg_f on [commercial]_[processing].small_vessel_with_gear_f 
+(EUNR, LUEA, REISENR, Area, Zone, Statistical_rectangle, Year, Quarter, Month, FischArt, GERAET, MASCHE, Harbour, target_species_assemblage_code, Vessel_length_category)
+;      
+
+-- select * from [commercial]_[processing].small_vessel_with_gear_f 
+-- where Month is null
