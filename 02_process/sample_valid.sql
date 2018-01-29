@@ -1,5 +1,6 @@
 -- MrktFi -- Landings
 
+CREATE TABLE com_sample_process.sample_valid AS
 SELECT 
   mf.reisenr,
   mf.jahr,
@@ -31,7 +32,9 @@ ON mf.reisenr = si.reisenr AND
    mf.fish = si.fish
    
 UNION
+
 -- DiscFi -- Discards
+
 SELECT 
   mf.reisenr,
   mf.jahr,
