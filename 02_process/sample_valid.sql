@@ -1,186 +1,104 @@
 drop table if exists sample_valid;
 
-create table 
-sample_valid
- 
--- -- -- -- -- Ergänzung von MrktFi und MLenFi -- -- -- -- -- 
- 
- 
-select distinct
- mf.REISENR,
- mf.JAHR,
- mf.QUARTAL,
- mf.STATION,
- mf.FISH,
- mf.FANGART,
- mf.GESAMTKG,
- mf.GESAMTSTCK,
- mf.UPKG,
- mf.UPSTCK,
+-- MrktFi -- Landings
 
-  mlf.reisenr as length_reisenr,
- (select distinct sum(mlf.LANZAHL) from commercial_sample_final.MLenFi mlf 
-     where mlf.reisenr = mf.reisenr 
-	 and mlf.station = mf.station 
-	 and mlf.FISH = mf.fish
-	 group by mf.reisenr, mf.station, mf.fish) as LengFi_UP,
+CREATE TABLE com_sample_process.sample_valid AS
+SELECT 
+  mf.reisenr,
+  mf.jahr,
+  mf.quartal,
+  mf.station,
+  mf.fish,
+  'L' as fangart,
+  mf.gesamtkg,
+  mf.upkg,
+  mf.upstck,
+  mlf.LengFi_UP,
+  si.SnglIOR_count,
+  case
+	 when (mlf.LengFi_UP is null) then ('catch')
+	 when (si.SnglIOR_count is null) then ('catch_length')
+	 when (si.SnglIOR_count is not null) then ('catch_length_bio')
+	 else ('n.n.')
+   end AS sample_valid
+FROM com_sample_final.MrktFi mf
+LEFT JOIN
+(SELECT reisenr,station,fish,sum(lanzahl) as LengFI_UP FROM com_sample_final.MLenFi GROUP BY reisenr,station,fish) mlf
+ON mf.reisenr = mlf.reisenr AND
+   mf.station = mlf.station AND
+   mf.fish = mlf.fish
+LEFT JOIN
+(SELECT reisenr,station,fish,count(identnr) as SnglIOR_count FROM com_sample_final.SnglIOR GROUP BY reisenr,station,fish) si
+ON mf.reisenr = si.reisenr AND
+   mf.station = si.station AND
+   mf.fish = si.fish
+   
+UNION
 
- si.reisenr as SnglIOR_reisenr,
- 
- (select distinct count(si.reisenr) from commercial_sample_final.SnglIOR si
-     where mf.reisenr = si.reisenr
-	 and mf.station = si.station
-	 and mf.fish = si.fish
-     group by si.reisenr, si.station, si.fish) as SnglIOR_count
- 
- 
-from commercial_sample_final.MrktFi mf
+-- DiscFi -- Discards
 
-left join
- commercial_sample_final.MLenFi mlf 
-on 
- mlf.reisenr = mf.reisenr 
-and  
- mlf.station = mf.station 
-and
- mlf.FISH = mf.fish 
- 
-left join
- commercial_sample_final.SnglIOR si
-on
- si.reisenr = mf.reisenr 
-and 
- si.station = mf.station 
-and 
- si.FISH = mf.fish 
+SELECT 
+  mf.reisenr,
+  mf.jahr,
+  mf.quartal,
+  mf.station,
+  mf.fish,
+  'D' as fangart,
+  mf.gesamtkg,
+  mf.upkg,
+  mf.upstck,
+  mlf.LengFi_UP,
+  si.SnglIOR_count,
+  case
+	 when (mlf.LengFi_UP is null) then ('catch')
+	 when (si.SnglIOR_count is null) then ('catch_length')
+	 when (si.SnglIOR_count is not null) then ('catch_length_bio')
+	 else ('n.n.')
+   end AS sample_valid
+FROM com_sample_final.DiscFi mf
+LEFT JOIN
+(SELECT reisenr,station,fish,sum(lanzahl) as LengFI_UP FROM com_sample_final.DLenFi GROUP BY reisenr,station,fish) mlf
+ON mf.reisenr = mlf.reisenr AND
+   mf.station = mlf.station AND
+   mf.fish = mlf.fish
+LEFT JOIN
+(SELECT reisenr,station,fish,count(identnr) as SnglIOR_count FROM com_sample_final.SnglIOR GROUP BY reisenr,station,fish) si
+ON mf.reisenr = si.reisenr AND
+   mf.station = si.station AND
+   mf.fish = si.fish
 
- 
--- -- -- -- -- -- Ergänzung von DiscFi und DLenFi -- -- -- -- --
+UNION
 
+-- uncategorized FishFi -- catch
 
-union
-select distinct
- df.REISENR,
- df.JAHR,
- df.QUARTAL,
- df.STATION,
- df.FISH,
- df.FANGART,
- df.GESAMTKG,
- df.GESAMTSTCK,
- df.UPKG,
- df.UPSTCK,
-
-  dlf.reisenr as length_reisenr,
- (select distinct sum(dlf.LANZAHL) from commercial_sample_final.DLenFi dlf 
-     where dlf.reisenr = df.reisenr 
-	 and dlf.station = df.station 
-	 and dlf.FISH = df.fish
-	 group by df.reisenr, df.station, df.fish) as LengFi_UP,
-
- si.reisenr as SnglIOR_reisenr,
- 
- (select distinct count(si.reisenr) from commercial_sample_final.SnglIOR si
-     where df.reisenr = si.reisenr
-	 and df.station = si.station
-	 and df.fish = si.fish
-     group by si.reisenr, si.station, si.fish) as SnglIOR_count
- 
- 
-from commercial_sample_final.DiscFi df
-
-left join
- commercial_sample_final.DLenFi dlf 
-on 
- dlf.reisenr = df.reisenr 
-and  
- dlf.station = df.station 
-and
- dlf.FISH = df.fish 
- 
-left join
- commercial_sample_final.SnglIOR si
-on
- si.reisenr = df.reisenr 
-and 
- si.station = df.station 
-and 
- si.FISH = df.fish 
-
-
--- -- -- -- -- -- Ergänzung von FishFi und LengFi-- -- -- -- --
-
-
-union
-select distinct
- ff.REISENR,
- ff.JAHR,
- ff.QUARTAL,
- ff.STATION,
- ff.FISH,
- 'C' as FANGART,
- ff.GESAMTKG,
- ff.GESAMTSTCK,
- ff.UPKG,
- ff.UPSTCK,
-
-  flf.reisenr as length_reisenr,
- (select distinct sum(flf.LANZAHL) from commercial_sample_final.LengFi flf 
-     where flf.reisenr = ff.reisenr 
-	 and flf.station = ff.station 
-	 and flf.FISH = ff.fish
-	 group by ff.reisenr, ff.station, ff.fish) as LengFi_UP,
-
- si.reisenr as SnglIOR_reisenr,
- 
- (select distinct count(si.reisenr) from commercial_sample_final.SnglIOR si
-     where ff.reisenr = si.reisenr
-	 and ff.station = si.station
-	 and ff.fish = si.fish
-     group by si.reisenr, si.station, si.fish) as SnglIOR_count
- 
- 
-from commercial_sample_final.FishFi ff
-
-left join
- commercial_sample_final.LengFi flf 
-on 
- flf.reisenr = ff.reisenr 
-and  
- flf.station = ff.station 
-and
- flf.FISH = ff.fish 
- 
-left join
- commercial_sample_final.SnglIOR si
-on
- si.reisenr = ff.reisenr 
-and 
- si.station = ff.station 
-and 
- si.FISH = ff.fish 
-
-
+SELECT 
+  mf.reisenr,
+  mf.jahr,
+  mf.quartal,
+  mf.station,
+  mf.fish,
+  'C' as fangart,
+  mf.gesamtkg,
+  mf.upkg,
+  mf.upstck,
+  mlf.LengFi_UP,
+  si.SnglIOR_count,
+  case
+	 when (mlf.LengFi_UP is null) then ('catch')
+	 when (si.SnglIOR_count is null) then ('catch_length')
+	 when (si.SnglIOR_count is not null) then ('catch_length_bio')
+	 else ('n.n.')
+   end AS sample_valid
+FROM com_sample_final.FishFi mf
+LEFT JOIN
+(SELECT reisenr,station,fish,sum(lanzahl) as LengFI_UP FROM com_sample_final.LengFi GROUP BY reisenr,station,fish) mlf
+ON mf.reisenr = mlf.reisenr AND
+   mf.station = mlf.station AND
+   mf.fish = mlf.fish
+LEFT JOIN
+(SELECT reisenr,station,fish,count(identnr) as SnglIOR_count FROM com_sample_final.SnglIOR GROUP BY reisenr,station,fish) si
+ON mf.reisenr = si.reisenr AND
+   mf.station = si.station AND
+   mf.fish = si.fish
 ;
 
-
--- -- -- -- -- -- Hinzufügen der sample_valid Einordnung (treat sample, Abschnitt '02 species') -- -- -- -- -- -- -- 
-
-
-alter table sample_valid
-
-add column sample_valid varchar (30)
-;
-
--- -- -- -- -- -- -- -- -- --
-
-update sample_valid gof
-
-set sample_valid =
-(case
-	 when (gof.LengFi_UP is null) then ("catch")
-	 when (gof.SnglIOR_count is null) then ("catch_length")
-	 when (gof.SnglIOR_count is not null) then ("catch_length_bio")
-	 else ("n.n.")
- end)
-;
