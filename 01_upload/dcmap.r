@@ -5,11 +5,11 @@ require("RPostgreSQL")
 
 
 # Datenbankverbindung
-pw <- { "secret" }
+pw <- { "1234#ftab" }
 drv <- dbDriver("PostgreSQL")
 conn <- dbConnect(drv, dbname = "dcmap_entwicklung",
-                  host = "db_server",
-                  user = "user",
+                  host = "dmar01-hro.ad.ti.bund.de",
+                  user = "schmedemann",
                   password = pw)
 rm(pw)
 
