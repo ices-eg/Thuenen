@@ -1,4 +1,4 @@
-
+DROP TABLE IF EXISTS com_sample_process.cruise_match;
 CREATE TABLE com_sample_process.cruise_match AS
 SELECT
   b.JAHR as jahr, 
@@ -85,7 +85,7 @@ SELECT
          (abs(date(a.FAHRDAT) - date(b.REISE_VON)) + abs(date(a.RUECKDAT) - date(b.REISE_BIS))) = mind.delta
        -- group by 
        --  a.JAHR, a.EUNR, b.REISENR
-    )c) as ble_reise 
+    )c WHERE c.jahr = b.jahr AND c.osf_reise = b.reisenr) as ble_reise 
  FROM 
   (
     SELECT
@@ -104,4 +104,3 @@ SELECT
     FROM
       com_sample_final.Reise
   ) b
-  

@@ -42,6 +42,7 @@ on
 
 -- workaround by U. Berth Updating with all records -> last one wins
 
+DROP TABLE IF EXISTS com_fishery_process.target_species;
 CREATE TABLE com_fishery_process.target_species AS
 SELECT
   an.JAHR,
@@ -50,7 +51,8 @@ SELECT
   an.FISCHART,
   an.FANGKG,
   an.ERLOES,
-  an.FANGKG * 1000000 + COALESCE(an.ERLOES,0) as ranking
+  an.FANGKG * 1000000 + COALESCE(an.ERLOES,0) as ranking,
+  row_number() OVER (PARTITION BY an.JAHR,an.EUNR,an.REISENR) as ordnung
 FROM
   com_fishery_final.anlandung an
 LEFT JOIN
@@ -66,5 +68,6 @@ LEFT JOIN
             an.EUNR = max_an.EUNR AND
             an.REISENR = max_an.REISENR AND
             an.FANGKG * 1000000 + COALESCE(an.ERLOES,0) = max_an.ranking
-WHERE max_an IS NOT NULL;
+WHERE max_an IS NOT NULL
+ORDER BY reisenr,ordnung ;
 
