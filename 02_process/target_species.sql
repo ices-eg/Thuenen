@@ -44,30 +44,84 @@ on
 
 DROP TABLE IF EXISTS com_fishery_process.target_species;
 CREATE TABLE com_fishery_process.target_species AS
-SELECT
-  an.JAHR,
-  an.EUNR,
-  an.REISENR,
-  an.FISCHART,
-  an.FANGKG,
-  an.ERLOES,
-  an.FANGKG * 1000000 + COALESCE(an.ERLOES,0) as ranking,
-  row_number() OVER (PARTITION BY an.JAHR,an.EUNR,an.REISENR) as ordnung
+SELECT 
+  an.jahr,
+  an.eunr,
+  an.reisenr,
+  an.unterbereich,
+  an.fischart,
+  an.geraet,
+  an.masche,
+  an.metier,
+  an.fangkg,
+  an.erloes,
+  an.ranking,
+  an.ordnung
 FROM
-  com_fishery_final.anlandung an
-LEFT JOIN
 (
-    SELECT
-      JAHR,
-      EUNR,
-      REISENR,  
-      max(FANGKG * 1000000 + COALESCE(ERLOES,0)) as ranking
-    FROM com_fishery_final.anlandung
-    GROUP BY JAHR,EUNR,REISENR
-) max_an ON an.JAHR = max_an.JAHR AND
-            an.EUNR = max_an.EUNR AND
-            an.REISENR = max_an.REISENR AND
-            an.FANGKG * 1000000 + COALESCE(an.ERLOES,0) = max_an.ranking
-WHERE max_an IS NOT NULL
-ORDER BY reisenr,ordnung ;
-
+    with an_ranked as 
+    (
+        SELECT DISTINCT
+          an.jahr,
+          an.landdat,
+          an.unterbereich,
+          an.eunr,
+          COALESCE(COALESCE(lb.geraet,eur."Gear Main Code"),eur_ret."Gear Main Code") as geraet,
+          lb.masche,
+          an.reisenr,
+          an.fischart,
+          bm.metier,
+          sum(an.fangkg) as fangkg,
+          sum(an.erloes) as erloes,
+          CASE WHEN bm.metier IS NOT NULL THEN 100000000000000 ELSE 0 END + sum(COALESCE(an.fangkg,0)) * 1000000 + sum(COALESCE(erloes,0)) as ranking
+        FROM 
+          com_fishery_final.anlandung an
+        LEFT JOIN com_fishery_final.logbuch lb
+        ON an.JAHR = lb.JAHR AND
+                    an.REISENR = lb.REISENR AND
+                    an.EUNR = lb.EUNR AND
+                    an.fischart = lb.fischart
+        LEFT JOIN com_fishery_final.eu_register eur ON an.eunr = eur."CFR" 
+                                                        AND (an.jahr * 10000) + (extract(month from an.landdat) * 100)+extract(day from an.landdat) BETWEEN eur."Event Start Date" AND eur."Event End Date"
+        LEFT JOIN com_fishery_final.eu_register eur_ret ON an.eunr = eur_ret."CFR" AND eur_ret."Event Code" = 'RET'
+        LEFT JOIN com_parameter.baltic_metier bm 
+                   ON an.landdat BETWEEN bm.valid_from AND valid_to
+                   AND COALESCE(COALESCE(lb.geraet,eur."Gear Main Code"),eur_ret."Gear Main Code") = bm.gear_code
+                   AND regexp_replace(an.fischart, '\s+$', '') IN (SELECT trim(unnest(string_to_array(bm.target_species_list,'.'))))
+                   AND ((lb.masche BETWEEN bm.mesh_open_min AND bm.mesh_open_max) OR lb.masche IS NULL)
+                   AND CASE WHEN an.unterbereich = 'n' THEN 20
+                     WHEN an.unterbereich = 's' THEN 21
+                     ELSE an.unterbereich::integer END
+                     BETWEEN bm.area_min AND bm.area_max
+        -- WHERE bm.metier is not null
+        GROUP BY an.jahr,
+          an.eunr,
+          an.landdat,
+          an.unterbereich,
+          COALESCE(COALESCE(lb.geraet,eur."Gear Main Code"),eur_ret."Gear Main Code"),
+          lb.masche,
+          an.reisenr,
+          an.fischart,
+          bm.metier
+        -- ORDER BY an.reisenr, CASE WHEN bm.metier IS NOT NULL THEN 100000000000000 ELSE 0 END + sum(an.fangkg) * 1000000 + sum(erloes) DESC
+    ) 
+    SELECT 
+      an.*,
+      row_number() OVER (PARTITION BY an.JAHR,an.EUNR,an.REISENR) as ordnung
+    FROM an_ranked an 
+    INNER JOIN
+    (
+        SELECT 
+          jahr,
+          eunr,
+          reisenr,
+          max(ranking) as max_ranking
+        FROM an_ranked
+        GROUP BY jahr,eunr,reisenr
+    ) max_rank ON an.jahr = max_rank.jahr AND
+                  an.eunr = max_rank.eunr AND
+                  an.reisenr = max_rank.reisenr AND
+                  an.ranking = max_rank.max_ranking
+    ) an
+    ORDER BY jahr,eunr,reisenr,ordnung
+;
