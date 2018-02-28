@@ -15,14 +15,14 @@ SELECT
   an.species,
   an.harbour,
   an.vessel_length_class,
-  NULL::float as sum_fangkg_per_month_ort,
-  NULL::float as avg_trip_price,
-  NULL::float as official_landings_value,
+  sum_fangkg.sum_fangkg as sum_fangkg_per_month_ort,
+  btp.avg_trip_price as avg_trip_price,
+  sum_fangkg.sum_fangkg * btp.avg_trip_price as official_landings_value,
   ts.fischart as target_species,
-  bm.metier as metier,
+  ts.metier as metier,
   an.BRZ,
   an.Kw,
-  NULL::integer as days_at_sea,
+  das.days_at_sea as days_at_sea,
   NULL::integer as fang_min_rgrm,
   NULL::integer as fangnumber_min_rgrm
 FROM 
@@ -64,9 +64,55 @@ FROM
    ) an
 
 LEFT JOIN com_fishery_process.target_species ts ON an.jahr = ts.jahr AND an.eunr = ts.eunr AND an.reisenr = ts.reisenr AND ts.ordnung = 1
-LEFT JOIN com_parameter.baltic_metier bm ON an.jahr BETWEEN extract(year from bm.valid_from) AND extract(year from bm.valid_to) 
-                                             AND an."month" BETWEEN extract(month FROM valid_from) AND extract(month from valid_to)
-                                             AND an.geraet = bm.gear_code
-                                             AND bm.target_species_list LIKE  '%' || ts.fischart   || '%'
-                                             AND ((an.masche BETWEEN bm.mesh_open_min AND mesh_open_max) OR an.masche IS NULL)
-                                             AND an.unterbereich BETWEEN area_min AND area_max;
+LEFT JOIN
+(
+    SELECT reisenr,landort,fischart,avg(avg_price) as avg_trip_price FROM com_fishery_process.best_price bp GROUP BY reisenr,landort,fischart
+) btp
+ON an.reisenr = btp.reisenr AND
+   an.harbour = btp.landort AND
+   an.species = btp.fischart
+LEFT JOIN
+(
+SELECT 
+  reisenr,
+  landort,
+  fischart,
+  CASE WHEN unterbereich = 'n' THEN 20
+       WHEN unterbereich = 's' THEN 21
+       ELSE unterbereich::integer
+  END as area,
+  rechteck as statistical_rectangle,
+  jahr,
+  extract(quarter from landdat) as quarter,
+  extract(month from landdat) as month,
+  sum(fangkg) as sum_fangkg
+FROM com_fishery_final.anlandung
+GROUP BY
+reisenr,
+  landort,
+  fischart,
+  CASE WHEN unterbereich = 'n' THEN 20
+       WHEN unterbereich = 's' THEN 21
+       ELSE unterbereich::integer
+  END,
+  rechteck,
+  jahr,
+  extract(quarter from landdat),
+  extract(month from landdat)
+) sum_fangkg
+ON 
+  an.reisenr = sum_fangkg.reisenr AND
+  an.harbour = sum_fangkg.landort AND
+  an.species = sum_fangkg.fischart AND
+  an.unterbereich = sum_fangkg.area AND
+  an.rechteck =sum_fangkg.statistical_rectangle AND
+  an.jahr = sum_fangkg.jahr AND
+  an.quarter = sum_fangkg.quarter AND
+  an."month" = sum_fangkg."month"
+  LEFT JOIN
+  (  
+      SELECT 
+        reisenr,
+        date_part('day',rueckdat-fahrdat)+1 as days_at_sea
+      FROM com_fishery_final.reise
+  ) das ON an.reisenr = das.reisenr;
