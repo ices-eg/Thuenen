@@ -23,8 +23,8 @@ SELECT
   an.BRZ,
   an.Kw,
   das.days_at_sea as days_at_sea,
-  NULL::integer as fang_min_rgrm,
-  NULL::integer as fangnumber_min_rgrm
+  lb_fangmin.fangmin_rgrm,
+  lb_fangmin.fangnumber_min_rgrm
 FROM 
   (
       SELECT DISTINCT
@@ -38,7 +38,7 @@ FROM
         an.zone,
         an.rechteck,
         an.jahr,
-        extract(quarter from an.landdat) as quarter,
+        extract(quarter from an.landdat) as quarter, 
         extract(month from an.landdat) as "month",
         COALESCE(COALESCE(lb.geraet,eur."Gear Main Code"),eur_ret."Gear Main Code") as geraet,
         lb.masche,
@@ -50,7 +50,7 @@ FROM
         WHEN COALESCE(eur."Loa",eur_ret."Loa")  >= 18 AND COALESCE(eur."Loa",eur_ret."Loa")  < 24 THEN '18-<24'
         WHEN COALESCE(eur."Loa",eur_ret."Loa")  >= 24 AND COALESCE(eur."Loa",eur_ret."Loa")  < 40 THEN '24-<40'
         WHEN COALESCE(eur."Loa",eur_ret."Loa")  >= 40 THEN '>=40' END AS vessel_length_class,
-        COALESCE(eur."Ton Gts",eur_ret."Ton Gts") as BRZ,
+        COALESCE(eur."Ton Ref",eur_ret."Ton Ref") as BRZ,
         COALESCE(eur."Power Main",eur_ret."Power Main") as Kw
       FROM com_fishery_final.anlandung an 
       LEFT JOIN  com_fishery_final.logbuch lb
@@ -109,10 +109,33 @@ ON
   an.jahr = sum_fangkg.jahr AND
   an.quarter = sum_fangkg.quarter AND
   an."month" = sum_fangkg."month"
-  LEFT JOIN
-  (  
-      SELECT 
-        reisenr,
-        date_part('day',rueckdat-fahrdat)+1 as days_at_sea
-      FROM com_fishery_final.reise
-  ) das ON an.reisenr = das.reisenr;
+LEFT JOIN
+(  
+    SELECT 
+      reisenr,
+      date_part('day',rueckdat-fahrdat)+1 as days_at_sea
+    FROM com_fishery_final.reise
+) das ON an.reisenr = das.reisenr
+LEFT JOIN
+(
+  SELECT
+ eunr,
+ reisenr,
+ CASE WHEN unterbereich = 'n' THEN 20
+             WHEN unterbereich = 's' THEN 21
+             ELSE unterbereich::integer
+             END as unterbereich,
+ rechteck,
+ left(fangdatb,4)::integer as year,
+ substring(fangdatb,5,2)::integer as month,
+ sum(fangzeit) as fangmin_rgrm,
+ count(fangnr) as fangnumber_min_rgrm
+FROM com_fishery_final.logbuch
+GROUP BY eunr,reisenr,unterbereich,rechteck,left(fangdatb,4)::integer,substring(fangdatb,5,2)::integer
+) lb_fangmin ON
+an.reisenr = lb_fangmin.reisenr AND
+an.unterbereich = lb_fangmin.unterbereich AND
+an.rechteck = lb_fangmin.rechteck AND
+an.jahr = lb_fangmin.year AND
+an."month" = lb_fangmin.month
+;
