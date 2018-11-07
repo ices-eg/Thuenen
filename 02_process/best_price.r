@@ -3,7 +3,7 @@ require("RPostgreSQL")
 
 
 pw <- {
-  "1234#ftab"
+  "secret"
 }
 drv <- dbDriver("PostgreSQL")
 conn <- dbConnect(
