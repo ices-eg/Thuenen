@@ -7,11 +7,11 @@ library("dplyr")       # benögtigt für joins
 require("RPostgreSQL")
 
 # Datenbankverbindung
-pw <- { "27btw3_OSF" }
+pw <- { "secret" }
 drv <- dbDriver("PostgreSQL")
 conn <- dbConnect(drv, dbname = "dcmap_entwicklung",
                   host = "dmar01-hro.ad.ti.bund.de",
-                  user = "stoetera",
+                  user = "user",
                   password = pw)
 rm(pw)
 
