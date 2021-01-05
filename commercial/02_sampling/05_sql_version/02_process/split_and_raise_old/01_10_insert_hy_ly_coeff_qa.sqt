@@ -1,0 +1,57 @@
+delete from HA_final_fort.last_year_length_mass_coefficient_half_year where year = @year;
+insert into HA_final_fort.last_year_length_mass_coefficient_half_year
+select
+cmc.species_code,
+cmc.year,
+cmc.subdiv,
+cmc.half_year,
+cmc.amount_quarter,
+cmc.sx as sx,
+cmc.sy as sy,
+cmc.sxy,
+cmc.sqx,
+cmc.sqy,
+cmc.sn,
+((cmc.sy - (cmc.sn * cmc.sxy - cmc.sx * cmc.sy) / (cmc.sn * cmc.sqx - cmc.sx * cmc.sx) * cmc.sx) / cmc.sn) as ln_a,
+(cmc.sn * cmc.sxy - cmc.sx * cmc.sy) / (cmc.sn * cmc.sqx - cmc.sx * cmc.sx) as b,
+
+POWER(((cmc.sxy - 1/cmc.sn * cmc.sx * cmc.sy)/sqrt((cmc.sqx-1/cmc.sn*cmc.sx*cmc.sx)*(cmc.sqy-1/cmc.sn*cmc.sy*cmc.sy))),2) as r
+ 
+from
+(
+select 
+lmq.species_code,
+lmq.year,
+lmq.division_sub as subdiv,
+count(lmq.quarter) as amount_quarter,
+lmq.half_year,
+sum(lmq.sy) as sy,
+sum(lmq.sx) as sx,
+sum(lmq.sxy) as sxy ,
+sum(lmq.sqx) as sqx,
+sum(lmq.sqy) as sqy,
+sum(lmq.sn) as sn
+from
+(
+select
+species_ish as species_code,
+year,
+right(division_sub,2) as division_sub,
+quarter,
+case when quarter <3
+     then 'first'
+     else 'second'
+end as half_year,
+sy,
+sx,
+sxy,
+sqx,
+sqy,
+sn
+from commercial_parameter.last_year_length_mass_coefficient
+where year = @year
+)lmq 
+
+group by lmq.species_code, lmq.year, lmq.division_sub, lmq.half_year
+) cmc
+where cmc.sn >30

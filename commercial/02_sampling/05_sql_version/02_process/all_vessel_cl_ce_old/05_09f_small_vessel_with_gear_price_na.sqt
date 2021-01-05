@@ -1,0 +1,60 @@
+
+drop table if exists [commercial]_[processing].for_cl_small_vessel_f;
+-- select sum(sum_fangkg_fangnr_ort_monat) from [commercial]_[processing].for_cl_small_vessel_f
+
+create table [commercial]_[processing].for_cl_small_vessel_f
+
+select
+ sgv.*,
+ btp.avg_trip_price,
+ sgv.sum_fangkg_fangnr_ort_monat *btp.avg_trip_price as Official_landings_value
+
+from
+ (select 
+   sg.EUNR,
+   sg.LUEA,
+   sg.REISENR,
+   sg.Area,
+   sg.ZONE,
+   sg.Statistical_rectangle,
+   sg.Year,
+   sg.Quarter,
+   sg.Month,
+   -- 0*1 as number_of_hauls,
+   --  0*1 as sum_fangzeit_min,
+   sg.GERAET,
+   sg.MASCHE,
+   sg.FISCHART as Species,
+   sg.Harbour,
+   sg.Vessel_length_category,
+   sg.sum_fangkg_ort_monat as sum_fangkg_fangnr_ort_monat
+   
+  from
+   [commercial]_[processing].small_vessel_with_gear_f sg
+  )sgv
+
+left join 
+ [commercial]_[fishery]_[final]_[osf]_[2011].best_trip_price btp
+on
+ sgv.EUNR = btp.EUNR
+and
+ sgv.REISENR = btp.REISENR
+and
+ sgv.Area = btp.GEBIET
+and
+ sgv.ZONE = btp.ZONE
+and
+ sgv.Statistical_rectangle = btp.RECHTECK
+and
+ sgv.Species = btp.FISCHART
+and
+ sgv.Harbour= btp.LANDORT
+and
+ sgv.Year = btp.JAHR
+;
+              
+create index inx_svgp_f on [commercial]_[processing].for_cl_small_vessel_f
+ (EUNR, LUEA, REISENR, Area, ZONE, Statistical_rectangle,  Year, Quarter, Month, GERAET, MASCHE, Species, Harbour, Vessel_length_category, sum_fangkg_fangnr_ort_monat)
+;
+   
+-- select * from [commercial]_[processing].for_cl_small_vessel_f where Month is null

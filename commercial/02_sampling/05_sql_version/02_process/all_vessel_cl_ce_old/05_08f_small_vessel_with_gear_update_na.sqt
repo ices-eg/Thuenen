@@ -1,0 +1,83 @@
+update 
+ [commercial]_[processing].small_vessel_with_gear_f sg,
+-- [commercial]_[parameter].small_vessel_gear_mesh_rest sgr
+ [commercial]_[parameter].small_vessel_gear_mesh_rest_to_fill_f sgr
+set
+ sg.GERAET =sgr.GERAET,
+ sg.MASCHE = sgr.MASCHE,
+ sg.geraet_source ='rest'
+          
+where
+ sg.HAFEN=sgr.HAFEN 
+and
+ sg.Area = sgr.GEBIET
+and
+ sg.ZONE =sgr.ZONE
+and
+ sg.Statistical_rectangle = sgr.RECHTECK
+and
+ sg.FISCHART = sgr.FISCHART
+ ;
+              
+              
+update
+ [commercial]_[processing].small_vessel_with_gear_f sg,
+ [commercial]_[processing].gear_by_max_cpue_year_only_gebiet_f sgr
+set
+ sg.GERAET =sgr.GERAET,
+ sg.MASCHE = sgr.MASCHE,
+ sg.geraet_source ='last'
+          
+where
+ sg.Year=sgr.JAHR 
+and
+ sg.Area = sgr.GEBIET
+and
+ sg.ZONE =sgr.ZONE
+and 
+ sg.target_species_assemblage_code = sgr.target_species_assemblage_code
+and
+ sgr.GERAET is not null
+ ;  
+              
+              
+update
+ [commercial]_[processing].small_vessel_with_gear_f sg,
+ [commercial]_[parameter].gear_by_max_cpue_class_f sgr
+set 
+ sg.GERAET =sgr.GERAET,
+ sg.MASCHE = sgr.MASCHE,
+ sg.geraet_source ='first'
+          
+where
+ sg.Year=sgr.JAHR 
+and
+ sg.HAFEN = sgr.HAFEN
+and
+ sg.Area = sgr.GEBIET
+and
+ sg.ZONE =sgr.ZONE
+and
+ sg.Statistical_rectangle= sgr.RECHTECK
+and
+ sg.Month=sgr.MONAT
+and
+ sg.target_species_assemblage_code = sgr.target_species_assemblage_code
+and
+ sgr.GERAET is not null
+ ;
+ 
+ 
+delete from
+ [commercial]_[processing].small_vessel_with_gear_f
+where
+ REISENR in (select REISENR from commercial_check.Logbuch_justReisen)
+  ;
+  
+-- delete from [commercial]_[processing].small_vessel_with_gear_f
+-- where REISENR in (select REISENR from [commercial]_[processing].for_cl_large_vessel_f)
+  ;           
+-- [commercial]_[processing].for_cl_large_vessel_f         
+-- select * from c.small_vessel_with_gear_f where Month is null 
+    
+  

@@ -1,0 +1,278 @@
+
+###################################################################################################
+###################################################################################################
+#
+# comment char '#' always   f i r s t   char of a comment line!
+#
+###################################################################################################
+###################################################################################################
+
+###################################################################################################
+#
+# station_sample_raised.sql
+#
+###################################################################################################
+
+set @year = [this_year];
+
+###################################################################################################
+# switches:
+#
+# lab samples : total_landing_mass = fisher_landing_mass + sample_landing_mass 
+# switch : add = add landing sample mass 
+#
+# sea samples : total_landing_mass = fisher_landing_mass
+# switch : neglect = do not add landing  sample mass
+#
+###################################################################################################
+###################################################################################################
+#
+# discard raising: 
+#
+# general case : raising by species landing or sampling factor:
+#
+#	if raising_species_code <> 'fac' then total_discard_mass = sample_discard_mass * raising_factor
+#	if raising_species_code =  'fac' then total_discard_mass = sample_discard_mass * sampling_factor
+#
+# special case: total_discard = sample_discard 
+#
+#	raising_species_code = 'fac' and sampling_factor = 1
+#	
+# special case : total_discard = 0 
+#
+#	raising_species_code = 'fac' and sampling_factor = 0
+#
+####################################################################################################
+####################################################################################################
+#
+# raising and sampling factor calculus:
+#
+# factor given explicit in sampling protocoll (sampling_factor):
+#
+# sampling_factor = entry in table treat_sample_2011
+#
+# factor to be calculated for a raising species landing (raising_factor):
+#
+# raising_factor = total_landing_mass / sample_landing_mass for raising_species
+#
+###################################################################################################
+
+
+drop table if exists `[commercial]_[processing]`.station_sample_raised;
+
+
+create table 
+
+ `[commercial]_[processing]`.station_sample_raised 
+
+select 
+
+# rf.this_year, 
+
+ af.JAHR as this_year,
+
+# rf.cruise,
+
+ af.REISENR as cruise,
+ af.STATION as station,
+ 
+# rf.station, 
+# rf.net, 
+
+ af.NETZ as net,
+ af.FISH as species, 
+
+# af.SEX as sex, 
+
+ af.FANGART,
+ rf.major_avg_class_mass_source,
+
+
+ case 
+
+  when af.FANGART ='C'
+  then af.GESAMTKG 
+
+  else null
+
+ end as original_unsplit_mass,
+ 
+     
+ case 
+
+  when af.FANGART ='C'
+  then af.UPKG 
+
+  else null
+
+ end as original_unsplit_sample_mass,
+ 
+     
+ case 
+
+  when af.FANGART ='C'
+  then af.UPSTCK 
+
+  else null
+ 
+ end as original_unsplit_sample_number,
+
+
+ rf.treat_discard_frequency,
+ sss.split_discard_sample_number, 
+
+# df.UPSTCK as original_discard_sample_number, 
+
+ case 
+
+  when af.FANGART ='D'
+  then af.UPSTCK 
+
+  else null
+
+ end as original_discard_sample_number,
+
+
+ sss.total_discard_sample_number, 
+ round(sss.split_discard_sample_mass) as split_discard_sample_mass, 
+
+# df.UPKG as original_discard_sample_mass,
+
+ case 
+
+  when af.FANGART ='D'
+  then af.UPKG 
+
+  else null
+
+ end as original_discard_sample_mass,
+
+      
+ round(sss.total_discard_sample_mass) as total_discard_sample_mass, 
+ rf.treat_landing_frequency, 
+
+ sss.split_landing_sample_number, 
+
+# mf.UPSTCK as original_landing_sample_number,
+
+ case 
+
+  when af.FANGART ='L'
+  then af.UPSTCK 
+
+  else null
+
+ end as original_landing_sample_number,
+
+
+ sss.total_landing_sample_number, 
+ round(sss.split_landing_sample_mass)as split_landing_sample_mass, 
+ round(sss.total_landing_sample_mass)as total_landing_sample_mass, 
+
+# discard raising
+
+ rf.raising_species_code,
+ rf.raising_species,
+ rf.sampling_factor,
+ rf.raising_factor, 
+
+# df.GESAMTKG as original_discard_mass,
+
+ case 
+
+  when af.FANGART ='D'
+  then af.GESAMTKG 
+
+  else null
+
+ end as original_discard_mass,
+
+
+# raise discard_sample_mass to total_discard_mass 
+# using raising_species or 'fac' as special case raising_species 
+# switching from raising_factor to sampling_factor
+
+ round((sss.total_discard_sample_mass/1000 *rf.raising_factor),3) as total_discard_mass,
+ 
+
+# landing total 
+
+ rf.treat_landing_sample, 
+ 
+
+ case 
+
+  when af.FANGART ='L'
+  then af.GESAMTKG
+
+  else null
+
+ end as fisher_landing_mass,
+
+      
+# add landing sample mass: fisher_landing_mass = MrktFi.GESAMTKG 
+# (be careful to keep  t h i s  true and  n o t  total_landing_mass = MrktFi.GESAMTKG !) 
+ 
+
+ case 
+
+  when rf.treat_landing_sample = 'add' 
+   and af.GESAMTKG is not null 
+   and af.FANGART ='L'
+  then round((sss.total_landing_sample_mass/1000 + af.GESAMTKG),3)
+
+  when rf.treat_landing_sample = 'add' 
+   and af.GESAMTKG is not null 
+   and af.FANGART ='C'
+  then round((sss.total_landing_sample_mass/1000 + af.GESAMTKG),3)
+
+  else af.GESAMTKG
+
+ end as total_landing_mass
+
+      
+from
+
+# `[commercial]_[sample_final]`.raising_factor rf
+
+ `[commercial]_[sample_final]`.AllFi af
+
+left join 
+
+# `[commercial]_[sample_final]`.AllFi af
+
+
+ `[commercial]_[processing]`.raising_factor rf 
+
+
+on 
+
+ rf.cruise = af.REISENR
+and 
+ rf.this_year = af.JAHR
+and 
+ rf.station = af.STATION 
+and 
+ rf.net = af.NETZ
+and 
+ rf.species = af.FISH 
+
+left join 
+
+ `[commercial]_[processing]`.station_sample_split sss 
+
+on 
+ af.JAHR =sss.this_year 
+and 
+ af.REISENR = sss.cruise
+and 
+ af.STATION = sss.station
+and 
+ af.NETZ = sss.net
+and 
+ af.FISH = sss.species
+
+#and 
+# af.sex = sss.sex
+
+;
