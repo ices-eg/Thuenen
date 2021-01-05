@@ -3,7 +3,7 @@ CREATE TABLE com_fishframe.ce AS
 select
  -- CE Record
  'CE' as Record_type,
- 'DEU' as Vessel_flag_country,
+ 'DE' as Vessel_flag_country,
  fce.jahr,
  ceiling(fce.Month/3) as Quarter,
  fce.Month,
@@ -70,7 +70,7 @@ from
           days_at_sea,
           sum(sum_fangkg_per_month_ort) as fangkg_je_mm,
           sum(fangmin_rgrm) as aufwand_je_mm
-        FROM com_fishery_process.all_vessels av
+        FROM commercial_fishery_process.all_vessels av
         GROUP BY reisenr,jahr,brz,Kw,days_at_sea
     ) sa
     on

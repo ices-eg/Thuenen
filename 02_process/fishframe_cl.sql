@@ -24,7 +24,7 @@ SELECT
   round(sum(av.sum_fangkg_per_month_ort)) as official_Landings_weight,
   1 as Landings_multiplier,
   round(sum(av.Official_landings_value)) as official_landings_value
-FROM com_fishery_process.all_vessels av
+FROM commercial_fishery_process.all_vessel_for_cl_2019 av
 GROUP BY
   left(av.Harbour,2),av.jahr,av.Quarter,av.Month,av.Area,av.Statistical_rectangle,av.species,av.metier,av.harbour,av.vessel_length_class
 ;

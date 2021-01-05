@@ -27,6 +27,7 @@ select distinct
 						when (sv.FISH = 690) then (300)
 						when (sv.FISH = 607) then (260)
 						when (sv.FISH = 407) then (250)
+			
 						else (9999) end) as split_length_class,
  sv.sample_valid as sample_valid,
  
@@ -49,6 +50,7 @@ select distinct
  when mid(sv.REISENR,2,2) = '03' then ('LAB') 
  when mid(sv.REISENR,2,2) = '14' then ('MUK')
  when mid(sv.REISENR,2,2) = '15' then ('BMS')
+ when mid(sv.REISENR,2,2) = '16' then ('HBF')
 		else ('SEA') 
  end) as sample_type,
  

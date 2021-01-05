@@ -43,7 +43,6 @@ SELECT
 		else(0) 
 	end) as landing_component
 		
-####################################	
 
 FROM
 	(select 
@@ -85,7 +84,7 @@ FROM
 		from 
 			`commercial_sample_final`.LengFi fi 
 		where 
-			fi.JAHR = 2016
+			fi.JAHR = 2019
 		) slf
 
 	left join 
@@ -114,7 +113,7 @@ FROM
 		slf.species = cmc.species
 
 	left join
-		commercial_sample_process.treat_sample ts2
+		commercial_sample_process.treat_sample_2019 ts2
 	on
 		slf.JAHR = ts2.this_year
 	and
@@ -122,7 +121,7 @@ FROM
 	and
 		slf.station = ts2.station
 	and
-		slf.species = ts2.species	
+		slf.species = ts2.species_code	
 		
 	left join 
 		commercial_parameter.last_year_length_mass_coefficient lyc
@@ -152,7 +151,6 @@ FROM
 		
  ) lw
 	
-###############################################
 	
 LEFT JOIN 	
 	commercial_sample_final.FishFi ff
@@ -166,7 +164,7 @@ and
  ff.FISH = lw.species		
 	
 LEFT JOIN
- commercial_sample_process.treat_sample ts
+ commercial_sample_process.treat_sample_2019 ts
 
 on
  lw.JAHR = ts.this_year
@@ -175,7 +173,7 @@ and
 and
  lw.station = ts.station
 and
- lw.species = ts.species	
+ lw.species = ts.species_code	
  
 GROUP BY
  	ff.JAHR,
@@ -184,4 +182,3 @@ GROUP BY
 	lw.species,
 	ff.UPKG,
 	ts.treat_landing_sample
- 
