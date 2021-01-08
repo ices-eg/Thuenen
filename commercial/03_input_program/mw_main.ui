@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>mw_Main</class>
+ <widget class="QMainWindow" name="mw_Main">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>880</width>
+    <height>750</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>FishInput</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="Wgt_Activity_Bar" name="activity_bar" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>240</width>
+          <height>50</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QListWidget" name="tv_activity">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="0" column="1">
+     <widget class="QTabWidget" name="tw_main">
+      <property name="currentIndex">
+       <number>2</number>
+      </property>
+      <widget class="Frm_Station" name="tab_station">
+       <attribute name="title">
+        <string>Station</string>
+       </attribute>
+      </widget>
+      <widget class="Frm_Gear" name="tab_gear">
+       <attribute name="title">
+        <string>Gears</string>
+       </attribute>
+      </widget>
+      <widget class="Frm_Length" name="tab_samples">
+       <attribute name="title">
+        <string>Proben</string>
+       </attribute>
+      </widget>
+      <widget class="Frm_Single" name="tab_single">
+       <attribute name="title">
+        <string>Einzelfischdaten</string>
+       </attribute>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>880</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuDatei">
+    <property name="title">
+     <string>Datei</string>
+    </property>
+    <addaction name="actionConnectServer"/>
+    <addaction name="actionChooseCruise"/>
+    <addaction name="actionNewCruise"/>
+   </widget>
+   <addaction name="menuDatei"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionConnectServer">
+   <property name="text">
+    <string>Zu Server verbinden ...</string>
+   </property>
+  </action>
+  <action name="actionChooseCruise">
+   <property name="text">
+    <string>Reise auswählen</string>
+   </property>
+  </action>
+  <action name="actionNewCruise">
+   <property name="text">
+    <string>Neue Reise anlegen</string>
+   </property>
+  </action>
+  <action name="actionSingleProtocol">
+   <property name="text">
+    <string>Einzelfischprotokoll</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Frm_Station</class>
+   <extends>QWidget</extends>
+   <header>frm_station_code</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Wgt_Activity_Bar</class>
+   <extends>QWidget</extends>
+   <header>wgt_activity_bar_code</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Frm_Gear</class>
+   <extends>QWidget</extends>
+   <header>frm_gear_code</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Frm_Length</class>
+   <extends>QWidget</extends>
+   <header>frm_length_code</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Frm_Single</class>
+   <extends>QWidget</extends>
+   <header>frm_single_code</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
