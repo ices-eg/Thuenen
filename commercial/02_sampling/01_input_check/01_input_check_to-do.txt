@@ -1,0 +1,22 @@
+To-Do for the commercial_sampling_01_upload_check
+
+--> Requirements: 
+    sampling data are loaded into DB
+    input is finalized
+     tables: 
+	trip
+	haul_fo, haul:gear, haul_env
+	sample_weight
+	sample_length
+	sample_bio
+    Probenliste_OF is complete and uploaded to DB
+	
+
+--> working steps 
+	- load data tables into R environment
+	- check consistency and content
+		- link all tables via the IDs, check completeness
+			--> use checking and correction routines from MySQL, translate to new format
+		- check number trips and hauls in Probenliste_OF
+
+--> finished process: tables are complete, consistent and content is checked for errors. Trips are compared to Probenliste entries

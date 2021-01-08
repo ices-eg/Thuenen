@@ -1,0 +1,30 @@
+To-Do for the commercial_fishery_02_finalize
+
+--> Requirements: clean BLE data files from the 01_upload_checks. Files are complete, consistency and content are checked, area is Baltic Sea (bs) only. 
+    Year is working year or respective set of years
+	reise_bs
+	anlandung_bs (including bms landings)
+	logbuch_bs
+	fifaaktiv (complete vessel list of respective year)
+	adress_id
+	id_fit
+	(in future probably anlandung_a_bs and logbuch_a_bs for non-German vessels)
+
+--> work do be done to finalize commercial census data:
+- small vessel for cl/cl
+	effort (by landings event count and by entry of "reise_bs")
+	target species, target group, metier by haul/fo
+	metier by trip
+	revenue/sales calculation where missing
+- large vessel for cl/ce
+	effort (by fishing event, i.e. haul time form logbooks and by entry of "reise_bs")
+	target species, target group, metier by haul/fo
+	metier by trip
+	revenue/sales calculation where missing
+
+- combine to Vessel masterfile "all_vessel_XXXX_haul" (XXXX to be the respective year)
+	keep bms as landings category!
+- load masterfile into DB
+
+- bycatch tables to be updated with vessel information
+- "Neu-Mukran" landing files  
