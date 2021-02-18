@@ -3,7 +3,6 @@ import psycopg2
 from datetime import date
 from datetime import time
 
-
 class RangClass:
     '''The class for saving the range values.'''
     def __init__(self,tableName):
