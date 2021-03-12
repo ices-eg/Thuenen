@@ -1,0 +1,18 @@
+To-Do for the commercial_sampling_03_process
+
+--> Requirements: 
+ clean and checked sampling tables, corrected for weights. clean and checked BLE tables
+	
+
+--> working steps:
+	- data evaluation, graphs, maps, displays
+
+	- sample valid
+	- cruisematch
+	- BLE catch weight adding
+	- ALK and LWR
+	- raising procedures
+	
+	- 
+
+--> finished process: 

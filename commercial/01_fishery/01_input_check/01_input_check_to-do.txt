@@ -1,0 +1,26 @@
+To-Do for the commercial_fishery_01_upload_check
+
+--> Requirements: BLE data files in exchange format (csv files) 
+
+
+--> required working steps:
+	- load data into DB
+	- load data into R environment, cut areas to Baltic sea
+		--> create function to select area while loading (Baltic, North Sea, North Atlantic and transition Ska/Kat)
+	- check data for consistency 
+		--> use SQL scripts from MySQL data checks
+	- check data for content 
+		--> use SQL scripts from MySQL data checks
+
+--> checks are finished when:
+
+Files are complete, consistency and content are checked, area is Baltic Sea (bs) only. 
+files to be created: 
+	reise_bs
+	anlandung_bs (including bms landings)
+	logbuch_bs
+	fifaaktiv (complete vessel list of respective year)
+	adress_id
+	id_fit
+	(in future probably anlandung_a_bs and logbuch_a_bs for non-German vessels)
+

@@ -1,0 +1,17 @@
+To-Do for the commercial_sampling_02_finalize
+
+--> Requirements: 
+ clean and chekcked sampling tables. clean and checked BLE tables
+	
+
+--> working steps:
+	- check total weight and subsample weight. Add and raise weights were necessary
+	- check lan/dis proportions
+
+
+
+--> finished process: 
+	- every fish has a catch_category
+	- catch weight and sample weight are checked for consistency, 
+	- length-weight correlation calculated
+	- sample weights corrected and checked versus the length-weight correlation

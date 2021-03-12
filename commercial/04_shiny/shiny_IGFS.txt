@@ -1,0 +1,6 @@
+Grundgerüst für sampling data auswertung
+
+https://github.com/IrishMarineInstitute/igfs-data-explorer
+
+graphs, biological data and infomration per commercial species 
+https://github.com/IrishMarineInstitute/speciesdash

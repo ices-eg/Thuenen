@@ -1,0 +1,12 @@
+To-Do for the commercial_fishery_03_process
+
+--> Requirements: 
+	- clean BLE data files from the 01_upload_checks. Files are complete, consistency and content are checked, area is Baltic Sea (bs) only. 
+	- masterfile "all_vessel" from the 02_finalize process, containing effort, revenue and metier calculations
+
+
+--> work do be done to finalize commercial census data:
+	- evaluate data, graphs, statistics (Landings/bms per stock, area, fisheries, metiers, etc.)
+	- processing tables for specific data calls: 
+		eflalo overview, vms, PETS
+	- prepare ICES DB formats (RDB, RDBES, IC, WGCATCH efforts)
