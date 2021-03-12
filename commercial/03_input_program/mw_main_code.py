@@ -8,6 +8,8 @@ import dlg_cruise_select_code as cs
 import dlg_new_cruise_code as nc
 import dlg_new_haul_code as nh
 
+import checking_ranges as check
+
 #import account
 from reference import Reference as ref
 
@@ -17,9 +19,12 @@ class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
-
+        
         self.cruise_uid = None
         self.haul_uid = None
+        self.weight_uid = None
+        self.length_uid = None
+        self.bio_uid = None
         
         self.actionChooseCruise.setEnabled(0)
         self.actionNewCruise.setEnabled(0)
@@ -93,17 +98,25 @@ class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
         cur.execute("SELECT MAX(tr_index) from com_new_final.trip;")
         self.cruise_uid = cur.fetchone()[0] + 1
         
-        try:
-            trip_comm = """INSERT INTO com_new_final.trip (tr_index, year, trip_number, eunr, 
+        trip_comm = """INSERT INTO com_new_final.trip (tr_index, year, trip_number, eunr, 
             vessel_name, vessel_sign, start_date, end_date, start_loc, end_loc, 
             observer, trip_valid, trip_type) VALUES """
-    
-            result = """({}, {}, {}, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', true, 
+        
+        result = """({}, {}, {}, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', true, 
             {});""".format(self.cruise_uid, self.nc_dlg.year, self.nc_dlg.cruise_num,
             self.nc_dlg.EU_num, self.nc_dlg.ship_name, self.nc_dlg.ship_sign,
             self.nc_dlg.startdate, self.nc_dlg.enddate, self.nc_dlg.starthafen,
             self.nc_dlg.endhafen, self.nc_dlg.beprober, self.nc_dlg.cruise_type)
         
+        error_trip = check.checkingRangeTRIP(self.nc_dlg.year,
+                                    self.nc_dlg.cruise_num,
+            self.nc_dlg.EU_num, self.nc_dlg.ship_name, self.nc_dlg.ship_sign,
+            self.nc_dlg.startdate, self.nc_dlg.enddate, self.nc_dlg.starthafen,
+            self.nc_dlg.endhafen, self.nc_dlg.beprober, self.nc_dlg.cruise_type)
+        
+        print(error_trip)
+        
+        if error_trip == [[],[],[]]:
             cur.execute(trip_comm + result)
             ref.cruise_uid = self.cruise_uid
             ref.connection.commit()
@@ -115,10 +128,11 @@ class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
             self.nh_dlg.finished.connect(self.new_haul_added)
             self.nh_dlg.show()
             
-        except:
-            QMessageBox.warning(self, 'Fehler', 'Not valid')
-            return
-
+        else:
+            for i in range(len(error_trip[2])):
+                QMessageBox.warning(self, error_trip[1][i],
+                                    error_trip[0][i] + ": " + error_trip[2][i])
+        
     def new_haul(self):
         if self.cruise_uid is None:
             QMessageBox.warning(self, 'Fehler', 'Keine Reise ausgewählt')
@@ -146,6 +160,7 @@ class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
             
         self.tab_station.clear()
         self.tab_gear.clear()
+        
     
     def haul_selected(self, current):
         try:
@@ -166,18 +181,26 @@ class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
     def open_samples(self):
         if self.haul_uid != None:
             self.tab_samples.setEnabled(1)
-            self.tab_samples.set_data()
-        else:
-            QMessageBox.warning(self, 'Fehler', 'Keine Hol ausgewählt')
-            return    
+            
+            self.tab_samples.set_weight_data()
+            self.weight_uid = ref.weight_uid
+            if self.weight_uid != None:
+                self.tab_samples.set_length_data()
+            
+        # else:
+        #     QMessageBox.warning(self, 'Fehler', 'Keine Hol ausgewählt')
+        #     return    
     
     def open_single(self):
-        if self.haul_uid != None:
+        self.tab_single.wgt_species = self.tab_samples.wgt_species
+        self.length_uid = ref.length_uid
+        
+        if self.length_uid != None:
             self.tab_single.setEnabled(1)
             self.tab_single.set_data()
-        else:
-            QMessageBox.warning(self, 'Fehler', 'Keine Hol ausgewählt')
-            return   
+        # else:
+        #     QMessageBox.warning(self, 'Fehler', 'Keine Hol ausgewählt')
+        #     return   
 
 if __name__ == '__main__':
     import sys
