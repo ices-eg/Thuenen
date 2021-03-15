@@ -144,7 +144,7 @@ class SingleTableModel(QAbstractTableModel):
                 
                 else:
                     # Datensatz ist schon vorbereit
-                    fish_id = int(rec['id'])
+                    fish_id = int(rec['Fisch ID'])
                     
                     select_bi_index = """SELECT bi_index FROM
                     com_new_final.sample_bio WHERE le_index = {} AND
