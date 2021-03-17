@@ -488,7 +488,7 @@
         </spacer>
        </item>
        <item row="4" column="0">
-        <widget class="QPushButton" name="btn_save_2">
+        <widget class="QPushButton" name="btn_save2">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
