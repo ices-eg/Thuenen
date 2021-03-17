@@ -46,6 +46,7 @@ class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
         self.tw_main.tabBarClicked.connect(self.open_single)
         
         self.tab_samples.wgt_species.cb_latin.currentIndexChanged.connect(self.add_samples)
+        self.tab_samples.cb_fishCategory.currentIndexChanged.connect(self.add_samples)
     
     def server_connect_triggered(self):
         self.sv_dlg = sc.Dlg_Server_Connect(self)
@@ -188,7 +189,13 @@ class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
             self.tab_samples.setEnabled(1)
             
             self.tab_samples.set_weight_data()
-            self.weight_uid = ref.weight_uid
+            
+            try:
+                self.weight_uid = ref.weight_uid
+            except:
+                self.weight_uid = None
+                ref.weight_uid = None
+            
             if self.weight_uid != None:
                 self.tab_samples.set_length_data()
             
@@ -210,9 +217,7 @@ class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
         if self.length_uid != None:
             self.tab_single.setEnabled(1)
             self.tab_single.set_data()
-        # else:
-        #     QMessageBox.warning(self, 'Fehler', 'Keine Hol ausgewählt')
-        #     return   
+            
 
 if __name__ == '__main__':
     import sys

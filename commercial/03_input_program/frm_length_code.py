@@ -30,9 +30,10 @@ class WeightTableModel(QAbstractTableModel):
         cur.execute(sql_statement)
         weight_data = cur.fetchall()
         
-        self.header = ['Fischart', 'Category', 'Gesamtgewicht', 'Gesamtanzahl', 'UP Gewicht', 'UP Anzahl']
+        self.header = ['Fischart', 'Category', 'Gesamtgewicht', 'Gesamtanzahl',
+                       'UP Gewicht', 'UP Anzahl', 'Gewicht Unit', 'Length Unit']
         
-        column = [2,5,6,7,8,9]
+        column = [2] + list(range(5,12))
         
         if weight_data != []:
             ref.weight_uid = weight_data[0][0]
@@ -68,7 +69,7 @@ class WeightTableModel(QAbstractTableModel):
         return Qt.ItemFlags(QAbstractTableModel.flags(self, index)|Qt.ItemIsEditable)
 
     def data(self, index, role = Qt.DisplayRole):
-        if not index.isValid() or not (0 <= index.row() < len(self.__data)) or index.column() >= len(self.header):
+        if not index.isValid() or not (0 <= index.row()< len(self.__data)) or index.column() >= len(self.header):
             return None
 
         data_row = self.__data[index.row()]
@@ -82,52 +83,65 @@ class WeightTableModel(QAbstractTableModel):
 
         return None
     
-    # def setData(self, index, value, role=Qt.EditRole):
-    #     if not index.isValid():
-    #         return False
-
-    #     if role == Qt.EditRole:
-    #         self.__data[index.row()][index.column()] = value
-
-    #         k = self.header[index.column()]
-    #         self.__data[index.row()][k] = value
-    #         self.__data[index.row()]["dirty"] = True
-
-    #         if index.row() >= (len(self.__data)-1):
-    #             self.insertRows(index.row()+1, 1, data=[{}])
-    #         self.dataChanged.emit(index, index)
-    #         return True
-    #     return False
-    
-    def insertRows(self, row, count, parent=QModelIndex(), data={}):
+    def insertRows(self, row, count, parent=QModelIndex(), data=[{}]):
         self.beginInsertRows(parent, row, row+count-1)
-        data["dirty"] = True
-        self.__data.insert(row, data)
+        for i, d in enumerate(data):
+            d2 = d.copy()
+            d2["dirty"] = True
+            self.__data.insert(row+i, d2)
         self.endInsertRows()
         return True
     
-    def save_data(self):
+    def insertWeight(self, cat, wg_all, num_all, wg_sample, num_sample,
+                     wg_unit, len_unit):
+        
+        if cat == 'D':
+            self.__data[-2]['Category'] = 'L'
+            self.__data[-2]['Gesamtgewicht'] = wg_all
+            self.__data[-2]['Gesamtanzahl'] = num_all
+            self.__data[-2]['UP Gewicht'] = wg_sample
+            self.__data[-2]['UP Anzahl'] = num_sample
+            self.__data[-2]['Gewicht Unit'] = wg_unit
+            self.__data[-2]['Length Unit'] = len_unit
+        else:
+            self.__data[-3]['Category'] = 'D'
+            self.__data[-3]['Gesamtgewicht'] = wg_all
+            self.__data[-3]['Gesamtanzahl'] = num_all
+            self.__data[-3]['UP Gewicht'] = wg_sample
+            self.__data[-3]['UP Anzahl'] = num_sample
+            self.__data[-3]['Gewicht Unit'] = wg_unit
+            self.__data[-3]['Length Unit'] = len_unit
+        
+    def save_data(self, wg_all, num_all, wg_sample, num_sample, wg_unit, len_unit):
+        
         cur = ref.connection.cursor()
         index_statement = """SELECT MAX(we_index) FROM com_new_final.sample_weight;"""
         cur.execute(index_statement)
         new_id = cur.fetchone()[0] + 1
-                
+        
+        self.__data[-1]['Gesamtgewicht'] = wg_all
+        self.__data[-1]['Gesamtanzahl'] = num_all
+        self.__data[-1]['UP Gewicht'] = wg_sample
+        self.__data[-1]['UP Anzahl'] = num_sample
+        self.__data[-1]['Gewicht Unit'] = wg_unit
+        self.__data[-1]['Length Unit'] = len_unit
+        
         for rec in self.__data:
             if rec != {'dirty': True}:
-                # Datensatz bearbeitet
                 if rec["dirty"] is True:
-                    # Datensatz ist neu
                     insert_statement = """INSERT INTO com_new_final.sample_weight 
-                    (we_index, ha_index, species, aphia_id, latin_name,
+                    (we_index, ha_index, species, aphiaid, latin_name,
                      catch_category, total_weight, total_numbers, subsample_weight,
                      subsample_numbers, number_measured, weight_unit, length_unit) VALUES
                     ({}, {}, '{}', {}, '{}', '{}', {}, {}, {}, {}, {},
                      '{}', '{}');""".format(new_id, ref.haul_uid, rec['Fischart'], 0,
                     "test", rec['Category'], rec['Gesamtgewicht'], rec['Gesamtanzahl'],
-                    rec['UP Gewicht'], rec['UP Anzahl'], "cm", "cm")
+                    rec['UP Gewicht'], rec['UP Anzahl'], rec['UP Anzahl'],
+                    rec['Gewicht Unit'], rec['Length Unit'])
     
                     cur = ref.connection.cursor()
                     cur.execute(insert_statement)
+                    print(insert_statement)
                     new_id += 1
                     ref.connection.commit()
                     cur.close()
@@ -142,6 +156,7 @@ class WeightTableModel(QAbstractTableModel):
                     
                     cur = ref.connection.cursor()
                     cur.execute(update_statement)
+                    print(update_statement)
                     ref.connection.commit()
                     cur.close()
         
@@ -329,12 +344,21 @@ class Frm_Length(QWidget, frm_length.Ui_frm_length):
     def add_weight(self):
         fish_id = self.wgt_species.cb_latin.currentIndex()
         fish_name = self.wgt_species.alpha_names[fish_id]
+        fish_list = set()
         
         try:
-            self.weight_model.insertRows(
-                self.weight_model.rowCount(), 1, QModelIndex(),
-                data = {'Fischart': fish_name})
+            for i in range(self.weight_model.rowCount()):
+                fish_list.add(self.weight_model.data(self.weight_model.index(i, 0)))
+        except:
+            pass
         
+        if fish_name not in fish_list:
+            self.weight_model.insertRows(self.weight_model.rowCount(), 2, QModelIndex(),
+                    data = [{'Fischart': fish_name, 'Category': 'L', 'dirty': True},
+                        {'Fischart': fish_name, 'Category': 'D', 'dirty': True}])
+                
+            self.cb_fishCategory.setCurrentIndex(0)
+            
             self.sb_weight_all.clear()
             self.sb_number_all.clear()
             self.sb_weight_sample.clear()
@@ -359,11 +383,38 @@ class Frm_Length(QWidget, frm_length.Ui_frm_length):
             self.sb_length_weight.clear()
             self.sb_number.clear()
                         
-        except:
-            pass
+        else:
+            wg_all = float(self.sb_weight_all.value())
+            num_all = int(self.sb_number_all.value())
+            wg_sample = float(self.sb_weight_sample.value())
+            num_sample = int(self.sb_number_sample.value())
+            wg_unit = self.cb_weightUnit.currentText()
+            len_unit = self.cb_lengthUnit.currentText()
+            
+            fish_id = self.wgt_species.cb_latin.currentIndex()
+            fish_name = self.wgt_species.alpha_names[fish_id]
+            
+            if self.cb_fishCategory.currentIndex() == 1:
+                data = ['D', wg_all, num_all, wg_sample, num_sample,
+                    wg_unit, len_unit]
+            else:
+                data = ['L', wg_all, num_all, wg_sample, num_sample,
+                    wg_unit, len_unit]   
+                
+            self.weight_model.insertWeight(*data)
+            self.tv_weight.reset()
+            self.tv_weight.setModel(self.weight_model)
         
     def save_weight_data(self):
-        self.weight_model.save_data()
+        wg_all = float(self.sb_weight_all.value())
+        num_all = int(self.sb_number_all.value())
+        wg_sample = float(self.sb_weight_sample.value())
+        num_sample = int(self.sb_number_sample.value())
+        wg_unit = self.cb_weightUnit.currentText()
+        len_unit = self.cb_lengthUnit.currentText()
+            
+        self.weight_model.save_data(wg_all, num_all, wg_sample, num_sample, 
+        wg_unit, len_unit)
             
     def save_length_data(self):
         pass
