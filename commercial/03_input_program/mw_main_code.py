@@ -47,6 +47,8 @@ class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
         
         self.tab_samples.wgt_species.cb_latin.currentIndexChanged.connect(self.add_samples)
         self.tab_samples.cb_fishCategory.currentIndexChanged.connect(self.add_samples)
+        
+        self.tab_samples.tv_weight.doubleClicked.connect(self.select_weight)    
     
     def server_connect_triggered(self):
         self.sv_dlg = sc.Dlg_Server_Connect(self)
@@ -205,6 +207,9 @@ class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
     
     def add_samples(self):
         self.tab_samples.add_weight()
+        
+    def select_weight(self):
+        self.tab_samples.select_length_data()
     
     def open_single(self):
         self.tab_single.wgt_species = self.tab_samples.wgt_species
