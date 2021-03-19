@@ -154,6 +154,19 @@ class Ui_frm_station(object):
 
         self.retranslateUi(frm_station)
         QtCore.QMetaObject.connectSlotsByName(frm_station)
+        frm_station.setTabOrder(self.edt_jahr, self.edt_quartal)
+        frm_station.setTabOrder(self.edt_quartal, self.edt_monat)
+        frm_station.setTabOrder(self.edt_monat, self.edt_haul_name)
+        frm_station.setTabOrder(self.edt_haul_name, self.de_start)
+        frm_station.setTabOrder(self.de_start, self.te_start)
+        frm_station.setTabOrder(self.te_start, self.de_end)
+        frm_station.setTabOrder(self.de_end, self.te_end)
+        frm_station.setTabOrder(self.te_end, self.te_duration)
+        frm_station.setTabOrder(self.te_duration, self.btn_add_coords)
+        frm_station.setTabOrder(self.btn_add_coords, self.tv_coords)
+        frm_station.setTabOrder(self.tv_coords, self.btn_save1)
+        frm_station.setTabOrder(self.btn_save1, self.pte_notation)
+        frm_station.setTabOrder(self.pte_notation, self.btn_save2)
 
     def retranslateUi(self, frm_station):
         _translate = QtCore.QCoreApplication.translate

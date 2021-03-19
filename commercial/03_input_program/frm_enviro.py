@@ -105,6 +105,13 @@ class Ui_frm_weather(object):
 
         self.retranslateUi(frm_weather)
         QtCore.QMetaObject.connectSlotsByName(frm_weather)
+        frm_weather.setTabOrder(self.sb_wind_speed, self.sb_wind_dir)
+        frm_weather.setTabOrder(self.sb_wind_dir, self.sb_cloud)
+        frm_weather.setTabOrder(self.sb_cloud, self.sb_temp_air)
+        frm_weather.setTabOrder(self.sb_temp_air, self.sb_temp_water)
+        frm_weather.setTabOrder(self.sb_temp_water, self.sb_weather)
+        frm_weather.setTabOrder(self.sb_weather, self.sb_light)
+        frm_weather.setTabOrder(self.sb_light, self.sb_currents)
 
     def retranslateUi(self, frm_weather):
         _translate = QtCore.QCoreApplication.translate

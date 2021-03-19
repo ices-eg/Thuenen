@@ -64,6 +64,11 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>tv_cruises</tabstop>
+  <tabstop>btn_search</tabstop>
+  <tabstop>btn_select</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

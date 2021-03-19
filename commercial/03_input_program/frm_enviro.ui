@@ -168,6 +168,16 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>sb_wind_speed</tabstop>
+  <tabstop>sb_wind_dir</tabstop>
+  <tabstop>sb_cloud</tabstop>
+  <tabstop>sb_temp_air</tabstop>
+  <tabstop>sb_temp_water</tabstop>
+  <tabstop>sb_weather</tabstop>
+  <tabstop>sb_light</tabstop>
+  <tabstop>sb_currents</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

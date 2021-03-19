@@ -2,9 +2,10 @@
 
 # Form implementation generated from reading ui file 'dlg_server_connect.ui'
 #
-# Created by: PyQt5 UI code generator 5.12
+# Created by: PyQt5 UI code generator 5.12.3
 #
 # WARNING! All changes made in this file will be lost!
+
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
@@ -72,6 +73,13 @@ class Ui_dlg_ServerConnect(object):
 
         self.retranslateUi(dlg_ServerConnect)
         QtCore.QMetaObject.connectSlotsByName(dlg_ServerConnect)
+        dlg_ServerConnect.setTabOrder(self.lv_cfg, self.edt_name)
+        dlg_ServerConnect.setTabOrder(self.edt_name, self.edt_host)
+        dlg_ServerConnect.setTabOrder(self.edt_host, self.edt_port)
+        dlg_ServerConnect.setTabOrder(self.edt_port, self.edt_schema)
+        dlg_ServerConnect.setTabOrder(self.edt_schema, self.edt_user)
+        dlg_ServerConnect.setTabOrder(self.edt_user, self.edt_password)
+        dlg_ServerConnect.setTabOrder(self.edt_password, self.btn_connect)
 
     def retranslateUi(self, dlg_ServerConnect):
         _translate = QtCore.QCoreApplication.translate
@@ -83,5 +91,3 @@ class Ui_dlg_ServerConnect(object):
         self.label_5.setText(_translate("dlg_ServerConnect", "Benutzer"))
         self.label_6.setText(_translate("dlg_ServerConnect", "Passwort"))
         self.btn_connect.setText(_translate("dlg_ServerConnect", "Verbinden"))
-
-
