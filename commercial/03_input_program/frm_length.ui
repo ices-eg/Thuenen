@@ -15,126 +15,113 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="Wgt_Species_Chooser" name="wgt_species" native="true"/>
-   </item>
-   <item>
-    <spacer name="verticalSpacer_8">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Fixed</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>13</width>
-       <height>5</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item>
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_7">
-       <property name="text">
-        <string>Category</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1" rowspan="2">
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>35</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="0" column="2">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>Gewicht unit</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="3" rowspan="2">
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>35</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="0" column="4">
-      <widget class="QLabel" name="label_8">
-       <property name="text">
-        <string>Länge unit</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QComboBox" name="cb_fishCategory">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="Wgt_Species_Chooser" name="wgt_species" native="true">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="minimumSize">
-        <size>
-         <width>170</width>
-         <height>25</height>
-        </size>
-       </property>
       </widget>
      </item>
-     <item row="1" column="2">
-      <widget class="QComboBox" name="cb_weightUnit">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>170</width>
-         <height>25</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="4">
-      <widget class="QComboBox" name="cb_lengthUnit">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>170</width>
-         <height>25</height>
-        </size>
-       </property>
-      </widget>
+     <item>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="2">
+        <spacer name="verticalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>13</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="0">
+        <spacer name="horizontalSpacer_5">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>55</width>
+           <height>13</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="label_7">
+         <property name="minimumSize">
+          <size>
+           <width>85</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Category</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QComboBox" name="cb_fishCategory">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>140</width>
+           <height>25</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <spacer name="horizontalSpacer_10">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>55</width>
+           <height>13</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="2" column="2">
+        <spacer name="verticalSpacer_8">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>13</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
@@ -155,13 +142,29 @@
     </spacer>
    </item>
    <item>
-    <layout class="QGridLayout" name="gridLayout_3">
+    <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0">
       <widget class="QLabel" name="label_1">
        <property name="text">
         <string>Gesamtfang Art</string>
        </property>
       </widget>
+     </item>
+     <item row="0" column="1" rowspan="2">
+      <spacer name="horizontalSpacer_8">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::MinimumExpanding</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>5</width>
+         <height>30</height>
+        </size>
+       </property>
+      </spacer>
      </item>
      <item row="0" column="2">
       <widget class="QLabel" name="label_2">
@@ -170,12 +173,44 @@
        </property>
       </widget>
      </item>
+     <item row="0" column="3" rowspan="2">
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::MinimumExpanding</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>5</width>
+         <height>30</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
      <item row="0" column="4">
       <widget class="QLabel" name="label_3">
        <property name="text">
         <string>Unterprobengewicht</string>
        </property>
       </widget>
+     </item>
+     <item row="0" column="5" rowspan="2">
+      <spacer name="horizontalSpacer_9">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::MinimumExpanding</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>5</width>
+         <height>30</height>
+        </size>
+       </property>
+      </spacer>
      </item>
      <item row="0" column="6">
       <widget class="QLabel" name="label_6">
@@ -185,6 +220,52 @@
       </widget>
      </item>
      <item row="0" column="7" rowspan="2">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::MinimumExpanding</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>5</width>
+         <height>30</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="0" column="8">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Gewicht unit</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="9" rowspan="2">
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::MinimumExpanding</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>5</width>
+         <height>30</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="0" column="10">
+      <widget class="QLabel" name="label_8">
+       <property name="text">
+        <string>Länge unit</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="11" rowspan="2">
       <spacer name="horizontalSpacer_3">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -194,8 +275,8 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>28</width>
-         <height>20</height>
+         <width>5</width>
+         <height>30</height>
         </size>
        </property>
       </spacer>
@@ -210,7 +291,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>110</width>
+         <width>80</width>
          <height>25</height>
         </size>
        </property>
@@ -222,22 +303,6 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <spacer name="horizontalSpacer_8">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::MinimumExpanding</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>15</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
      <item row="1" column="2">
       <widget class="QSpinBox" name="sb_number_all">
        <property name="sizePolicy">
@@ -248,7 +313,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>85</width>
+         <width>65</width>
          <height>25</height>
         </size>
        </property>
@@ -256,22 +321,6 @@
         <number>999999999</number>
        </property>
       </widget>
-     </item>
-     <item row="1" column="3">
-      <spacer name="horizontalSpacer_4">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::MinimumExpanding</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>18</width>
-         <height>17</height>
-        </size>
-       </property>
-      </spacer>
      </item>
      <item row="1" column="4">
       <widget class="QDoubleSpinBox" name="sb_weight_sample">
@@ -283,7 +332,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>110</width>
+         <width>80</width>
          <height>25</height>
         </size>
        </property>
@@ -295,22 +344,6 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="5">
-      <spacer name="horizontalSpacer_9">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::MinimumExpanding</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>15</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
      <item row="1" column="6">
       <widget class="QSpinBox" name="sb_number_sample">
        <property name="sizePolicy">
@@ -321,7 +354,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>85</width>
+         <width>65</width>
          <height>25</height>
         </size>
        </property>
@@ -331,6 +364,38 @@
       </widget>
      </item>
      <item row="1" column="8">
+      <widget class="QComboBox" name="cb_weightUnit">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>80</width>
+         <height>25</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="10">
+      <widget class="QComboBox" name="cb_lengthUnit">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>80</width>
+         <height>25</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="12">
       <widget class="QPushButton" name="btn_save1">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -488,7 +553,7 @@
         </spacer>
        </item>
        <item row="4" column="0">
-        <widget class="QPushButton" name="btn_save_2">
+        <widget class="QPushButton" name="btn_save2">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -546,6 +611,21 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>cb_fishCategory</tabstop>
+  <tabstop>sb_weight_all</tabstop>
+  <tabstop>sb_number_all</tabstop>
+  <tabstop>sb_weight_sample</tabstop>
+  <tabstop>sb_number_sample</tabstop>
+  <tabstop>cb_weightUnit</tabstop>
+  <tabstop>cb_lengthUnit</tabstop>
+  <tabstop>btn_save1</tabstop>
+  <tabstop>tv_weight</tabstop>
+  <tabstop>tv_length</tabstop>
+  <tabstop>sb_length_weight</tabstop>
+  <tabstop>sb_number</tabstop>
+  <tabstop>btn_save2</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -30,6 +30,7 @@ class Ui_dlg_New_Haul(object):
 
         self.retranslateUi(dlg_New_Haul)
         QtCore.QMetaObject.connectSlotsByName(dlg_New_Haul)
+        dlg_New_Haul.setTabOrder(self.edt_haul, self.btn_ok)
 
     def retranslateUi(self, dlg_New_Haul):
         _translate = QtCore.QCoreApplication.translate

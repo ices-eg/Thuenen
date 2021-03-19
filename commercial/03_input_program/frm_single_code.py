@@ -13,7 +13,7 @@ import frm_single
 
 #import account
 from reference import Reference as ref
-
+from materialized_view import MaterializedView as mv
 
 class SingleTableModel(QAbstractTableModel):
 
@@ -21,17 +21,21 @@ class SingleTableModel(QAbstractTableModel):
         super(SingleTableModel, self).__init__(parent)
 
         self.length_uid = ref.length_uid
-        
+        print(ref.length_uid, 'single')
         self.header = ['Fisch ID', 'Length', 'Weight', 'Sex', 'Maturity', 'Age',
                        'Readability', 'Gut Weight', 'Liver Weight', 'Liver Color',
                        'Stomach', 'Parasites', 'Fins', 'Gonad Weight']
         
         cur = ref.connection.cursor()
         
-        sql_statement = """SELECT * FROM com_new_final.single_transposed WHERE
-        le_index = {}""".format(self.length_uid)
+        single_table = mv(self.length_uid)
+        sql_statement = single_table.sql()
         cur.execute(sql_statement)
+        
+        print('Leak?')
         bio_data = cur.fetchall()
+        ref.connection.commit()
+        cur.close()
         
         self.__data = [dict((self.header[i-1], r[i]) for i in
                             range(1, len(r))) for r in bio_data]
@@ -40,9 +44,7 @@ class SingleTableModel(QAbstractTableModel):
         
         if len(self.__data) == 0:
             self.__data.append({"dirty": True})
-
-        cur.close()
-        
+        print("NO LEAK")
 
     def rowCount(self, index=QModelIndex()):
         return len(self.__data)
@@ -198,13 +200,15 @@ class Frm_Single(QWidget,frm_single.Ui_frm_single):
     def __init__(self,parent=None):
         super(Frm_Single, self).__init__(parent)
         self.setupUi(self)
+        
+        self.cb_fishCategory.addItems(["Landing", "Discard"])
 
         self.btn_save.clicked.connect(self.save_data)
 
         self.setEnabled(False)
 
     def set_data(self):
-        self.cruise_uid = ref.cruise_uid
+        self.haul_uid = ref.haul_uid
         
         self.wgt_species.set_data()
         self.species_selected()
@@ -212,10 +216,10 @@ class Frm_Single(QWidget,frm_single.Ui_frm_single):
         self.setEnabled(True)
 
     def species_selected(self):
-        self.model = SingleTableModel()
-        self.tv_single.horizontalHeader().set_context(self.model.header)
-        self.tv_single.setModel(self.model)
+        self.single_model = SingleTableModel()
+        self.tv_single.horizontalHeader().set_context(self.single_model.header)
+        self.tv_single.setModel(self.single_model)
 
     def save_data(self):
-        if self.model is not None:
-            self.model.save_data()
+        if self.single_model is not None:
+            self.single_model.save_data()

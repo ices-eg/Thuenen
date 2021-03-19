@@ -9,6 +9,7 @@ import dlg_new_cruise_code as nc
 import dlg_new_haul_code as nh
 
 import checking_ranges as check
+from datetime import datetime
 
 #import account
 from reference import Reference as ref
@@ -43,6 +44,11 @@ class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
         
         self.tw_main.tabBarClicked.connect(self.open_samples)
         self.tw_main.tabBarClicked.connect(self.open_single)
+        
+        self.tab_samples.wgt_species.cb_latin.currentIndexChanged.connect(self.add_samples)
+        self.tab_samples.cb_fishCategory.currentIndexChanged.connect(self.add_samples)
+        
+        self.tab_samples.tv_weight.doubleClicked.connect(self.select_weight)    
     
     def server_connect_triggered(self):
         self.sv_dlg = sc.Dlg_Server_Connect(self)
@@ -108,11 +114,13 @@ class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
             self.nc_dlg.startdate, self.nc_dlg.enddate, self.nc_dlg.starthafen,
             self.nc_dlg.endhafen, self.nc_dlg.beprober, self.nc_dlg.cruise_type)
         
-        error_trip = check.checkingRangeTRIP(self.nc_dlg.year,
-                                    self.nc_dlg.cruise_num,
-            self.nc_dlg.EU_num, self.nc_dlg.ship_name, self.nc_dlg.ship_sign,
-            self.nc_dlg.startdate, self.nc_dlg.enddate, self.nc_dlg.starthafen,
-            self.nc_dlg.endhafen, self.nc_dlg.beprober, self.nc_dlg.cruise_type)
+        start = datetime.strptime(self.nc_dlg.startdate, '%d/%m/%Y')#.date()
+        end = datetime.strptime(self.nc_dlg.enddate, '%d/%m/%Y')#.date()
+        
+        error_trip = check.checkingRangeTRIP(int(self.nc_dlg.year),
+            int(self.nc_dlg.cruise_num), self.nc_dlg.EU_num, self.nc_dlg.ship_name,
+            self.nc_dlg.ship_sign, start, end, self.nc_dlg.starthafen, self.nc_dlg.endhafen,
+            self.nc_dlg.beprober, True, int(self.nc_dlg.cruise_type))
         
         print(error_trip)
         
@@ -183,24 +191,38 @@ class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
             self.tab_samples.setEnabled(1)
             
             self.tab_samples.set_weight_data()
-            self.weight_uid = ref.weight_uid
+            
+            try:
+                self.weight_uid = ref.weight_uid
+            except:
+                self.weight_uid = None
+                ref.weight_uid = None
+            
             if self.weight_uid != None:
                 self.tab_samples.set_length_data()
             
-        # else:
-        #     QMessageBox.warning(self, 'Fehler', 'Keine Hol ausgewählt')
-        #     return    
+        else:
+            QMessageBox.warning(self, 'Fehler', 'Keine Hol ausgewählt')
+            return 
+    
+    def add_samples(self):
+        self.tab_samples.add_weight()
+        
+    def select_weight(self):
+        self.tab_samples.select_length_data()
     
     def open_single(self):
-        self.tab_single.wgt_species = self.tab_samples.wgt_species
-        self.length_uid = ref.length_uid
+        try:
+            self.length_uid = ref.length_uid
+            print(self.length_uid, 'open single')
+        except:
+            self.length_uid = None
+            ref.length_uid = None
         
         if self.length_uid != None:
             self.tab_single.setEnabled(1)
             self.tab_single.set_data()
-        # else:
-        #     QMessageBox.warning(self, 'Fehler', 'Keine Hol ausgewählt')
-        #     return   
+            
 
 if __name__ == '__main__':
     import sys
