@@ -212,9 +212,9 @@ class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
         self.tab_samples.select_length_data()
     
     def open_single(self):
-        self.tab_single.wgt_species = self.tab_samples.wgt_species
         try:
             self.length_uid = ref.length_uid
+            print(self.length_uid, 'open single')
         except:
             self.length_uid = None
             ref.length_uid = None
