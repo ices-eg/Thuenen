@@ -33,21 +33,23 @@ class WeightTableModel(QAbstractTableModel):
         self.header = ['Fischart', 'Category', 'Gesamtgewicht', 'Gesamtanzahl',
                        'UP Gewicht', 'UP Anzahl', 'Gewicht Unit', 'Length Unit']
         
-        column = [2] + list(range(5,12))
+        column = [2] + list(range(5,10)) + [11,12]
         
         if weight_data != []:
+            print(weight_data)
             ref.weight_uid = weight_data[0][0]
-        
-        self.__data = [dict((self.header[i], r[column[i]]) for i in
+            
+            self.__data = [dict((self.header[i], r[column[i]]) for i in
                     range(len(column))) for r in weight_data]
+            
+            we_id = 0
+            
+            for s in self.__data:
+                s["Weight_id"] = weight_data[we_id][0]
+                we_id += 1
+                s["dirty"] = False
         
-        we_id = 0
-        for s in self.__data:
-            s["Weight_id"] = weight_data[we_id][0]
-            we_id += 1
-            s["dirty"] = False
-        
-        if len(self.__data) == 0:
+        else:
             self.__data.append({"dirty": True})
         
         cur.close()
@@ -82,6 +84,14 @@ class WeightTableModel(QAbstractTableModel):
                 return None
 
         return None
+    
+    def weightID(self, index):
+        if not index.isValid() or not (0 <= index.row()< len(self.__data)) or index.column() >= len(self.header):
+            return None
+
+        data_row = self.__data[index.row()]
+        
+        return data_row['Weight_id']
     
     def insertRows(self, row, count, parent=QModelIndex(), data=[{}]):
         self.beginInsertRows(parent, row, row+count-1)
@@ -185,6 +195,11 @@ class LengthTableModel(QAbstractTableModel):
             for i in range(len(self.__data)):
                 self.__data[i]["Length_id"] = length_data[i][0]
                 self.__data[i]['dirty'] = False
+            
+            self.length_uid = self.__data[0]["Length_id"]
+            ref.length_uid = self.length_uid
+            print(ref.length_uid, 'initial')
+            
         else:
             self.__data = [{'dirty': True}]
         
@@ -390,11 +405,19 @@ class Frm_Length(QWidget, frm_length.Ui_frm_length):
         try:
             ref.length_uid = self.__data[0][0]
         except:
-            ref.length_uid = None
+            cur = ref.connection.cursor()
+            
+            sql_statement = """SELECT MAX (le_index) FROM
+            com_new_final.sample_length;"""
+            
+            cur.execute(sql_statement)
+            ref.length_uid = cur.fetchone()[0] + 1
+            
+            cur.close()
         
         self.length_model = LengthTableModel(0)
         self.tv_length.setModel(self.length_model)
-        
+        print(ref.length_uid, 'set')
         if self.__data != None:
             
             self.sb_length_weight.setValue(self.__data[2])
@@ -419,8 +442,16 @@ class Frm_Length(QWidget, frm_length.Ui_frm_length):
         try:
             ref.length_uid = self.__data[0]
         except:
-            ref.length_uid = None
-        
+            cur = ref.connection.cursor()
+            
+            sql_statement = """SELECT MAX (le_index) FROM
+            com_new_final.sample_length;"""
+            
+            cur.execute(sql_statement)
+            ref.length_uid = cur.fetchone()[0] + position + 1
+            
+            cur.close()
+        print(ref.length_uid, 'select')
         self.tv_length.reset()
         self.length_model = LengthTableModel(position)
         self.tv_length.setModel(self.length_model)
