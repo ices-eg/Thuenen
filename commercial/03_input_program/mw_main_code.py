@@ -81,7 +81,8 @@ class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
         
         cur = ref.connection.cursor()
         
-        sql_data = "SELECT ha_index, haul FROM com_new_final.haul_fo WHERE tr_index = {};".format(cruise_uid)
+        sql_data = """SELECT ha_index, haul FROM com_new_final.haul_fo WHERE
+        tr_index = {};""".format(cruise_uid)
         
         cur.execute(sql_data)
         activity_uid = cur.fetchall()
@@ -214,7 +215,6 @@ class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
     def open_single(self):
         try:
             self.length_uid = ref.length_uid
-            print(self.length_uid, 'open single')
         except:
             self.length_uid = None
             ref.length_uid = None
