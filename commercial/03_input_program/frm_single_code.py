@@ -21,7 +21,6 @@ class SingleTableModel(QAbstractTableModel):
         super(SingleTableModel, self).__init__(parent)
 
         self.length_uid = ref.length_uid
-        print(ref.length_uid, 'single')
         self.header = ['Fisch ID', 'Length', 'Weight', 'Sex', 'Maturity', 'Age',
                        'Readability', 'Gut Weight', 'Liver Weight', 'Liver Color',
                        'Stomach', 'Parasites', 'Fins', 'Gonad Weight']
@@ -32,7 +31,6 @@ class SingleTableModel(QAbstractTableModel):
         sql_statement = single_table.sql()
         cur.execute(sql_statement)
         
-        print('Leak?')
         bio_data = cur.fetchall()
         ref.connection.commit()
         cur.close()
@@ -44,7 +42,6 @@ class SingleTableModel(QAbstractTableModel):
         
         if len(self.__data) == 0:
             self.__data.append({"dirty": True})
-        print("NO LEAK")
 
     def rowCount(self, index=QModelIndex()):
         return len(self.__data)
@@ -129,7 +126,6 @@ class SingleTableModel(QAbstractTableModel):
                         fish_id = int(rec['Fisch ID'])
                         par = int(i)
                         value = rec[self.header[par]]
-                        print(units, par)
                         unit = units[par]
                         
                         insert_statement = """INSERT INTO com_new_final.sample_bio 
@@ -142,7 +138,6 @@ class SingleTableModel(QAbstractTableModel):
                         new_id += 1
                         ref.connection.commit()
                         cur.close()
-                        #print(insert_statement)
                 
                 else:
                     # Datensatz ist schon vorbereit
@@ -202,7 +197,10 @@ class Frm_Single(QWidget,frm_single.Ui_frm_single):
         self.setupUi(self)
         
         self.cb_fishCategory.addItems(["Landing", "Discard"])
-
+        
+        self.wgt_species.cb_latin.currentIndexChanged.connect(self.select_species)
+        self.cb_length_class.currentIndexChanged.connect(self.select_length)
+        
         self.btn_save.clicked.connect(self.save_data)
 
         self.setEnabled(False)
@@ -210,15 +208,97 @@ class Frm_Single(QWidget,frm_single.Ui_frm_single):
     def set_data(self):
         self.haul_uid = ref.haul_uid
         
-        self.wgt_species.set_data()
-        self.species_selected()
-
-        self.setEnabled(True)
+        cur = ref.connection.cursor()
+        
+        sql_statement = """SELECT we_index, species, catch_category FROM
+        com_new_final.sample_weight WHERE ha_index = {};""".format(self.haul_uid)
+        
+        cur.execute(sql_statement)
+        weight_data = cur.fetchone()
+        cur.close()
+        
+        if weight_data != None:
+            ref.weight_uid = weight_data[0]
+            
+            index = self.wgt_species.alpha_names.index(weight_data[1])
+            self.wgt_species.cb_latin.setCurrentIndex(index)
+            self.wgt_species.activate()
+            
+            if weight_data[2] == "L":
+                self.cb_fishCategory.setCurrentIndex(0)
+            else:
+                self.cb_fishCategory.setCurrentIndex(1)
+            
+            self.species_selected()
+            self.setEnabled(True)
 
     def species_selected(self):
+        self.weight_uid = ref.weight_uid
+        cur = ref.connection.cursor()
+        
+        sql_statement = """SELECT le_index, length_class FROM
+        com_new_final.sample_length WHERE we_index = {};""".format(self.weight_uid)
+            
+        cur.execute(sql_statement)
+        length_data = cur.fetchall()
+        cur.close()
+            
+        self.__data = {}
+        for i in length_data:
+            self.__data[str(i[1])] = i[0]
+            
+        length_class = list(self.__data.keys())
+        #print(ref.weight_uid, ref.length_uid, length_class)
+            
+        self.cb_length_class.clear()
+        self.cb_length_class.addItems(length_class)
+        
+        #print(ref.weight_uid, ref.length_uid)
         self.single_model = SingleTableModel()
         self.tv_single.horizontalHeader().set_context(self.single_model.header)
         self.tv_single.setModel(self.single_model)
+        #print(ref.weight_uid, ref.length_uid)
+        
+    def select_species(self):
+        self.haul_uid = ref.haul_uid
+        
+        species = self.wgt_species.cb_latin.currentText()
+        if self.cb_fishCategory.currentIndex() == 0:
+            catch = 'L'
+        else:
+            catch = 'D'
+        
+        cur = ref.connection.cursor()
+        
+        sql_statement = """SELECT we_index, species, catch_category FROM
+        com_new_final.sample_weight WHERE ha_index = {} AND species = '{}'
+        AND catch_category = '{}';""".format(self.haul_uid, species, catch)
+        
+        cur.execute(sql_statement)
+        weight_data = cur.fetchone()
+        cur.close()
+        
+        if weight_data != None:
+            ref.weight_uid = weight_data[0]
+        else:
+            QMessageBox.warning(self, 'Fehler', 'Keine Fisch')
+            return
+        
+        self.species_selected()
+    
+    def select_length(self):
+        length = self.cb_length_class.currentText()
+        
+        try:
+            self.length_uid = self.__data[str(length)]
+            ref.length_uid = self.length_uid
+        except:
+            pass
+        
+        self.single_model = SingleTableModel()
+        self.tv_single.horizontalHeader().set_context(self.single_model.header)
+        self.tv_single.setModel(self.single_model)
+        #print(ref.weight_uid, ref.length_uid)
 
     def save_data(self):
         if self.single_model is not None:

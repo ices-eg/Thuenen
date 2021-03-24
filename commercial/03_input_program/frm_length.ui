@@ -76,7 +76,7 @@
        <item row="1" column="2">
         <widget class="QComboBox" name="cb_fishCategory">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -84,6 +84,12 @@
          <property name="minimumSize">
           <size>
            <width>140</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>210</width>
            <height>25</height>
           </size>
          </property>

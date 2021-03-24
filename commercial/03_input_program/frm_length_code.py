@@ -26,7 +26,7 @@ class WeightTableModel(QAbstractTableModel):
         cur = ref.connection.cursor()
         
         sql_statement = """SELECT * FROM com_new_final.sample_weight WHERE
-        ha_index = {}""".format(self.haul_uid)
+        ha_index = {} ORDER BY we_index ASC""".format(self.haul_uid)
         cur.execute(sql_statement)
         weight_data = cur.fetchall()
         
@@ -36,9 +36,6 @@ class WeightTableModel(QAbstractTableModel):
         column = [2] + list(range(5,10)) + [11,12]
         
         if weight_data != []:
-            print(weight_data)
-            ref.weight_uid = weight_data[0][0]
-            
             self.__data = [dict((self.header[i], r[column[i]]) for i in
                     range(len(column))) for r in weight_data]
             
@@ -48,9 +45,12 @@ class WeightTableModel(QAbstractTableModel):
                 s["Weight_id"] = weight_data[we_id][0]
                 we_id += 1
                 s["dirty"] = False
+            
+            ref.weight_uid = weight_data[0][0]
+            ref.weight_dic = [i["Weight_id"] for i in self.__data]
         
         else:
-            self.__data.append({"dirty": True})
+            self.__data = []
         
         cur.close()
 
@@ -85,14 +85,6 @@ class WeightTableModel(QAbstractTableModel):
 
         return None
     
-    def weightID(self, index):
-        if not index.isValid() or not (0 <= index.row()< len(self.__data)) or index.column() >= len(self.header):
-            return None
-
-        data_row = self.__data[index.row()]
-        
-        return data_row['Weight_id']
-    
     def insertRows(self, row, count, parent=QModelIndex(), data=[{}]):
         self.beginInsertRows(parent, row, row+count-1)
         for i, d in enumerate(data):
@@ -101,6 +93,25 @@ class WeightTableModel(QAbstractTableModel):
             self.__data.insert(row+i, d2)
         self.endInsertRows()
         return True
+    
+    def setData(self, index, value, role=Qt.EditRole):
+        if not index.isValid():
+            return False
+                
+        if role == Qt.EditRole:
+            self.__data[index.row()][index.column()] = value
+
+            k = self.header[index.column()]
+            self.__data[index.row()][k] = value
+            self.__data[index.row()]["dirty"] = True
+
+            if index.row() >= (len(self.__data)-1):
+                self.insertRows(index.row()+1, 1, data=[{}])
+            self.dataChanged.emit(index, index)
+            
+            return True
+        
+        return False
     
     def insertWeight(self, cat, wg_all, num_all, wg_sample, num_sample,
                      wg_unit, len_unit):
@@ -144,14 +155,14 @@ class WeightTableModel(QAbstractTableModel):
                      catch_category, total_weight, total_numbers, subsample_weight,
                      subsample_numbers, number_measured, weight_unit, length_unit) VALUES
                     ({}, {}, '{}', {}, '{}', '{}', {}, {}, {}, {}, {},
-                     '{}', '{}');""".format(new_id, ref.haul_uid, rec['Fischart'], 0,
-                    "test", rec['Category'], rec['Gesamtgewicht'], rec['Gesamtanzahl'],
+                     '{}', '{}');""".format(new_id, ref.haul_uid, rec['Fischart'], rec['AphiaID'],
+                    rec['Latin'], rec['Category'], rec['Gesamtgewicht'], rec['Gesamtanzahl'],
                     rec['UP Gewicht'], rec['UP Anzahl'], rec['UP Anzahl'],
                     rec['Gewicht Unit'], rec['Length Unit'])
     
                     cur = ref.connection.cursor()
                     cur.execute(insert_statement)
-                    print(insert_statement)
+                    
                     new_id += 1
                     ref.connection.commit()
                     cur.close()
@@ -166,18 +177,21 @@ class WeightTableModel(QAbstractTableModel):
                     
                     cur = ref.connection.cursor()
                     cur.execute(update_statement)
-                    print(update_statement)
+                    
                     ref.connection.commit()
                     cur.close()
-        
+
 
 class LengthTableModel(QAbstractTableModel):
 
     def __init__(self, position):
         super(LengthTableModel, self).__init__()
         
-        self.weight_uid = ref.weight_uid + position
+        self.weight_uid = ref.weight_dic[position]
+        ref.weight_uid = self.weight_uid
+        
         self.length_uid = None
+        ref.length_dic = []
         
         self.header = ['Length Class', 'Length Number']
         
@@ -188,21 +202,26 @@ class LengthTableModel(QAbstractTableModel):
         cur.execute(sql_statement)
         length_data = cur.fetchall()
         
-        if length_data != None:
+        if length_data != []:
             self.__data = [dict((self.header[i], r[i+2]) for i in
                     range(len(self.header))) for r in length_data]
             
             for i in range(len(self.__data)):
                 self.__data[i]["Length_id"] = length_data[i][0]
+                ref.length_dic.append(length_data[0])
                 self.__data[i]['dirty'] = False
             
             self.length_uid = self.__data[0]["Length_id"]
             ref.length_uid = self.length_uid
-            print(ref.length_uid, 'initial')
             
         else:
-            self.__data = [{'dirty': True}]
+            self.__data = []
         
+        cur = ref.connection.cursor()
+        sql_statement = """SELECT MAX (le_index) FROM com_new_final.sample_length"""
+        cur.execute(sql_statement)
+        self.new_id = cur.fetchone()[0]
+            
         cur.close()
 
     def rowCount(self, index=QModelIndex()):
@@ -239,19 +258,30 @@ class LengthTableModel(QAbstractTableModel):
     def setData(self, index, value, role=Qt.EditRole):
         if not index.isValid():
             return False
-        row = index.row()
-        if index.column() > 0:
-            self.__data[row][index.column()] = value
-            self.__data[row][-1] = True
+                
+        if role == Qt.EditRole:
+            self.__data[index.row()][index.column()] = value
+
+            k = self.header[index.column()]
+            self.__data[index.row()][k] = value
+            self.__data[index.row()]["dirty"] = True
+
+            if index.row() >= (len(self.__data)-1):
+                self.insertRows(index.row()+1, 1, data=[{}])
             self.dataChanged.emit(index, index)
+            
             return True
+        
         return False
     
     def insertRows(self, row, count, parent=QModelIndex(), data=[{}]):
         self.beginInsertRows(parent, row, row+len(data))
         for d in data:
             self.__data.insert(row, d)
+            ref.length_dic.append(self.new_id)
+            self.new_id += 1
         self.endInsertRows()
+                
         return True
 
     def set_length(self, length, number, position = 0):
@@ -281,13 +311,10 @@ class LengthTableModel(QAbstractTableModel):
             
             length_data = {'Length_id': new_id[0] + position + 1, 'Length Class': length,
                            'Length Number': number, 'dirty': True}
+            
             self.insertRows(len(self.__data), 1, data=[length_data])
             
     def save_data(self, length_weight, length_number):
-        
-        self.__data[-1]['Length_id'] = self.__data[-2]['Length_id'] + 1
-        self.__data[-1]['Length Class'] = length_weight
-        self.__data[-1]['Length Number'] = length_number
         
         for rec in self.__data:
             if rec != {'dirty': True}:
@@ -305,7 +332,7 @@ class LengthTableModel(QAbstractTableModel):
                     rec['Length Class'], rec['Length Number'], length_unit[0])
                     
                     cur.execute(insert_statement)
-                    print(insert_statement)
+                    
                     ref.connection.commit()
                     cur.close()
                 
@@ -317,7 +344,7 @@ class LengthTableModel(QAbstractTableModel):
                     
                     cur = ref.connection.cursor()
                     cur.execute(update_statement)
-                    print(update_statement)
+                    
                     ref.connection.commit()
                     cur.close()
 
@@ -417,7 +444,7 @@ class Frm_Length(QWidget, frm_length.Ui_frm_length):
         
         self.length_model = LengthTableModel(0)
         self.tv_length.setModel(self.length_model)
-        print(ref.length_uid, 'set')
+        
         if self.__data != None:
             
             self.sb_length_weight.setValue(self.__data[2])
@@ -451,7 +478,7 @@ class Frm_Length(QWidget, frm_length.Ui_frm_length):
             ref.length_uid = cur.fetchone()[0] + position + 1
             
             cur.close()
-        print(ref.length_uid, 'select')
+        
         self.tv_length.reset()
         self.length_model = LengthTableModel(position)
         self.tv_length.setModel(self.length_model)
@@ -466,14 +493,20 @@ class Frm_Length(QWidget, frm_length.Ui_frm_length):
         fish_name = self.wgt_species.alpha_names[fish_id]
         fish_list = set()
         
+        aphiaid = self.wgt_species.edit_aphiaid.text()
+        latin = self.wgt_species.edit_latin.text()
+        print(fish_id, fish_name, aphiaid, latin)
         try:
-            for i in range(self.weight_model.rowCount()):
+            rows = self.weight_model.rowCount()
+            for i in range(rows):
                 fish_list.add(self.weight_model.data(self.weight_model.index(i, 0)))
             
             if fish_name not in fish_list:
-                self.weight_model.insertRows(self.weight_model.rowCount(), 2, QModelIndex(),
-                    data = [{'Fischart': fish_name, 'Category': 'L', 'dirty': True},
-                        {'Fischart': fish_name, 'Category': 'D', 'dirty': True}])
+                self.weight_model.insertRows(rows, 2, QModelIndex(),
+                    data = [{'Fischart': fish_name, 'Category': 'L', 
+                             'AphiaID': aphiaid, 'Latin': latin, 'dirty': True},
+                            {'Fischart': fish_name, 'Category': 'D',
+                             'AphiaID': aphiaid, 'Latin': latin, 'dirty': True}])
                 
                 self.cb_fishCategory.setCurrentIndex(0)
             
@@ -536,6 +569,11 @@ class Frm_Length(QWidget, frm_length.Ui_frm_length):
             
         self.weight_model.save_data(wg_all, num_all, wg_sample, num_sample, 
         wg_unit, len_unit)
+        
+        self.weight_model = WeightTableModel()
+        
+        self.tv_weight.reset()
+        self.tv_weight.setModel(self.weight_model)
             
     def insert_length(self):
         try:
