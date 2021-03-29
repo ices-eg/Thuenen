@@ -46,7 +46,7 @@ class Ui_frm_length(object):
         self.cb_fishCategory.setMaximumSize(QtCore.QSize(210, 25))
         self.cb_fishCategory.setObjectName("cb_fishCategory")
         self.gridLayout_3.addWidget(self.cb_fishCategory, 1, 2, 1, 1)
-        spacerItem2 = QtWidgets.QSpacerItem(55, 13, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        spacerItem2 = QtWidgets.QSpacerItem(55, 13, QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Minimum)
         self.gridLayout_3.addItem(spacerItem2, 1, 3, 1, 1)
         spacerItem3 = QtWidgets.QSpacerItem(20, 13, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         self.gridLayout_3.addItem(spacerItem3, 2, 2, 1, 1)
