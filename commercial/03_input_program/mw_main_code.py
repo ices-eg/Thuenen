@@ -16,6 +16,13 @@ from reference import Reference as ref
 
 
 class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
+    """This class is made for executing the main window, which
+    is connected to other tabs, forms, and widgets.
+    Action buttons on menu bar are connect server, choose cruise,
+    and new cruise.
+    Main tabs are station, gear, samples, and single.
+    Activity bar is located on the left, beside the form tabs.
+    """
 
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
@@ -51,22 +58,28 @@ class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
         self.tab_samples.tv_weight.doubleClicked.connect(self.select_weight)    
     
     def server_connect_triggered(self):
+        """Function to connect to server connect form (sc)"""
         self.sv_dlg = sc.Dlg_Server_Connect(self)
         self.sv_dlg.finished.connect(self.account_activated)
         self.sv_dlg.show()
     
     def account_activated(self):
+        """Function to ensure connection to database, before
+        enabling the menu bar options of choose / new cruise"""
         ref.connection = self.sv_dlg.log
         if ref.connection != None:
             self.actionChooseCruise.setEnabled(1)
             self.actionNewCruise.setEnabled(1)
         
     def choose_cruise_triggered(self):
+        """Function to trigger selection of cruise"""
         self.cs_dlg = cs.dlg_Cruise_Select(self)
         self.cs_dlg.finished.connect(self.cruise_chosen)
         self.cs_dlg.show()
 
     def cruise_chosen(self):
+        """Building reference of cruise ID and load
+        activity bar (hauls) after selection of cruise"""
         try:
             self.cruise_uid = self.cs_dlg.cruise_uid
             ref.cruise_uid = self.cruise_uid
@@ -75,6 +88,7 @@ class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
             pass
 
     def load_activities(self):
+        """Filling activity bar with options of hauls after selection of cruise"""
         self.tv_activity.clear()
         
         cruise_uid = self.cruise_uid
@@ -96,11 +110,14 @@ class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
         self.tv_activity.activated.connect(self.haul_selected)
     
     def new_cruise_triggered(self):
+        """Function to trigger new cruise"""
         self.nc_dlg = nc.dlg_New_Cruise(self)
         self.nc_dlg.finished.connect(self.new_cruise_added)
         self.nc_dlg.show()
 
     def new_cruise_added(self):
+        """Inserting the new cruise information to trip table
+        in the SQL database"""
         cur = ref.connection.cursor()
         cur.execute("SELECT MAX(tr_index) from com_new_final.trip;")
         self.cruise_uid = cur.fetchone()[0] + 1
@@ -118,6 +135,7 @@ class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
         start = datetime.strptime(self.nc_dlg.startdate, '%d/%m/%Y')#.date()
         end = datetime.strptime(self.nc_dlg.enddate, '%d/%m/%Y')#.date()
         
+        """Integration of error notification"""
         error_trip = check.checkingRangeTRIP(int(self.nc_dlg.year),
             int(self.nc_dlg.cruise_num), self.nc_dlg.EU_num, self.nc_dlg.ship_name,
             self.nc_dlg.ship_sign, start, end, self.nc_dlg.starthafen, self.nc_dlg.endhafen,
@@ -125,6 +143,7 @@ class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
         
         print(error_trip)
         
+        """If no errors, then the cruise data is saved to SQL database"""
         if error_trip == [[],[],[]]:
             cur.execute(trip_comm + result)
             ref.cruise_uid = self.cruise_uid
@@ -135,14 +154,16 @@ class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
 
             self.nh_dlg = nh.dlg_New_Haul(self.cruise_uid, self)
             self.nh_dlg.finished.connect(self.new_haul_added)
-            self.nh_dlg.show()
-            
+            self.nh_dlg.show()       
+        
         else:
+            """Else, message boxes are shown as notification"""
             for i in range(len(error_trip[2])):
                 QMessageBox.warning(self, error_trip[1][i],
                                     error_trip[0][i] + ": " + error_trip[2][i])
         
     def new_haul(self):
+        """Inserting new haul (if the cruise exists already)"""
         if self.cruise_uid is None:
             QMessageBox.warning(self, 'Fehler', 'Keine Reise ausgewählt')
             return
@@ -153,6 +174,7 @@ class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
             self.nh_dlg.show()
             
     def new_haul_added(self):
+        """Inserting new haul (if the cruise doesn't exist yet)"""
         self.haul_name = self.nh_dlg.ha_index
         self.tv_activity.addItem('HOL ' + self.haul_name)
         
@@ -172,6 +194,7 @@ class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
         
     
     def haul_selected(self, current):
+        """Selecting a haul and set the haul ID in the reference"""
         try:
             self.haul_uid = self.haul_idcs[self.tv_activity.currentRow()]
         except IndexError:
@@ -188,6 +211,7 @@ class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
             self.tab_gear.show_data()
     
     def open_samples(self):
+        """Setting up sample forms (weight, length, single bio)"""
         if self.haul_uid != None:
             self.tab_samples.setEnabled(1)
             
@@ -207,12 +231,15 @@ class MainWindow(QMainWindow, mw_main.Ui_mw_Main):
             return 
     
     def add_samples(self):
+        """Add or select weight sample data"""
         self.tab_samples.add_weight()
         
     def select_weight(self):
+        """Add or select length sample data"""
         self.tab_samples.select_length_data()
     
     def open_single(self):
+        """Add or select length single bio data"""
         try:
             self.length_uid = ref.length_uid
         except:
