@@ -122,6 +122,16 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lv_cfg</tabstop>
+  <tabstop>edt_name</tabstop>
+  <tabstop>edt_host</tabstop>
+  <tabstop>edt_port</tabstop>
+  <tabstop>edt_schema</tabstop>
+  <tabstop>edt_user</tabstop>
+  <tabstop>edt_password</tabstop>
+  <tabstop>btn_connect</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

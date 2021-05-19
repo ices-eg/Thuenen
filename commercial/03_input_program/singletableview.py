@@ -2,8 +2,6 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-import basetable as db
-
 class SingleHeaderView(QHeaderView):
 
     def __init__(self, orientation, parent=None):

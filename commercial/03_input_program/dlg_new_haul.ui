@@ -46,6 +46,10 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>edt_haul</tabstop>
+  <tabstop>btn_ok</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

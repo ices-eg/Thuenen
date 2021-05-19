@@ -12,7 +12,6 @@ from PyQt5.QtWidgets import *
 import frm_length
 import csv
 
-#import account
 from reference import Reference as ref
 
 
@@ -22,22 +21,37 @@ class WeightTableModel(QAbstractTableModel):
         super(WeightTableModel, self).__init__()
         
         self.haul_uid = ref.haul_uid
+        self.weight_uid = None
+        
         cur = ref.connection.cursor()
         
         sql_statement = """SELECT * FROM com_new_final.sample_weight WHERE
-        ha_index = {}""".format(self.haul_uid)
+        ha_index = {} ORDER BY we_index ASC""".format(self.haul_uid)
         cur.execute(sql_statement)
         weight_data = cur.fetchall()
-
-        if weight_data != None:
-            self.__data = [[] for i in range(len(weight_data))]
-            for i in range(len(weight_data)):
-                for j in [2,5,6,7,8,9]:
-                    self.__data[i].append(weight_data[i][j])
-
-        self.header = ['Fischart', 'Category', 'Gesamtgewicht', 'Gesamtanzahl', 'UP Gewicht', 'UP Anzahl']
-
-        ref.weight_uid = weight_data[0][0]
+        
+        self.header = ['Fischart', 'Category', 'Gesamtgewicht', 'Gesamtanzahl',
+                       'UP Gewicht', 'UP Anzahl', 'Gewicht Unit', 'Length Unit']
+        
+        column = [2] + list(range(5,10)) + [11,12]
+        
+        if weight_data != []:
+            self.__data = [dict((self.header[i], r[column[i]]) for i in
+                    range(len(column))) for r in weight_data]
+            
+            we_id = 0
+            
+            for s in self.__data:
+                s["Weight_id"] = weight_data[we_id][0]
+                we_id += 1
+                s["dirty"] = False
+            
+            ref.weight_uid = weight_data[0][0]
+            ref.weight_dic = [i["Weight_id"] for i in self.__data]
+        
+        else:
+            self.__data = []
+        
         cur.close()
 
     def rowCount(self, index=QModelIndex()):
@@ -52,25 +66,135 @@ class WeightTableModel(QAbstractTableModel):
         if orientation == Qt.Horizontal:
             return self.header[section]
         return int(section+1)
+    
+    def flags(self, index):
+        return Qt.ItemFlags(QAbstractTableModel.flags(self, index)|Qt.ItemIsEditable)
 
     def data(self, index, role = Qt.DisplayRole):
-        if not index.isValid() or not (0 <= index.row() < len(self.__data)) or index.column() >= len(self.header):
+        if not index.isValid() or not (0 <= index.row()< len(self.__data)) or index.column() >= len(self.header):
             return None
 
         data_row = self.__data[index.row()]
-        column = index.column()
+        k = self.header[index.column()]
 
         if role == Qt.DisplayRole or role == Qt.EditRole:
-            return data_row[column]
+            if k in data_row.keys():
+                return data_row[k]
+            else:
+                return None
 
         return None
+    
+    def insertRows(self, row, count, parent=QModelIndex(), data=[{}]):
+        self.beginInsertRows(parent, row, row+count-1)
+        for i, d in enumerate(data):
+            d2 = d.copy()
+            d2["dirty"] = True
+            self.__data.insert(row+i, d2)
+        self.endInsertRows()
+        return True
+    
+    def setData(self, index, value, role=Qt.EditRole):
+        if not index.isValid():
+            return False
+                
+        if role == Qt.EditRole:
+            self.__data[index.row()][index.column()] = value
+
+            k = self.header[index.column()]
+            self.__data[index.row()][k] = value
+            self.__data[index.row()]["dirty"] = True
+
+            if index.row() >= (len(self.__data)-1):
+                self.insertRows(index.row()+1, 1, data=[{}])
+            self.dataChanged.emit(index, index)
+            
+            return True
+        
+        return False
+    
+    def insertWeight(self, cat, wg_all, num_all, wg_sample, num_sample,
+                     wg_unit, len_unit):
+        
+        if cat == 'D':
+            self.__data[-2]['Category'] = 'L'
+            self.__data[-2]['Gesamtgewicht'] = wg_all
+            self.__data[-2]['Gesamtanzahl'] = num_all
+            self.__data[-2]['UP Gewicht'] = wg_sample
+            self.__data[-2]['UP Anzahl'] = num_sample
+            self.__data[-2]['Gewicht Unit'] = wg_unit
+            self.__data[-2]['Length Unit'] = len_unit
+        else:
+            self.__data[-3]['Category'] = 'D'
+            self.__data[-3]['Gesamtgewicht'] = wg_all
+            self.__data[-3]['Gesamtanzahl'] = num_all
+            self.__data[-3]['UP Gewicht'] = wg_sample
+            self.__data[-3]['UP Anzahl'] = num_sample
+            self.__data[-3]['Gewicht Unit'] = wg_unit
+            self.__data[-3]['Length Unit'] = len_unit
+        
+    def save_data(self, wg_all, num_all, wg_sample, num_sample, wg_unit, len_unit):
+        
+        cur = ref.connection.cursor()
+        index_statement = """SELECT MAX(we_index) FROM com_new_final.sample_weight;"""
+        cur.execute(index_statement)
+        new_id = cur.fetchone()[0] + 1
+        
+        self.__data[-1]['Gesamtgewicht'] = wg_all
+        self.__data[-1]['Gesamtanzahl'] = num_all
+        self.__data[-1]['UP Gewicht'] = wg_sample
+        self.__data[-1]['UP Anzahl'] = num_sample
+        self.__data[-1]['Gewicht Unit'] = wg_unit
+        self.__data[-1]['Length Unit'] = len_unit
+        
+        for rec in self.__data:
+            if rec != {'dirty': True}:
+                if rec["dirty"] is True:
+                    insert_statement = """INSERT INTO com_new_final.sample_weight 
+                    (we_index, ha_index, species, aphiaid, latin_name,
+                     catch_category, total_weight, total_numbers, subsample_weight,
+                     subsample_numbers, number_measured, weight_unit, length_unit) VALUES
+                    ({}, {}, '{}', {}, '{}', '{}', {}, {}, {}, {}, {},
+                     '{}', '{}');""".format(new_id, ref.haul_uid, rec['Fischart'], rec['AphiaID'],
+                    rec['Latin'], rec['Category'], rec['Gesamtgewicht'], rec['Gesamtanzahl'],
+                    rec['UP Gewicht'], rec['UP Anzahl'], rec['UP Anzahl'],
+                    rec['Gewicht Unit'], rec['Length Unit'])
+    
+                    cur = ref.connection.cursor()
+                    cur.execute(insert_statement)
+                    
+                    new_id += 1
+                    ref.connection.commit()
+                    cur.close()
+                
+                else:
+                    update_statement = """UPDATE com_new_final.sample_weight SET
+                    total_weight = {}, total_numbers = {}, subsample_weight = {},
+                    subsample_numbers = {}, number_measured = {} WHERE ha_index = {}
+                    AND species = '{}' AND catch_category = '{}';""".format(rec['Gesamtgewicht'],
+                    rec['Gesamtanzahl'], rec['UP Gewicht'], rec['UP Anzahl'], 
+                    rec['UP Anzahl'], ref.haul_uid, rec['Fischart'], rec['Category'])
+                    
+                    cur = ref.connection.cursor()
+                    cur.execute(update_statement)
+                    
+                    ref.connection.commit()
+                    cur.close()
+
 
 class LengthTableModel(QAbstractTableModel):
 
-    def __init__(self):
+    def __init__(self, position):
         super(LengthTableModel, self).__init__()
         
-        self.weight_uid = ref.weight_uid
+        self.weight_uid = ref.weight_dic[position]
+        ref.weight_uid = self.weight_uid
+        
+        self.length_uid = None
+        ref.length_dic = []
+        
+        self.header = ['Length Class', 'Length Number']
+        
         cur = ref.connection.cursor()
         
         sql_statement = """SELECT * FROM com_new_final.sample_length WHERE
@@ -78,14 +202,26 @@ class LengthTableModel(QAbstractTableModel):
         cur.execute(sql_statement)
         length_data = cur.fetchall()
         
-        if length_data != None:
-            self.__data = [[] for i in range(len(length_data))]
-            for i in range(len(length_data)):
-                for j in [2,3]:
-                    self.__data[i].append(length_data[i][j])
-
-        self.header = ['Length Class', 'Length Number']
-
+        if length_data != []:
+            self.__data = [dict((self.header[i], r[i+2]) for i in
+                    range(len(self.header))) for r in length_data]
+            
+            for i in range(len(self.__data)):
+                self.__data[i]["Length_id"] = length_data[i][0]
+                ref.length_dic.append(length_data[0])
+                self.__data[i]['dirty'] = False
+            
+            self.length_uid = self.__data[0]["Length_id"]
+            ref.length_uid = self.length_uid
+            
+        else:
+            self.__data = []
+        
+        cur = ref.connection.cursor()
+        sql_statement = """SELECT MAX (le_index) FROM com_new_final.sample_length"""
+        cur.execute(sql_statement)
+        self.new_id = cur.fetchone()[0]
+            
         cur.close()
 
     def rowCount(self, index=QModelIndex()):
@@ -106,13 +242,111 @@ class LengthTableModel(QAbstractTableModel):
             return None
 
         data_row = self.__data[index.row()]
-        column = index.column()
+        k = self.header[index.column()]
 
         if role == Qt.DisplayRole or role == Qt.EditRole:
-            return data_row[column]
+            if k in data_row.keys():
+                return data_row[k]
+            else:
+                return None
 
-        return None
+        return None    
+    
+    def flags(self, index):
+        return Qt.ItemFlags(QAbstractTableModel.flags(self, index)|Qt.ItemIsEditable)
 
+    def setData(self, index, value, role=Qt.EditRole):
+        if not index.isValid():
+            return False
+                
+        if role == Qt.EditRole:
+            self.__data[index.row()][index.column()] = value
+
+            k = self.header[index.column()]
+            self.__data[index.row()][k] = value
+            self.__data[index.row()]["dirty"] = True
+
+            if index.row() >= (len(self.__data)-1):
+                self.insertRows(index.row()+1, 1, data=[{}])
+            self.dataChanged.emit(index, index)
+            
+            return True
+        
+        return False
+    
+    def insertRows(self, row, count, parent=QModelIndex(), data=[{}]):
+        self.beginInsertRows(parent, row, row+len(data))
+        for d in data:
+            self.__data.insert(row, d)
+            ref.length_dic.append(self.new_id)
+            self.new_id += 1
+        self.endInsertRows()
+                
+        return True
+
+    def set_length(self, length, number, position = 0):
+        cur = ref.connection.cursor()
+            
+        sql_statement = """SELECT * FROM com_new_final.sample_length WHERE
+        we_index = {}""".format(ref.weight_uid)
+        cur.execute(sql_statement)
+        length_data = cur.fetchall()
+        
+        try:
+            self.__data[position]['Length_id'] = length
+            self.__data[position]['Length Class'] = length
+            self.__data[position]['Length Number'] = number
+            self.__data[position]['dirty'] = True
+        
+        except IndexError:
+            cur = ref.connection.cursor()
+            sql_statement = """SELECT MAX (le_index) FROM com_new_final.sample_length"""
+            cur.execute(sql_statement)
+            new_id = cur.fetchone()
+            
+            try:
+                position = len(self.__data)
+            except:
+                position = 0
+            
+            length_data = {'Length_id': new_id[0] + position + 1, 'Length Class': length,
+                           'Length Number': number, 'dirty': True}
+            
+            self.insertRows(len(self.__data), 1, data=[length_data])
+            
+    def save_data(self, length_weight, length_number):
+        
+        for rec in self.__data:
+            if rec != {'dirty': True}:
+                if rec["dirty"] is True:
+                    select_statement = """SELECT length_unit FROM com_new_final.sample_weight WHERE
+                    we_index = {}""".format(ref.weight_uid)
+                    
+                    cur = ref.connection.cursor()
+                    cur.execute(select_statement)
+                    length_unit = cur.fetchone()
+                    
+                    insert_statement = """INSERT INTO com_new_final.sample_length 
+                    (le_index, we_index, length_class, numbers_length, length_unit) VALUES
+                    ({}, {}, {}, {}, '{}');""".format(rec['Length_id'], ref.weight_uid,
+                    rec['Length Class'], rec['Length Number'], length_unit[0])
+                    
+                    cur.execute(insert_statement)
+                    
+                    ref.connection.commit()
+                    cur.close()
+                
+                else:
+                    update_statement = """UPDATE com_new_final.sample_length SET
+                    length_class = {}, numbers_length = {} WHERE
+                    le_index = {};""".format(rec['Length Class'], rec['Length Number'], 
+                    rec['Length_id'])
+                    
+                    cur = ref.connection.cursor()
+                    cur.execute(update_statement)
+                    
+                    ref.connection.commit()
+                    cur.close()
 
 
 class Frm_Length(QWidget, frm_length.Ui_frm_length):
@@ -121,37 +355,17 @@ class Frm_Length(QWidget, frm_length.Ui_frm_length):
         super(Frm_Length, self).__init__()
         
         self.setupUi(self)
-
-        alpha_names, alpha_latin, alpha_aphiaid = [], [], []
-        with open('alpha_id.csv', newline='') as alpha_id_file:
-            spamreader = csv.reader(alpha_id_file, delimiter=',')
-            for row in spamreader:
-                alpha_names.append(row[1])
-                alpha_latin.append(row[2])
-                alpha_aphiaid.append(row[3])
-                
-        self.alpha_latin = dict(zip(alpha_names, alpha_latin))
-        self.alpha_aphiaid = dict(zip(alpha_names, alpha_aphiaid))
-        
-        alpha_names = alpha_names[1:]
-        alpha_names.sort()
-        alpha_names +=  ["OTH"]
-        self.alpha_names = alpha_names
-        
-        self.cb_latin.addItems(self.alpha_names)
         
         self.cb_fishCategory.addItems(["Landing", "Discard"])
         self.cb_lengthUnit.addItems(["cm", "cm below", "1/2 cm"])
         self.cb_weightUnit.addItems(["g", "kg", "t"])
         
-        self.cb_latin.activated.connect(self.activate)
+        self.sb_number.editingFinished.connect(self.insert_length)
         
-        # self.sb_number.editingFinished.connect(self.insert_length)
-        # self.sb_number.editingFinished.connect(self.calc_all_number)
-        # self.btn_save.clicked.connect(self.save_data)
-        
+        self.btn_save1.clicked.connect(self.save_weight_data)
+        self.btn_save2.clicked.connect(self.save_length_data)
 
-    def set_data(self):
+    def set_weight_data(self):
         
         self.haul_uid = ref.haul_uid
         self.weight_uid = None
@@ -167,9 +381,11 @@ class Frm_Length(QWidget, frm_length.Ui_frm_length):
         cur.close()
         
         if self.__data != None:
-            index = self.alpha_names.index(self.__data[2])
-            self.cb_latin.setCurrentIndex(index)
-            self.activate()
+            ref.weight_uid = self.__data[1]
+            
+            index = self.wgt_species.alpha_names.index(self.__data[2])
+            self.wgt_species.cb_latin.setCurrentIndex(index)
+            self.wgt_species.activate()
             
             if self.__data[5] == "L":
                 self.cb_fishCategory.setCurrentIndex(0)
@@ -195,21 +411,193 @@ class Frm_Length(QWidget, frm_length.Ui_frm_length):
             self.sb_weight_sample.setValue(self.__data[8])
             self.sb_number_sample.setValue(self.__data[9])
             
-            self.weight_model = WeightTableModel()
-            self.length_model = LengthTableModel()
+        self.weight_model = WeightTableModel()
+        self.tv_weight.setModel(self.weight_model)
+    
+    
+    def set_length_data(self):
         
-            self.tv_weight.setModel(self.weight_model)
-            self.tv_length.setModel(self.length_model)
-
-    def activate(self):
-        fishcode = self.cb_latin.itemText(self.cb_latin.currentIndex())
-        if fishcode == "OTH":
-            self.edit_aphiaid.setEnabled(1)
-            self.edit_latin.setEnabled(1)
-        else:
-            self.edit_aphiaid.setEnabled(0)
-            self.edit_latin.setEnabled(0)
+        self.weight_uid = ref.weight_uid
+        
+        cur = ref.connection.cursor()
+        
+        sql_statement = """SELECT * FROM com_new_final.sample_length WHERE
+        we_index = {};""".format(self.weight_uid)
+        
+        cur.execute(sql_statement)
+        
+        self.__data = cur.fetchone()
+        cur.close()
+        
+        try:
+            ref.length_uid = self.__data[0][0]
+        except:
+            cur = ref.connection.cursor()
             
-            self.edit_aphiaid.setText(self.alpha_aphiaid[fishcode])
-            self.edit_latin.setText(self.alpha_latin[fishcode])
+            sql_statement = """SELECT MAX (le_index) FROM
+            com_new_final.sample_length;"""
+            
+            cur.execute(sql_statement)
+            ref.length_uid = cur.fetchone()[0] + 1
+            
+            cur.close()
+        
+        self.length_model = LengthTableModel(0)
+        self.tv_length.setModel(self.length_model)
+        
+        if self.__data != None:
+            
+            self.sb_length_weight.setValue(self.__data[2])
+            self.sb_number.setValue(self.__data[3])
+    
+    def select_length_data(self):
+        
+        self.weight_uid = ref.weight_uid
+        
+        position = self.tv_weight.selectionModel().selectedIndexes()[0].row()
+        
+        cur = ref.connection.cursor()
+        
+        sql_statement = """SELECT * FROM com_new_final.sample_length WHERE
+        we_index = {};""".format(self.weight_uid + position)
+        
+        cur.execute(sql_statement)
+        
+        self.__data = cur.fetchone()
+        cur.close()
+        
+        try:
+            ref.length_uid = self.__data[0]
+        except:
+            cur = ref.connection.cursor()
+            
+            sql_statement = """SELECT MAX (le_index) FROM
+            com_new_final.sample_length;"""
+            
+            cur.execute(sql_statement)
+            ref.length_uid = cur.fetchone()[0] + position + 1
+            
+            cur.close()
+        
+        self.tv_length.reset()
+        self.length_model = LengthTableModel(position)
+        self.tv_length.setModel(self.length_model)
+        
+        if self.__data != None:
+            
+            self.sb_length_weight.setValue(self.__data[2])
+            self.sb_number.setValue(self.__data[3])
+    
+    def add_weight(self):
+        fish_id = self.wgt_species.cb_latin.currentIndex()
+        fish_name = self.wgt_species.alpha_names[fish_id]
+        fish_list = set()
+        
+        aphiaid = self.wgt_species.edit_aphiaid.text()
+        latin = self.wgt_species.edit_latin.text()
+        print(fish_id, fish_name, aphiaid, latin)
+        try:
+            rows = self.weight_model.rowCount()
+            for i in range(rows):
+                fish_list.add(self.weight_model.data(self.weight_model.index(i, 0)))
+            
+            if fish_name not in fish_list:
+                self.weight_model.insertRows(rows, 2, QModelIndex(),
+                    data = [{'Fischart': fish_name, 'Category': 'L', 
+                             'AphiaID': aphiaid, 'Latin': latin, 'dirty': True},
+                            {'Fischart': fish_name, 'Category': 'D',
+                             'AphiaID': aphiaid, 'Latin': latin, 'dirty': True}])
+                
+                self.cb_fishCategory.setCurrentIndex(0)
+            
+                self.sb_weight_all.clear()
+                self.sb_number_all.clear()
+                self.sb_weight_sample.clear()
+                self.sb_number_sample.clear()
+            
+                self.tv_weight.reset()
+                self.tv_weight.setModel(self.weight_model)
+            
+                cur = ref.connection.cursor()
+            
+                sql_statement = """SELECT MAX(we_index) FROM
+                com_new_final.sample_weight"""
+                cur.execute(sql_statement)
+                weight_data = cur.fetchone()
+            
+                ref.weight_uid = weight_data[0]
+                ref.weight_uid += 1
+            
+                self.tv_length.reset()
+                self.length_model = LengthTableModel(0)
+                self.tv_length.setModel(self.length_model)
+            
+                self.sb_length_weight.clear()
+                self.sb_number.clear()
+                        
+            else:
+                wg_all = float(self.sb_weight_all.value())
+                num_all = int(self.sb_number_all.value())
+                wg_sample = float(self.sb_weight_sample.value())
+                num_sample = int(self.sb_number_sample.value())
+                wg_unit = self.cb_weightUnit.currentText()
+                len_unit = self.cb_lengthUnit.currentText()
+            
+                fish_id = self.wgt_species.cb_latin.currentIndex()
+                fish_name = self.wgt_species.alpha_names[fish_id]
+            
+                if self.cb_fishCategory.currentIndex() == 1:
+                    data = ['D', wg_all, num_all, wg_sample, num_sample,
+                    wg_unit, len_unit]
+                else:
+                    data = ['L', wg_all, num_all, wg_sample, num_sample,
+                    wg_unit, len_unit]   
+                
+                self.weight_model.insertWeight(*data)
+                self.tv_weight.reset()
+                self.tv_weight.setModel(self.weight_model)
+        except:
+            pass
+        
+    def save_weight_data(self):
+        wg_all = float(self.sb_weight_all.value())
+        num_all = int(self.sb_number_all.value())
+        wg_sample = float(self.sb_weight_sample.value())
+        num_sample = int(self.sb_number_sample.value())
+        wg_unit = self.cb_weightUnit.currentText()
+        len_unit = self.cb_lengthUnit.currentText()
+            
+        self.weight_model.save_data(wg_all, num_all, wg_sample, num_sample, 
+        wg_unit, len_unit)
+        
+        self.weight_model = WeightTableModel()
+        
+        self.tv_weight.reset()
+        self.tv_weight.setModel(self.weight_model)
+            
+    def insert_length(self):
+        try:
+            position = self.length_model.rowCount()
+        except:
+            position = 0
+        
+        self.length_model.set_length(self.sb_length_weight.value(),
+                                     self.sb_number.value(), position)
+
+        self.sb_length_weight.setValue(self.sb_length_weight.value() + 1)
+
+        self.sb_number.editingFinished.disconnect(self.insert_length)
+        self.sb_number.setValue(0)
+        self.sb_number.editingFinished.connect(self.insert_length)
+
+        self.tv_length.setModel(self.length_model)
+        self.tv_length.sortByColumn(0, Qt.AscendingOrder)
+        self.tv_length.setSortingEnabled(True)
+        self.tv_length.viewport().update()
+    
+    def save_length_data(self):
+        length_weight = float(self.sb_length_weight.value())
+        length_number = int(self.sb_number.value())
+            
+        self.length_model.save_data(length_weight, length_number)
 

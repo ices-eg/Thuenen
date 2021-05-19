@@ -12,4 +12,7 @@ class Reference:
         self.haul_uid = None
         
         self.weight_uid = None
+        self.weight_dic = None
+        
         self.length_uid = None
+        self.length_dic = None

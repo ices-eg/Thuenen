@@ -236,7 +236,7 @@ class Frm_Station(QWidget, frm_station.Ui_frm_station):
             year = {}, quarter = {}, month = {}, haul = {}, fostartdate = '{}',
             fostarttime = '{}', foenddate = '{}', foendtime = '{}', fishing_duration = '{}',
             fostartlat = '{}', fostartlon = '{}', fostoplat = '{}', fostoplon = '{}',
-            rectangle = '{}') WHERE ha_index = {}""".format(self.cruise_uid, 
+            rectangle = '{}' WHERE ha_index = {}""".format(self.cruise_uid, 
             year, quartal, month, haul, de_start, te_start, de_end, te_end, duration, 
             lat_start, lat_end, lon_start, lon_start, rectangle, self.haul_uid)
     

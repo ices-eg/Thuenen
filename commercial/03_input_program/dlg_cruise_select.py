@@ -38,6 +38,8 @@ class Ui_dlg_cruise_select(object):
 
         self.retranslateUi(dlg_cruise_select)
         QtCore.QMetaObject.connectSlotsByName(dlg_cruise_select)
+        dlg_cruise_select.setTabOrder(self.tv_cruises, self.btn_search)
+        dlg_cruise_select.setTabOrder(self.btn_search, self.btn_select)
 
     def retranslateUi(self, dlg_cruise_select):
         _translate = QtCore.QCoreApplication.translate

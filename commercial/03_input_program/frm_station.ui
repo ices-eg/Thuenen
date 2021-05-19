@@ -332,6 +332,22 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>edt_jahr</tabstop>
+  <tabstop>edt_quartal</tabstop>
+  <tabstop>edt_monat</tabstop>
+  <tabstop>edt_haul_name</tabstop>
+  <tabstop>de_start</tabstop>
+  <tabstop>te_start</tabstop>
+  <tabstop>de_end</tabstop>
+  <tabstop>te_end</tabstop>
+  <tabstop>te_duration</tabstop>
+  <tabstop>btn_add_coords</tabstop>
+  <tabstop>tv_coords</tabstop>
+  <tabstop>btn_save1</tabstop>
+  <tabstop>pte_notation</tabstop>
+  <tabstop>btn_save2</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

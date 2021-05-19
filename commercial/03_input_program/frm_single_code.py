@@ -13,47 +13,35 @@ import frm_single
 
 #import account
 from reference import Reference as ref
-
+from materialized_view import MaterializedView as mv
 
 class SingleTableModel(QAbstractTableModel):
 
-    def __init__(self, cruise_uid, species=None, parent=None):
+    def __init__(self, parent=None):
         super(SingleTableModel, self).__init__(parent)
 
-        self.cruise_uid = cruise_uid
-        self.species = species
+        self.length_uid = ref.length_uid
+        self.header = ['Fisch ID', 'Length', 'Weight', 'Sex', 'Maturity', 'Age',
+                       'Readability', 'Gut Weight', 'Liver Weight', 'Liver Color',
+                       'Stomach', 'Parasites', 'Fins', 'Gonad Weight']
         
         cur = ref.connection.cursor()
         
-        sql_statement = """SELECT * FROM com_new_final.sample_bio WHERE
-        bi_index = {}""".format(self.haul_uid)
+        single_table = mv(self.length_uid)
+        sql_statement = single_table.sql()
         cur.execute(sql_statement)
-        weight_data = cur.fetchall()
-
-        if weight_data != None:
-            self.__data = [[] for i in range(len(weight_data))]
-            for i in range(len(weight_data)):
-                for j in [2,5,6,7,8,9]:
-                    self.__data[i].append(weight_data[i][j])
-
-        self.header = ['Fischart', 'Category', 'Gesamtgewicht', 'Gesamtanzahl', 'UP Gewicht', 'UP Anzahl']
-
+        
+        bio_data = cur.fetchall()
+        ref.connection.commit()
         cur.close()
-
-        # db_cruise = session.query(db.Cruise).filter(db.Cruise.id == self.cruise_uid).first()
-
-        # self.__data = [s.as_dict() for s in db_cruise.singles() if s.species() == species]
-
-        # for s in self.__data:
-        #     s["dirty"] = False
-
-        # self.single_protocol = [[sp.name,sp.table] for sp in session.query(db.Single_Protocol).filter(db.Single_Protocol.species == int(species)).order_by(db.Single_Protocol.col_nr).all()]
-
-        # translation = {r.english: r.german for r in session.query(db.Ui_Translation).all()}
-        # self.header = [translation[item[0]] for item in self.single_protocol]
-
-        # if len(self.__data) == 0:
-        #     self.__data.append({"id": None, "dirty": False})
+        
+        self.__data = [dict((self.header[i-1], r[i]) for i in
+                            range(1, len(r))) for r in bio_data]
+        for s in self.__data:
+            s["dirty"] = False
+        
+        if len(self.__data) == 0:
+            self.__data.append({"dirty": True})
 
     def rowCount(self, index=QModelIndex()):
         return len(self.__data)
@@ -73,13 +61,14 @@ class SingleTableModel(QAbstractTableModel):
             return None
 
         data_row = self.__data[index.row()]
-        k = self.single_protocol[index.column()][0]
+        k = self.header[index.column()]
 
         if role == Qt.DisplayRole or role == Qt.EditRole:
             if k in data_row.keys():
                 return data_row[k]
             else:
                 return None
+        
         return None
 
     def flags(self, index):
@@ -90,14 +79,15 @@ class SingleTableModel(QAbstractTableModel):
             return False
 
         if role == Qt.EditRole:
-            k = self.single_protocol[index.column()][0]
+            self.__data[index.row()][index.column()] = value
+
+            k = self.header[index.column()]
             self.__data[index.row()][k] = value
             self.__data[index.row()]["dirty"] = True
 
             if index.row() >= (len(self.__data)-1):
                 self.insertRows(index.row()+1, 1, data=[{}])
             self.dataChanged.emit(index, index)
-            print(self.__data)
             return True
         return False
 
@@ -105,118 +95,211 @@ class SingleTableModel(QAbstractTableModel):
         self.beginInsertRows(parent, row, row+count-1)
         for i, d in enumerate(data):
             d2 = d.copy()
-            d2["id"] = None
             d2["dirty"] = True
             self.__data.insert(row+i, d2)
         self.endInsertRows()
         return True
-
-    def handle_nutrition(self, record, key, db_single, session):
-
-        (col, idx) = key.split('_')
-        attr = ''
-        if col == 'Item':
-            attr = 'nutrition'
-        elif col == 'perc':
-            attr = 'percentage'
-
-        if int(idx)-1 > len(db_single.nutritions)-1:
-            nutri = db.Single_nutrition()
-            db_single.nutritions.append(nutri)
-            setattr(nutri, attr, record[key])
-            session.add(nutri)
-        else:
-            setattr(db_single.nutritions[int(idx)-1], attr, record[key])
-
-    def set_values(self, record, db_single, session):
-
-        for prot_item in self.single_protocol:
-            key = prot_item[0]
-            table = prot_item[1]
-
-            if key in record.keys():
-                if table == 'single':
-                    setattr(db_single, key, record[key])
-                elif table == 'single_trait':
-                    if key not in db_single.traits.keys():
-                        db_param = session.query(db.Parameter).filter(db.Parameter.name == key).first()
-                        new_trait = db.Single_Trait(parameter=db_param, value=record[key])
-                        db_single.traits[key] = new_trait
-                        session.add(new_trait)
-                    else:
-                        db_single.traits[key].value = record[key]
-                elif table == 'single_nutrition':
-                    self.handle_nutrition(record, key, db_single, session)
-
-    def new_data(self, record, session):
-        db_single = db.Single()
-        db_new_station = session.query(db.Station).filter(db.Station.name == record["station"]).first()
-        db_single.activity = db_new_station.hauls[0].activity
-        db_single.weight = db_single.weight[:]
-        db_single.weight.append(db_new_station.hauls[0].weight(self.species))
-
-        self.set_values(record, db_single, session)
-
-        session.add(db_single)
-
-    def update_data(self, record, session):
-
-        db_single = session.query(db.Single).filter(db.Single.id == record["id"]).first()
-        if db_single.activity.haul[0].station().name != record["station"]:
-            # hänge station um
-            db_new_station = session.query(db.Station).filter(db.Station.name == record["station"]).first()
-            db_single.activity = db_new_station.hauls[0].activity
-            db_single.weight = db_single.weight[:]
-            db_single.weight.append(db_new_station.hauls[0].weight(self.species))
-
-        self.set_values(record, db_single, session)
-
-        session.add(db_single)
-
-    # def save_data(self):
-    #     session = db.session()
-
-    #     for record in self.__data:
-    #         if record != {'id': None, 'dirty': True}:
-    #             # Datensatz bearbeitet
-    #             if record["dirty"] is True:
-    #                 # Datensatz ist neu
-    #                 if record["id"] is None:
-    #                     self.new_data(record, session)
-    #                     record["dirty"] = False
-    #                 else:
-    #                     self.update_data(record, session)
-    #                     record["dirty"] = False
-
-    #     session.commit()
-    #     session.close()
+    
+    def save_data(self):
+        cur = ref.connection.cursor()
+        index_statement = """SELECT MAX(bi_index) FROM com_new_final.sample_bio;"""
+        cur.execute(index_statement)
+        new_id = cur.fetchone()[0] + 1
+        
+        parameter_id = "SELECT * FROM com_new_final.parameter;"
+        cur.execute(parameter_id)
+        parameter = cur.fetchall()
+        
+        units = {}
+        for i in parameter:
+            units[int(i[0])] = int(i[2])
+        
+        for rec in self.__data:
+            
+            if rec != {'dirty': True}:
+                # Datensatz bearbeitet
+                if rec["dirty"] is True:
+                    # Datensatz ist neu
+                    fish_id, par, value, unit = 0, 0, 0, 0
+                    
+                    for i in range(1, len(rec) // 2 - 1):
+                        fish_id = int(rec['Fisch ID'])
+                        par = int(i)
+                        value = rec[self.header[par]]
+                        unit = units[par]
+                        
+                        insert_statement = """INSERT INTO com_new_final.sample_bio 
+                    (bi_index, le_index, fish_id, parameter, value, unit) VALUES
+                    ({}, {}, {}, {}, '{}', {});""".format(new_id,
+                    self.length_uid, fish_id, par, value, unit)
+                        
+                        cur = ref.connection.cursor()
+                        cur.execute(insert_statement)
+                        new_id += 1
+                        ref.connection.commit()
+                        cur.close()
+                
+                else:
+                    # Datensatz ist schon vorbereit
+                    fish_id = int(rec['Fisch ID'])
+                    
+                    select_bi_index = """SELECT bi_index FROM
+                    com_new_final.sample_bio WHERE le_index = {} AND
+                    fish_id = {};""".format(self.length_uid, fish_id)
+                    
+                    select_parameter = """SELECT parameter FROM
+                    com_new_final.sample_bio WHERE le_index = {} AND
+                    fish_id = {};""".format(self.length_uid, fish_id)
+                    
+                    cur = ref.connection.cursor()
+                    cur.execute(select_bi_index)
+                    update_bi_id = cur.fetchall()
+                    
+                    cur = ref.connection.cursor()
+                    cur.execute(select_parameter)
+                    update_parameter = cur.fetchall()
+                    
+                    for i in range(1, len(rec) // 2 - 1):
+                        par = int(i)
+                        value = rec[self.header[par]]
+                        unit = units[par]
+                        
+                        if par in update_parameter:
+                            bi_id = update_bi_id[update_parameter.index(par)]
+                            
+                            update_statement = """UPDATE com_new_final.sample_bio 
+                    SET parameter = {}, value = '{}', unit = {} WHERE bi_index =
+                    {};""".format(par, value, unit, bi_id)
+                        
+                            cur = ref.connection.cursor()
+                            cur.execute(update_statement)
+                            new_id += 1
+                            ref.connection.commit()
+                            cur.close()
+                        
+                        else:
+                            insert_statement = """INSERT INTO com_new_final.sample_bio 
+                    (bi_index, le_index, fish_id, parameter, value, unit) VALUES
+                    ({}, {}, {}, {}, '{}', {});""".format(new_id,
+                    self.length_uid, fish_id, par, value, unit)
+    
+                            cur = ref.connection.cursor()
+                            cur.execute(insert_statement)
+                            new_id += 1
+                            ref.connection.commit()
+                            cur.close()
+    
 
 class Frm_Single(QWidget,frm_single.Ui_frm_single):
 
     def __init__(self,parent=None):
         super(Frm_Single, self).__init__(parent)
         self.setupUi(self)
-
-        self.cruise_uid = None
-        self.species = None
-
-        self.model = None
-
+        
+        self.cb_fishCategory.addItems(["Landing", "Discard"])
+        
+        self.wgt_species.cb_latin.currentIndexChanged.connect(self.select_species)
+        self.cb_length_class.currentIndexChanged.connect(self.select_length)
+        
         self.btn_save.clicked.connect(self.save_data)
 
         self.setEnabled(False)
 
-    def set_data(self, cruise_uid):
-        self.wgt_species.set_data()
-        self.wgt_species.dataChanged.connect(self.species_selected)
+    def set_data(self):
+        self.haul_uid = ref.haul_uid
+        
+        cur = ref.connection.cursor()
+        
+        sql_statement = """SELECT we_index, species, catch_category FROM
+        com_new_final.sample_weight WHERE ha_index = {};""".format(self.haul_uid)
+        
+        cur.execute(sql_statement)
+        weight_data = cur.fetchone()
+        cur.close()
+        
+        if weight_data != None:
+            ref.weight_uid = weight_data[0]
+            
+            index = self.wgt_species.alpha_names.index(weight_data[1])
+            self.wgt_species.cb_latin.setCurrentIndex(index)
+            self.wgt_species.activate()
+            
+            if weight_data[2] == "L":
+                self.cb_fishCategory.setCurrentIndex(0)
+            else:
+                self.cb_fishCategory.setCurrentIndex(1)
+            
+            self.species_selected()
+            self.setEnabled(True)
 
-        self.setEnabled(True)
-
-    def species_selected(self, bfa_num):
-        self.model = SingleTableModel(self.cruise_uid, str(bfa_num))
-        self.tv_single.horizontalHeader().set_context(self.model.header)
-        self.tv_single.setModel(self.model)
+    def species_selected(self):
+        self.weight_uid = ref.weight_uid
+        cur = ref.connection.cursor()
+        
+        sql_statement = """SELECT le_index, length_class FROM
+        com_new_final.sample_length WHERE we_index = {};""".format(self.weight_uid)
+            
+        cur.execute(sql_statement)
+        length_data = cur.fetchall()
+        cur.close()
+            
+        self.__data = {}
+        for i in length_data:
+            self.__data[str(i[1])] = i[0]
+            
+        length_class = list(self.__data.keys())
+        #print(ref.weight_uid, ref.length_uid, length_class)
+            
+        self.cb_length_class.clear()
+        self.cb_length_class.addItems(length_class)
+        
+        #print(ref.weight_uid, ref.length_uid)
+        self.single_model = SingleTableModel()
+        self.tv_single.horizontalHeader().set_context(self.single_model.header)
+        self.tv_single.setModel(self.single_model)
+        #print(ref.weight_uid, ref.length_uid)
+        
+    def select_species(self):
+        self.haul_uid = ref.haul_uid
+        
+        species = self.wgt_species.cb_latin.currentText()
+        if self.cb_fishCategory.currentIndex() == 0:
+            catch = 'L'
+        else:
+            catch = 'D'
+        
+        cur = ref.connection.cursor()
+        
+        sql_statement = """SELECT we_index, species, catch_category FROM
+        com_new_final.sample_weight WHERE ha_index = {} AND species = '{}'
+        AND catch_category = '{}';""".format(self.haul_uid, species, catch)
+        
+        cur.execute(sql_statement)
+        weight_data = cur.fetchone()
+        cur.close()
+        
+        if weight_data != None:
+            ref.weight_uid = weight_data[0]
+        else:
+            QMessageBox.warning(self, 'Fehler', 'Keine Fisch')
+            return
+        
+        self.species_selected()
+    
+    def select_length(self):
+        length = self.cb_length_class.currentText()
+        
+        try:
+            self.length_uid = self.__data[str(length)]
+            ref.length_uid = self.length_uid
+        except:
+            pass
+        
+        self.single_model = SingleTableModel()
+        self.tv_single.horizontalHeader().set_context(self.single_model.header)
+        self.tv_single.setModel(self.single_model)
+        #print(ref.weight_uid, ref.length_uid)
 
     def save_data(self):
-        if self.model is not None:
-            self.model.save_data()
+        if self.single_model is not None:
+            self.single_model.save_data()

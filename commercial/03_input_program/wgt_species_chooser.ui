@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>573</width>
+    <width>637</width>
     <height>33</height>
    </rect>
   </property>
@@ -39,14 +39,14 @@
    <item>
     <widget class="QComboBox" name="cb_latin">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+      <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
      <property name="minimumSize">
       <size>
-       <width>110</width>
+       <width>130</width>
        <height>20</height>
       </size>
      </property>
@@ -74,14 +74,14 @@
    <item>
     <widget class="QLineEdit" name="edit_aphiaid">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+      <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
      <property name="minimumSize">
       <size>
-       <width>110</width>
+       <width>130</width>
        <height>18</height>
       </size>
      </property>
