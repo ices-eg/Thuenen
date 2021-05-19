@@ -62,9 +62,12 @@ class Dlg_Server_Connect(QDialog, dlg_server_connect.Ui_dlg_ServerConnect):
         log = self.cfg_model.connectionString(idx)
         
         try:
+            #self.log = pg.connect(user=log['user'], password=log['password'],
+            #           host=log['server'], port=log['port'],
+            #           dbname=log['database'],
+            #           options='-c search_path=' + log['schema'])
             self.log = pg.connect(user=log['user'], password=log['password'],
                        host=log['server'], port=log['port'],
-                       dbname=log['database'],
                        options='-c search_path=' + log['schema'])
             self.done(0)
         
@@ -80,4 +83,3 @@ class Dlg_Server_Connect(QDialog, dlg_server_connect.Ui_dlg_ServerConnect):
         self.edt_schema.setText(cfg['schema'])
         self.edt_user.setText(cfg['user'])
         self.edt_password.setText(cfg['password'])
-        
