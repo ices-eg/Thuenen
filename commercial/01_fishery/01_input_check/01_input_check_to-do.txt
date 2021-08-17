@@ -6,7 +6,7 @@ To-Do for the commercial_fishery_01_upload_check
 --> required working steps:
 	- load data into DB
 	- load data into R environment, cut areas to Baltic sea
-		--> create function to select area while loading (Baltic, North Sea, North Atlantic and transition Ska/Kat)
+--> create function to select area while loading (Baltic, North Sea, North Atlantic and transition Ska/Kat)
 	- check data for consistency 
 		--> use SQL scripts from MySQL data checks
 	- check data for content 
