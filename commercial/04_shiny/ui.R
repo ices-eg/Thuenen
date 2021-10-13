@@ -33,9 +33,9 @@ shinyUI(
                  br(),
                  fluidRow(
                      column(12, align="center",
-                            div(style="display: inline-block;",class= "image", img(id="fisheryID", src="fishery_logo.png", height=250, style="cursor:pointer;margin-right:40px;")),
-                            div(style="display: inline-block;",class= "image", img(id ="sampleID", src="sampling_logo.png", height=250, style="cursor:pointer;margin-right:40px;")),
-                            div(style="display: inline-block;",class= "image", img(id ="stockID", src="stock_logo.png", height=250, style="cursor:pointer;margin-right:40px;"))
+                            div(style="display: inline-block;",class= "image", img(id="fisheryID", src="fishery_logo_eng.png", height=250, style="cursor:pointer;margin-right:40px;")),
+                            div(style="display: inline-block;",class= "image", img(id ="sampleID", src="sampling_logo_eng.png", height=250, style="cursor:pointer;margin-right:40px;")),
+                            div(style="display: inline-block;",class= "image", img(id ="stockID", src="stock_logo_eng.png", height=250, style="cursor:pointer;margin-right:40px;"))
         
                  )),
         ),
@@ -43,20 +43,20 @@ shinyUI(
    # Fisheries overview tab
    # -----------------------------------
         navbarMenu(
-            "Fischerei",
+            "Fishery",
             
-            tabPanel(id="tabfish_over", "Übersicht"
+            tabPanel(id="tabfish_over", "Fishery overview"
             ),
       # -----------------------------------
       # fleet overview
       # -----------------------------------
-            tabPanel(id="tabInventory", "Flotte"
+            tabPanel(id="tabInventory", "Fleet data"
       
             ),
       # -----------------------------------
       # landings overview
       # -----------------------------------
-        tabPanel(id="tabInventory", "Anlandungen"
+        tabPanel(id="tabInventory", "Landings"
                  
         )),
         
@@ -66,29 +66,29 @@ shinyUI(
    # Sampling overview tab
    # -----------------------------------
         navbarMenu(
-            "Beprobung",
+            "Sampling",
           
-            tabPanel(id="tabsample_over", "Übersicht"
+            tabPanel(id="tabsample_over", "Sampling overview"
             ),  
       # -----------------------------------
       # cruise report markdown
       # -----------------------------------
-            tabPanel(id="tabInventory", "Reisebericht"
+            tabPanel(id="tabInventory", "Cruise report"
                      
             )),
    # -----------------------------------
    # Stock overview tab
    # -----------------------------------
         navbarMenu(
-          "Biologie",
-          tabPanel(id="tabstock_over", "Übersicht"
+          "Biology",
+          tabPanel(id="tabstock_over", "Biology overview"
           ), 
       # -----------------------------------
       # species selection and basic data
       # -----------------------------------
-            tabPanel(id="tabInventory", "Fischarten"),
+            tabPanel(id="tabInventory", "Species"),
             
-            tabPanel(id="tablength", "Längenverteilung",
+            tabPanel(id="tablength", "Length distributions",
                fluidPage(
                  titlePanel("fish length test"), 
                  sidebarLayout(
