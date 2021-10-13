@@ -92,14 +92,22 @@ shinyUI(
                fluidPage(
                  titlePanel("fish length test"), 
                  sidebarLayout(
-                   sidebarPanel(), 
+                   sidebarPanel(
+#                     selectInput("tbl_sample_length", "Choose a dataset:",
+#                                 choices = c("cod", "plaice", "flounder")
+#                     ),
+#                     numericInput("area", "Number of observations to view:", 10),
+#                     sliderInput("year", "Year",
+#                                 min = 2016,
+#                                 max = 2020
+                   ), 
                    helpText("test some stuff")
                  ) # end layout    
-                 ) # end fluidpage  
-                 ) # end tabPanel 
-                 ) # end navbarmenue    
+                ) # end fluidpage  
+              ) # end tabPanel 
+            ) # end navbarmenue    
                      
-                     
+# -------                     
                      
     ) # end Navbarpage
 )# end of ui
