@@ -29,36 +29,35 @@ library(data.table)
   
   left_join(haul_fo,sample_trip, by="tr_index")
 
-# connect to database
-pw <- { "" }
-drv <- dbDriver("PostgreSQL")
-conn <- dbConnect(drv, dbname = "dcmap_entwicklung",
-                  host = "",
-                  user = "",
-                  password = pw)
-rm(pw)
+# connect to database, deactiviated for now to use the example data from getWD
+# pw <- { "" }
+# drv <- dbDriver("PostgreSQL")
+# conn <- dbConnect(drv, dbname = "dcmap_entwicklung",
+#                   host = "",
+#                   user = "",
+#                   password = pw)
+# rm(pw)
 
 # set query path (public, less work in typing)
-dbGetQuery(conn,"SET search_path TO com_sample_original,public")
+# dbGetQuery(conn,"SET search_path TO com_sample_original,public")
 
-# Vollständigkeitsprüfung
+## check data for completeness and connection (indices)
 
-# (REISENR,EUNR) in REISE,LOGBUCH und ANLANDUNG gleichermaßen vorhanden
-# Beziehungen :
-#
-# in REISE sind alle Reisen vorhanden
-# LOGBUCH hat alle Reisen mit Schiffen > 8m
-# ANLANDUNG wiederrum alle Reisen  
+## load into R environment 
+##
+## 
+## 
+##  
 
-sample_trip <- dbGetQuery(conn,"SELECT * FROM reise")
+sample_trip <- dbGetQuery(conn,"SELECT * FROM trip")
 
-sample_haul_fo <- dbGetQuery(conn,"SELECT * FROM reise")
-sample_haul_gear <- dbGetQuery(conn,"SELECT * FROM reise")
-sample_haul_env <- dbGetQuery(conn,"SELECT * FROM reise")
-
-sample_weight <- dbGetQuery(conn,"SELECT * FROM reise")
-sample_length <- dbGetQuery(conn,"SELECT * FROM reise")
-sample_bio <- dbGetQuery(conn,"SELECT * FROM reise")
+sample_haul_fo <- dbGetQuery(conn,"SELECT * FROM haul_fo")
+sample_haul_gear <- dbGetQuery(conn,"SELECT * FROM haul_gear")
+sample_haul_env <- dbGetQuery(conn,"SELECT * FROM haul_env")
+# consider to combine haul table again? 
+sample_weight <- dbGetQuery(conn,"SELECT * FROM sample_weight")
+sample_length <- dbGetQuery(conn,"SELECT * FROM sample_length")
+sample_bio <- dbGetQuery(conn,"SELECT * FROM sample_bio")
 
 
 
