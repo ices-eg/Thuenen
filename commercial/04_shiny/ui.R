@@ -45,6 +45,8 @@ shinyUI(
         navbarMenu(
             "Fischerei",
             
+            tabPanel(id="tabfish_over", "Übersicht"
+            ),
       # -----------------------------------
       # fleet overview
       # -----------------------------------
@@ -65,7 +67,9 @@ shinyUI(
    # -----------------------------------
         navbarMenu(
             "Beprobung",
-            
+          
+            tabPanel(id="tabsample_over", "Übersicht"
+            ),  
       # -----------------------------------
       # cruise report markdown
       # -----------------------------------
@@ -76,15 +80,26 @@ shinyUI(
    # Stock overview tab
    # -----------------------------------
         navbarMenu(
-            "Biologie",
-            
+          "Biologie",
+          tabPanel(id="tabstock_over", "Übersicht"
+          ), 
       # -----------------------------------
       # species selection and basic data
       # -----------------------------------
-            tabPanel(id="tabInventory", "Fischarten"
-                     
-            ))
-        
+            tabPanel(id="tabInventory", "Fischarten"),
             
+            tabPanel(id="tablength", "Längenverteilung",
+               fluidPage(
+                 titlePanel("fish length test"), 
+                 sidebarLayout(
+                   sidebarPanel(), 
+                   helpText("test some stuff")
+                 ) # end layout    
+                 ) # end fluidpage  
+                 ) # end tabPanel 
+                 ) # end navbarmenue    
+                     
+                     
+                     
     ) # end Navbarpage
 )# end of ui
