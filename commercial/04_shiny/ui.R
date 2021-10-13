@@ -1,6 +1,7 @@
 
 library(shiny)
 
+# myUrl <- "https://thuenen-sampling.de"
 shinyUI(
     
     
@@ -45,8 +46,21 @@ shinyUI(
         navbarMenu(
             "Fishery",
             
-            tabPanel(id="tabfish_over", "Fishery overview"
-            ),
+      # -----------------------------------
+      # fishing fleet overview
+      # -----------------------------------
+            tabPanel(id="tabfish_over", "Fishery overview",
+                     dashboardPage(
+                       dashboardHeader(disable = TRUE),
+                       dashboardSidebar(disable = TRUE),
+                       dashboardBody(
+                         fluidPage(
+                           fluidRow(valueBoxOutput("box1"),
+                                    valueBoxOutput("box2"),
+                                    valueBoxOutput("box3")))
+                              ) #dashboardpage
+                           ), #tabpanel
+                     ),
       # -----------------------------------
       # fleet overview
       # -----------------------------------
@@ -95,15 +109,13 @@ shinyUI(
                    sidebarPanel(
 #                     selectInput("tbl_sample_length", "Choose a dataset:",
 #                                 choices = c("cod", "plaice", "flounder")
-#                     ),
+#                                  ),
 #                     numericInput("area", "Number of observations to view:", 10),
-#                     sliderInput("year", "Year",
-#                                 min = 2016,
-#                                 max = 2020
-                   ), 
-                   helpText("test some stuff")
+                      sliderInput("year", "Year", min = 2016, max = 2020, value = 1), 
+                      helpText("test some stuff")), 
+                   mainPanel(plotOutput("distPlot"))
                  ) # end layout    
-                ) # end fluidpage  
+                ) # end fluidpage
               ) # end tabPanel 
             ) # end navbarmenue    
                      
