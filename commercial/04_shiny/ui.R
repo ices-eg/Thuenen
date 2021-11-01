@@ -1,5 +1,8 @@
 
 library(shiny)
+#library(shinyjs)
+#library(shinydashboard)
+#library(rintrojs)
 
 # myUrl <- "https://thuenen-sampling.de"
 shinyUI(
@@ -49,17 +52,17 @@ shinyUI(
       # -----------------------------------
       # fishing fleet overview
       # -----------------------------------
-            tabPanel(id="tabfish_over", "Fishery overview",
-                     dashboardPage(
-                       dashboardHeader(disable = TRUE),
-                       dashboardSidebar(disable = TRUE),
-                       dashboardBody(
-                         fluidPage(
-                           fluidRow(valueBoxOutput("box1"),
-                                    valueBoxOutput("box2"),
-                                    valueBoxOutput("box3")))
-                              ) #dashboardpage
-                           ), #tabpanel
+            tabPanel(id="tabfish_over", "Fishery overview"#,
+                     # dashboardPage(
+                     #   dashboardHeader(disable = TRUE),
+                     #   dashboardSidebar(disable = TRUE),
+                     #   dashboardBody(
+                     #     fluidPage(
+                     #       fluidRow(valueBoxOutput("box1"),
+                     #                valueBoxOutput("box2"),
+                     #                valueBoxOutput("box3")))
+                     #          ) #dashboardpage
+                     #       ), #tabpanel
                      ),
       # -----------------------------------
       # fleet overview
@@ -93,10 +96,126 @@ shinyUI(
    # -----------------------------------
    # Stock overview tab
    # -----------------------------------
-        navbarMenu(
-          "Biology",
-          tabPanel(id="tabstock_over", "Biology overview"
-          ), 
+        navbarMenu("Biology",
+          tabPanel(id="tabstock_over", "Biology overview",
+                   fluidRow(column(width = 7,
+                            fluidRow(column(width=3,
+                                     # We set the species list and default selection in server.R now 
+                                     selectInput("species",label="Species",
+                                                 choices= list("COD", "FLE", "PLE", "DAB", "HER", "TUR"),
+                                                 selected= NULL ),
+                                     conditionalPanel(condition = "input.fishtab == 'A'",
+                                                      selectInput(inputId="biooptionselection", label="Select parameter", 
+                                                                  choices=list("None","Age","Sex","Presentation","Gear","Sample Type"),
+                                                                  selected = "None")),
+                                     conditionalPanel(condition = "input.fishtab == 'B'",
+                                                      selectInput(inputId="ageoptionselection", label="Select parameter", 
+                                                                  choices=list("None","Age","Sex","Presentation","Gear","Sample Type"),
+                                                                  selected = "None")),
+                                     conditionalPanel(condition = "input.biooptionselection =='Gear' && input.fishtab == 'A'",
+                                                      uiOutput("GearFilter")),
+                                     conditionalPanel(condition = "input.ageoptionselection =='Gear' && input.fishtab == 'B'",
+                                                      uiOutput("GearFilter.a"))),
+                              column(width=4,
+                                     conditionalPanel(condition="input.fishtab == 'A'",
+                                                      uiOutput("quarterfilter"),
+                                                      uiOutput("yearfilter")),
+                                     conditionalPanel(condition="input.fishtab == 'B'",
+                                                      uiOutput("quarterfilter.a"),
+                                                      uiOutput("yearfilter.a"))),
+                              column(width=5,
+                                     conditionalPanel("input.fishtab == 'A'",
+                                                      radioGroupButtons(inputId = "Id",label = "",
+                                                        choices = c("ICES Area", 
+                                                                    "ICES Division"),
+                                                        direction = "horizontal",
+                                                        checkIcon = list(
+                                                          yes = tags$i(class = "fa fa-check-square", 
+                                                                       style = "color: steelblue"),
+                                                          no = tags$i(class = "fa fa-square-o", 
+                                                                      style = "color: steelblue"))),
+                                                      
+                                                      
+                                                      uiOutput("spatialops.w")
+                                     ), #- SubArea filter
+                                     
+                                     conditionalPanel("input.fishtab == 'A'",
+                                                      downloadButton("downloadDatalw", "Download data")
+                                     ),
+                                     conditionalPanel("input.fishtab == 'B'",
+                                                      radioGroupButtons(inputId = "Id.a", label = "",
+                                                        choices = c("ICES Area", 
+                                                                    "ICES Division"),
+                                                        direction = "horizontal",
+                                                        checkIcon = list(
+                                                          yes = tags$i(class = "fa fa-check-square", 
+                                                                       style = "color: steelblue"),
+                                                          no = tags$i(class = "fa fa-square-o", 
+                                                                      style = "color: steelblue"))
+                                                      ),
+                                                      uiOutput("spatialops.a")), #- SubArea filter
+                                     conditionalPanel("input.fishtab == 'B'",                 
+                                                      downloadButton("downloadDatala", "Download data",class="btn btn-outline-primary")#,
+                                                      
+                                     ))),
+                            ##### Fish sp tab - Maps and plots  ######                                     
+                            fluidRow(
+                              column(width=12,
+                                     conditionalPanel(condition = "input.fishtab == 'A'",
+                                                      plotlyOutput("bio_lw")
+                                                      %>% withSpinner(color="#0dc5c1")),
+                                     conditionalPanel(condition = "input.fishtab == 'B'",
+                                                      plotlyOutput("bio_la")
+                                                      %>% withSpinner(color="#0dc5c1"))
+                              )),
+                            
+                            fluidRow(
+                              column(width=10, 
+                                     conditionalPanel(condition = "input.fishtab == 'C'",
+                                                      imageOutput("fish_b1", height="100%"),
+                                                      tags$style(HTML(".js-irs-0 .irs-grid-pol.small {height: 4px;}")),
+                                                      tags$style(HTML(".js-irs-1 .irs-grid-pol.small {height: 0px;}")),
+                                                      sliderInput("slideryear", "Choose Year:",
+                                                                  min = 2007, max = 2019, #change after yearly update..For year 2020 max year is 2019
+                                                                  value = 2019, step = 1,
+                                                                  sep = "",
+                                                                  animate = TRUE),htmlOutput("LandingsDisttext")),offset=4,style = "margin-top:-5em"))
+                     ), 
+                     ##### Fish sp tab - Species tabsets #####
+                     column(width = 5, tabsetPanel(id = "fishtab",
+                                        tabPanel("Biology",value= "A", 
+                                                 p(), htmlOutput("fish_biology"),
+                                                 fluidRow(column(width=7,imageOutput("fish_drawing", height='100%')),
+                                                          column(width=5,conditionalPanel(condition = "input.species =='White-bellied Anglerfish' || input.species =='Black-bellied Anglerfish'",
+                                                                                          imageOutput("monk_belly"))))),     
+                                        tabPanel("Age", value = "B", 
+                                                 p(),
+                                                 fluidRow(column(width=5, htmlOutput("ageingtxt")),
+                                                          column(width=7, imageOutput("speciesotolith", height='100%'))),
+                                                 p(),
+                                                 fluidRow(column(width=5,textInput("lengthcm", label = "Enter fish length in cm:"), value = 0),
+                                                          column(width=7,tags$b("Age range observed*:"), h4(textOutput("agerange")),
+                                                                 tags$b("Modal age is:"),h4(textOutput("mode")),
+                                                                 tags$small("*age range based on age readings and lengths taken from fish sampled at ports and the stockbook"))),
+                                                 hr(),
+                                                 column(width=5,actionButton("showhist",label = "Show Histogram")), 
+                                                 plotlyOutput("age_hist")),
+                                        tabPanel("Distribution",value= "C",
+                                                 
+                                                 p(),htmlOutput("fish_distribution"),
+                                                 p(),htmlOutput("fish_b1a"),
+                                                 h3("Useful links for more information:"),
+                                                 a(href=paste0("https://shiny.marine.ie/stockbook/"),
+                                                   "The Digital Stockbook",target="_blank"),
+                                                 p(),
+                                                 a(href=paste0("https://www.marine.ie"),
+                                                   "The Marine Institute webpage",target="_blank"),
+                                                 p(),
+                                                 "For any quaries contact",
+                                                 a("informatics@marine.ie",href="informatics@marine.ie"))
+                                        )
+                            )
+                      )), 
       # -----------------------------------
       # species selection and basic data
       # -----------------------------------
@@ -111,7 +230,7 @@ shinyUI(
 #                                 choices = c("cod", "plaice", "flounder")
 #                                  ),
 #                     numericInput("area", "Number of observations to view:", 10),
-                      sliderInput("year", "Year", min = 2016, max = 2020, value = 1), 
+                      sliderInput("year", "Year", min = 2016, max = 2020, value = 2019, sep = ""), 
                       helpText("test some stuff")), 
                    mainPanel(plotOutput("distPlot"))
                  ) # end layout    
