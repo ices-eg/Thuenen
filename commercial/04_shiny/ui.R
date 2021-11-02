@@ -93,8 +93,10 @@ shinyUI(
             tabPanel(id="tabInventory", "Cruise report"
                      
             )),
+  
+   
    # -----------------------------------
-   # Stock overview tab
+   # Stock overview tab ("Biology")
    # -----------------------------------
         navbarMenu("Biology",
           tabPanel(id="tabstock_over", "Biology overview",
