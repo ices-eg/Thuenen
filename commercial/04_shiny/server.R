@@ -8,6 +8,9 @@ shinyServer(function(input, output, session) {
     
 })
 
+# read in fisheries data
+
+
 # read in sample data 
 trip <- read.csv("data/trip.csv", sep=";")
 haul_fo <- read.csv("data/haul_fo.csv")
