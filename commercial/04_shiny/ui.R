@@ -98,8 +98,15 @@ shinyUI(
    # -----------------------------------
    # Stock overview tab ("Biology")
    # -----------------------------------
-        navbarMenu("Biology",
-          tabPanel(id="tabstock_over", "Biology overview",
+       
+     navbarMenu("Biology",
+                tabPanel(id="tabstock_over", "Biology overview"),
+   
+  
+                # -----------------------------------
+                # Species dashboard
+                # -----------------------------------                
+          tabPanel(id="tabstock_dash", "Species Dashboard",
                    fluidRow(column(width = 7,
                             fluidRow(column(width=3,
                                      # We set the species list and default selection in server.R now 
@@ -218,6 +225,7 @@ shinyUI(
                                         )
                             )
                       )), 
+      
       # -----------------------------------
       # species selection and basic data
       # -----------------------------------

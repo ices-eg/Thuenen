@@ -1,5 +1,5 @@
 #------------------------------------
-# Biology overview
+# Dashboard for species overview
 #------------------------------------
 #library(shiny)
 #library(tidyr)
