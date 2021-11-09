@@ -55,28 +55,49 @@ shinyUI(
       # -----------------------------------
       # fishing fleet overview
       # -----------------------------------
-            tabPanel(id="tabfish_over", "Fishery overview"#,
-                     # dashboardPage(
-                     #   dashboardHeader(disable = TRUE),
-                     #   dashboardSidebar(disable = TRUE),
-                     #   dashboardBody(
-                     #     fluidPage(
-                     #       fluidRow(valueBoxOutput("box1"),
-                     #                valueBoxOutput("box2"),
-                     #                valueBoxOutput("box3")))
-                     #          ) #dashboardpage
-                     #       ), #tabpanel
+      tabPanel(id="tabfish_over", "Fishery overview",
+               dashboardPage(
+                 dashboardHeader(disable = TRUE),
+                 dashboardSidebar(disable = TRUE),
+                 dashboardBody(
+                   fluidPage(
+                     fluidRow(valueBoxOutput("box1"),
+                              valueBoxOutput("box2"),
+                              valueBoxOutput("box3")
                      ),
+                     fluidRow(box(h4("Interactive map"), #style = "margin-top:-1.5em", 
+                                  column(8, leafletOutput("map", height=650)),
+                                  column(4, id="controls", fixed=FALSE, draggable = TRUE, 
+                                         fluidRow(column(11,selectInput("fishing fleet",label=NULL, choices = c("demersal species","pelagic species")),
+                                                         sliderInput("slideryear", "Year:", min = 2003, max = 2021 #max(landings$jahr)
+                                                                     , value = 2020, step = 1, sep = "", animate = TRUE)
+                                         )), 
+                                         fluidRow(column(12,plotlyOutput("sp_piechart")
+                                                         %>% withSpinner(color="#0dc5c1"),
+                                                         style = "margin-top:-9em"),
+                                                  solidHeader =FALSE, collapsible = T,width= "auto", background = "navy")
+                                  ), 
+                                  hr(),
+                                  fluidRow(width =12,style = "margin-top:-4em",
+                                           box(width =12, img(src="header-fanggebiete.jpg", width = "900px", height = "75px", style="display: block; margin-left: auto; margin-right: auto;margin-top:0em"))
+                                  )
+                     )
+                     )			   
+                   ) #end of fluidRow
+                 ) #end of dashboardBody
+               ) # end of dashboardPage
+      ), #end of tabPanel   
+      
       # -----------------------------------
       # fleet overview
       # -----------------------------------
-            tabPanel(id="tabInventory", "Fleet data"
+            tabPanel(id="tab_fish_fleet", "Fleet data"
       
             ),
       # -----------------------------------
       # landings overview
       # -----------------------------------
-        tabPanel(id="tabInventory", "Landings"
+        tabPanel(id="tab_fish_catch", "Landings"
                  
         )),
         
@@ -101,7 +122,9 @@ shinyUI(
    # -----------------------------------
        
      navbarMenu("Biology",
-                tabPanel(id="tabstock_over", "Biology overview"),
+                tabPanel(id="tabstock_over", "Biology overview"
+                         
+                         ),
    
   
                 # -----------------------------------
@@ -234,11 +257,15 @@ shinyUI(
                       )), 
       
       # -----------------------------------
-      # species selection and basic data
+      # stock specific data and plots
       # -----------------------------------
-            tabPanel(id="tabInventory", "Species"),
+            tabPanel(id="tabInventory", "Stock parameter"),
             
-            tabPanel(id="tablength", "Length distributions",
+           
+      # -----------------------------------
+      # stock specific data and plots
+      # -----------------------------------
+           tabPanel(id="tablength", "Length distributions",
                fluidPage(
                  titlePanel("fish length test"), 
                  sidebarLayout(
