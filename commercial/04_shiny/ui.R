@@ -5,6 +5,9 @@ library(shiny)
 #library(rintrojs)
 
 # myUrl <- "https://thuenen-sampling.de"
+
+trip <- read.csv("Data/trip.csv", sep=";")
+
 shinyUI(
     
     
@@ -93,10 +96,8 @@ shinyUI(
             tabPanel(id="tabInventory", "Cruise report"
                      
             )),
-  
-   
    # -----------------------------------
-   # Stock overview tab ("Biology")
+   # Stock overview tab
    # -----------------------------------
        
      navbarMenu("Biology",
@@ -126,12 +127,18 @@ shinyUI(
                                      conditionalPanel(condition = "input.ageoptionselection =='Gear' && input.fishtab == 'B'",
                                                       uiOutput("GearFilter.a"))),
                               column(width=4,
-                                     conditionalPanel(condition="input.fishtab == 'A'",
-                                                      uiOutput("quarterfilter"),
-                                                      uiOutput("yearfilter")),
-                                     conditionalPanel(condition="input.fishtab == 'B'",
-                                                      uiOutput("quarterfilter.a"),
-                                                      uiOutput("yearfilter.a"))),
+                                     selectInput("quarter", label="Quarter",
+                                                 choices = list("All", 1, 2, 3, 4),
+                                                 selected = "All"),
+                                     sliderInput("year", "Years", min=min(trip$year, na.rm=TRUE), max=max(trip$year, na.rm=TRUE),
+                                                 value=max(trip$year, na.rm=TRUE), sep="", step=1)), #by one year
+                              # column(width=4,
+                              #        conditionalPanel(condition="input.fishtab == 'A'",
+                              #                         uiOutput("quarterfilter"),
+                              #                         uiOutput("yearfilter")),
+                              #        conditionalPanel(condition="input.fishtab == 'B'",
+                              #                         uiOutput("quarterfilter.a"),
+                              #                         uiOutput("yearfilter.a"))),
                               column(width=5,
                                      conditionalPanel("input.fishtab == 'A'",
                                                       radioGroupButtons(inputId = "Id",label = "",
