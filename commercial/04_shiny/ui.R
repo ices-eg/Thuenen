@@ -66,7 +66,7 @@ shinyUI(
                               valueBoxOutput("box3")
                      ),
                      fluidRow(box(h4("Interactive map"), #style = "margin-top:-1.5em", 
-                                  column(8, leafletOutput("map", height=650)),
+                                  column(8, leafletOutput("map", height=550, width="auto")),
                                   column(4, id="controls", fixed=FALSE, draggable = TRUE, 
                                          fluidRow(column(11,selectInput("fishing fleet",label=NULL, choices = c("demersal species","pelagic species")),
                                                          sliderInput("slideryear", "Year:", min = 2003, max = 2021 #max(landings$jahr)

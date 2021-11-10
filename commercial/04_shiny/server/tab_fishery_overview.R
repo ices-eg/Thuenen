@@ -9,6 +9,21 @@
 #  title = "Flotte", 
 #  fluidRow(
 #    br(),
+
+#function(input, output, session) {
+  
+  ##### Interactive Map 1 - Timeseries #####
+  # Create the map - leaflet 
+  output$map <- renderLeaflet({
+    leaflet() %>% 
+      addProviderTiles(providers$Esri.OceanBasemap) %>% 
+      setView(lng = 13.0000, lat = 54.800, zoom = 7)
+  })
+
+#} #end of function
+
+
+
     
 ##### Infographics  #####
 ## Box1
