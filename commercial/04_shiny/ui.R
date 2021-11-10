@@ -6,10 +6,7 @@ library(shiny)
 
 # myUrl <- "https://thuenen-sampling.de"
 
-trip <- read.csv("Data/trip.csv", sep=";")
-
 shinyUI(
-    
     
     #navBarPage
     navbarPage(
@@ -65,11 +62,11 @@ shinyUI(
                               valueBoxOutput("box2"),
                               valueBoxOutput("box3")
                      ),
-                     fluidRow(box(h4("Interactive map"), #style = "margin-top:-1.5em", 
+                     fluidRow(box(h4("Interactive map"), style = "margin-top:-1.5em", 
                                   column(8, leafletOutput("map", height=550, width="auto")),
                                   column(4, id="controls", fixed=FALSE, draggable = TRUE, 
-                                         fluidRow(column(11,selectInput("fishing fleet",label=NULL, choices = c("demersal species","pelagic species")),
-                                                         sliderInput("slideryear", "Year:", min = 2003, max = 2021 #max(landings$jahr)
+                                         fluidRow(column(11,selectInput("species_groups",label=NULL, choices = c("Total Landings kg","Demersal Species kg", "Pelagic Species kg")),
+                                                         sliderInput("slideryear", "Year:", min = 2003, max(landings$jahr) #max = 2021
                                                                      , value = 2020, step = 1, sep = "", animate = TRUE)
                                          )), 
                                          fluidRow(column(12,plotlyOutput("sp_piechart")
