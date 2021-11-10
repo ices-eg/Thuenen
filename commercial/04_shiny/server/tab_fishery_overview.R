@@ -2,8 +2,8 @@ mapdata <-landings %>%
   group_by(jahr, fao_gebiet, rechteck, fischart) %>% 
   summarize(fangkg = sum(fangkg))
 
-#SpAggdata <- readRDS("Data/SpAggdata26022019.rds")
-#sp_data_gp <- readRDS("Data/sp_data_gp_20190306.rds")
+#SpAggdata <- readRDS("data/SpAggdata26022019.rds")
+#sp_data_gp <- readRDS("data/sp_data_gp_20190306.rds")
 
 #------------------------------------
 # Fishery overview
@@ -121,11 +121,92 @@ mapdata <-landings %>%
   
        
 ##### Infographics  #####
+  info_fleet <- sqldf("select jahr, fao_gebiet, group_fish, count(distinct(eunr)) as eunr, count(distinct(fischart)) as fischart, round(sum(fangkg/1000),1) as tons from landings group by jahr, group_fish")    
+  sp_data_fleet <- reactive({subset(info_fleet, jahr %in% input$slideryear)})
+ 
+## Box1
+  totalvessel <- reactive({
+    sp_data_fleet() %>%
+      summarise(Totalvessel = sum(eunr))
+  })
+  totalvesseldef <- reactive({
+    sp_data_fleet() %>%  
+      subset(group_fish %in% ("demersal species")) %>%
+      summarise(Totalvessel = sum(eunr))
+  })
+  totalvesselspf <- reactive({
+    sp_data_fleet() %>%  
+      subset(group_fish %in% ("pelagic species")) %>%
+      summarise(Totalvessel = sum(eunr))
+  }) 
 
+## Box 1 output
+observe({ 
+  P1 <- input$species_groups 
+   if(P1== "Total Landings kg") {
+        output$box1 <- renderValueBox({valueBox(value = totalvessel(),subtitle="Operating fishing vessels", icon = icon("fas fa-ship"))
+      }) 
+   }else if (P1 == "Demersal Species kg") {
+        output$box1 <- renderValueBox({valueBox(value = totalvesseldef(),subtitle="Operating demersal fishing vessels", icon = icon("fas fa-ship"))})
+   }else if (P1 == "Pelagic Species kg") {
+        output$box1 <- renderValueBox({valueBox(value = totalvesselspf(),subtitle="Operating pelagic fishing vessels", icon = icon("fas fa-ship"))})
+    }
+  })
 
-  
-#  output$box1 <- renderValueBox({valueBox("Total Number of operating fishing vessels", value=noVessel, icon = icon("fas fa-anchor"))})#,  "fas fa-calculator"
-#  output$box2 <- renderValueBox({valueBox("Number of fishing trips", value = maxKG(),icon =icon("fas fa-trophy"))})#fas fa-trophy"
-#  output$box3 <- renderValueBox({valueBox("Total Landings (tons)", value = totalswept(), icon = icon("fas fa-ship"))})
-  
-  
+## Box2  
+totalfish <- reactive({
+  sp_data_fleet() %>%
+    summarise(Totalfish = sum(fischart))
+})
+totalfishdef <- reactive({
+  sp_data_fleet() %>%  
+    subset(group_fish %in% ("demersal species")) %>%
+    summarise(Totalfish = sum(fischart))
+})
+totalfishspf <- reactive({
+  sp_data_fleet() %>%  
+    subset(group_fish %in% ("pelagic species")) %>%
+    summarise(Totalfish = sum(fischart))
+}) 
+
+## Box 2 output
+observe({ 
+  P1 <- input$species_groups 
+  if(P1== "Total Landings kg") {
+    output$box2 <- renderValueBox({valueBox(value = totalfish(),subtitle="Species landed", icon = icon("fas fa-fish"))
+    }) 
+  }else if (P1 == "Demersal Species kg") {
+    output$box2 <- renderValueBox({valueBox(value = totalfishdef(),subtitle="Demersal species landed", icon = icon("fas fa-fish"))})
+  }else if (P1 == "Pelagic Species kg") {
+    output$box2 <- renderValueBox({valueBox(value = totalfishspf(),subtitle="pelagic species", icon = icon("fas fa-fish"))})
+  }
+})
+
+## Box3  
+totalcatch <- reactive({
+  sp_data_fleet() %>%
+    summarise(Totalcatch = sum(tons))
+})
+totalcatchdef <- reactive({
+  sp_data_fleet() %>%  
+    subset(group_fish %in% ("demersal species")) %>%
+    summarise(Totalcatch = sum(tons))
+})
+totalcatchspf <- reactive({
+  sp_data_fleet() %>%  
+    subset(group_fish %in% ("pelagic species")) %>%
+    summarise(Totalcatch = sum(tons))
+}) 
+
+## Box 3 output
+observe({ 
+  P1 <- input$species_groups 
+  if(P1== "Total Landings kg") {
+    output$box3 <- renderValueBox({valueBox(value = totalcatch(),subtitle="total catch (tons)", icon = icon("fas fa-truck-ramp-box"))
+    }) 
+  }else if (P1 == "Demersal Species kg") {
+    output$box3 <- renderValueBox({valueBox(value = totalcatchdef(),subtitle="total demersal catch (tons)", icon = icon("fas fa-boxes-stacked"))})
+  }else if (P1 == "Pelagic Species kg") {
+    output$box3 <- renderValueBox({valueBox(value = totalcatchspf(),subtitle="total pelagic catch (tons)", icon = icon("fas fa-boxes-stacked"))})
+  }
+})  
