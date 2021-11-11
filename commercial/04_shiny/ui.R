@@ -59,7 +59,7 @@ shinyUI(
                  dashboardBody(
                    fluidPage(
 #                     setSliderColor("white", 1), #to change the color of the first slider in this fluidpage
-                     chooseSliderSkin("Modern"), #change the style of all slider in this fluidpage
+                     chooseSliderSkin("Round"), #change the style of all slider in this fluidpage
                      fluidRow(valueBoxOutput("box1"),
                               valueBoxOutput("box2"),
                               valueBoxOutput("box3")),
