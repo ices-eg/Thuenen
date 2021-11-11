@@ -44,7 +44,7 @@ shinyUI(
                  )),
         ),
    # -----------------------------------
-   # Fisheries overview tab
+   # Fisheries Tab
    # -----------------------------------
         navbarMenu(
             "Fishery",
@@ -58,28 +58,29 @@ shinyUI(
                  dashboardSidebar(disable = TRUE),
                  dashboardBody(
                    fluidPage(
+#                     setSliderColor("white", 1), #to change the color of the first slider in this fluidpage
+                     chooseSliderSkin("Modern"), #change the style of all slider in this fluidpage
                      fluidRow(valueBoxOutput("box1"),
                               valueBoxOutput("box2"),
-                              valueBoxOutput("box3")
-                     ),
-                     fluidRow(box(h4("Interactive map"), style = "margin-top:-1.5em", 
+                              valueBoxOutput("box3")),
+                     br(), 
+                     fluidRow(box(h4("Interactive map"), style = "margin-top:-1.5em", width=12, background = "light-blue",
                                   column(8, leafletOutput("map", height=550, width="auto")),
                                   column(4, id="controls", fixed=FALSE, draggable = TRUE, 
-                                         fluidRow(column(11,selectInput("species_groups",label=NULL, choices = c("Total Landings kg","Demersal Species kg", "Pelagic Species kg")),
+                                         fluidRow(column(12,selectInput("species_groups",label=NULL, choices = c("Total Landings kg","Demersal Species kg", "Pelagic Species kg")),
                                                          sliderInput("slideryear", "Year:", min = 2003, max(landings$jahr) #max = 2021
-                                                                     , value = 2020, step = 1, sep = "", animate = TRUE)
+                                                       , value = 2020, step = 1, sep = "", animate = TRUE)
                                          )), 
-                                         fluidRow(column(12,plotlyOutput("sp_piechart")
-                                                         %>% withSpinner(color="#0dc5c1"),
-                                                         style = "margin-top:-9em"),
+                                         br(), br(), br(), br(), 
+                                         fluidRow(column(12,plotlyOutput("sp_piechart") %>% 
+                                                           withSpinner(color="#0dc5c1"),
+                                                           style = "margin-top:-9em"),
                                                   solidHeader =FALSE, collapsible = T,width= "auto", background = "navy")
-                                  ), 
-                                  hr(),
-                                  fluidRow(width =12,style = "margin-top:-4em",
-                                           box(width =12, img(src="header-fanggebiete.jpg", width = "900px", height = "75px", style="display: block; margin-left: auto; margin-right: auto;margin-top:0em"))
-                                  )
-                     )
-                     )			   
+                                          ), 
+                              )),
+                    fluidRow(width =12,style = "margin-top:-4em", 
+                               box(width =12, img(src="header-fang2.jpg", width = "1200px", height = "75px", style="display: block; margin-left: auto; margin-right: auto;margin-top:0em"))
+                    )
                    ) #end of fluidRow
                  ) #end of dashboardBody
                ) # end of dashboardPage

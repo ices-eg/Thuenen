@@ -129,7 +129,7 @@ mapdata <-landings %>%
     sp_data_fleet() %>%
       summarise(Totalvessel = sum(eunr))
   })
-  totalvesseldef <- reactive({
+    totalvesseldef <- reactive({
     sp_data_fleet() %>%  
       subset(group_fish %in% ("demersal species")) %>%
       summarise(Totalvessel = sum(eunr))
@@ -202,11 +202,11 @@ totalcatchspf <- reactive({
 observe({ 
   P1 <- input$species_groups 
   if(P1== "Total Landings kg") {
-    output$box3 <- renderValueBox({valueBox(value = totalcatch(),subtitle="total catch (tons)", icon = icon("fas fa-truck-ramp-box"))
+    output$box3 <- renderValueBox({valueBox(value = totalcatch(),subtitle="total catch (tons)", icon = icon("fas fa-stroopwafel"))
     }) 
   }else if (P1 == "Demersal Species kg") {
-    output$box3 <- renderValueBox({valueBox(value = totalcatchdef(),subtitle="total demersal catch (tons)", icon = icon("fas fa-boxes-stacked"))})
+    output$box3 <- renderValueBox({valueBox(value = totalcatchdef(),subtitle="total demersal catch (tons)", icon = icon("fas fa-stroopwafel"))})
   }else if (P1 == "Pelagic Species kg") {
-    output$box3 <- renderValueBox({valueBox(value = totalcatchspf(),subtitle="total pelagic catch (tons)", icon = icon("fas fa-boxes-stacked"))})
+    output$box3 <- renderValueBox({valueBox(value = totalcatchspf(),subtitle="total pelagic catch (tons)", icon = icon("fas fa-stroopwafel"))})
   }
 })  
