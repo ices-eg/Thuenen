@@ -89,16 +89,30 @@ shinyUI(
       # -----------------------------------
       # fleet overview
       # -----------------------------------
-            tabPanel(id="tab_fish_fleet", "Fleet data"
-      
-            ),
+        tabPanel(id="tab_fish_landings", "Commercial landings",
+            dashboardPage(
+              fluidRow(
+                box(title = "Individual species", width = 3, status = "success",
+                 selectInput("spSelect","Select a species")
+               )
+             
+           ) #end of o fluidrow
+           ) # end of of dashboard
+         ), #end of tabPanel
       # -----------------------------------
       # landings overview
       # -----------------------------------
-        tabPanel(id="tab_fish_catch", "Landings"
+        tabPanel(id="tab_fish_log", "Logbooks"
                  
-        )),
-        
+        ),
+
+
+      # -----------------------------------
+      # landings overview
+      # -----------------------------------
+        tabPanel(id="tab_fish_invent", "Fishery Inventory"
+         
+          )),        
         
                      
    # -----------------------------------
@@ -233,7 +247,7 @@ shinyUI(
                                                  fluidRow(column(width=5,textInput("lengthcm", label = "Enter fish length in cm:"), value = 0),
                                                           column(width=7,tags$b("Age range observed*:"), h4(textOutput("agerange")),
                                                                  tags$b("Modal age is:"),h4(textOutput("mode")),
-                                                                 tags$small("*age range based on age readings and lengths taken from fish sampled at ports and the stockbook"))),
+                                                                 tags$small("*age range based on age readings and lengths taken from fish sampled at commercial fishing vessels"))),
                                                  hr(),
                                                  column(width=5,actionButton("showhist",label = "Show Histogram")), 
                                                  plotlyOutput("age_hist")),
