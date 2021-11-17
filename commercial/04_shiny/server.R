@@ -35,3 +35,6 @@ landings <- landings %>% mutate(group_fish = case_when(fischart %in% c("COD", "P
                                                   fischart %in% c("TRS","PLN", "ELE","SAL","TRO") ~ "freshwater species", TRUE ~ "other")
 )
 
+#ices.rect <- read_sf("shp/ices_rectangles/ices_squares_simple.shp")
+#ices.rect <- read_sf("../data/shapefiles/ices_rectangles/ices_squares_simple.shp")
+#ices.rect<-as(ices.rect, 'Spatial')

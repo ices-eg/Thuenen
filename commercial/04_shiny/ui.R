@@ -89,17 +89,37 @@ shinyUI(
       # -----------------------------------
       # fleet overview
       # -----------------------------------
-        tabPanel(id="tab_fish_landings", "Commercial landings",
-            dashboardPage(
-              fluidRow(
-                box(title = "Individual species", width = 3, status = "success",
-                 selectInput("spSelect","Select a species")
-               )
-             
-           ) #end of o fluidrow
-           ) # end of of dashboard
-         ), #end of tabPanel
-      # -----------------------------------
+tabPanel(id="tab_fish_landings", "Commercial Landings",
+         dashboardPage(
+           dashboardHeader(disable = TRUE),
+           dashboardSidebar(disable = TRUE),
+           dashboardBody(
+             fluidPage(
+               chooseSliderSkin("Round"), #change the style of all slider in this fluidpage
+               br(),
+               fluidRow((column(12,selectInput("species_groups",label=NULL, choices = c("Total Landings kg","Demersal Species kg", "Pelagic Species kg")),
+                                checkboxGroupInput("variable", "Select Quarter:",
+                                                   c("Q1" = "q1",
+                                                     "Q2" = "q2",
+                                                     "Q3" = "q3",
+                                                     "Q4" = "q4")),
+                                sliderInput("slideryear", "Year:", min = 2003, max(landings$jahr), #max = 2021
+                                            value = 2020, step = 1, sep = "", animate = TRUE) )
+                        )),
+               fluidRow(tabPanel(id="map", "Map", 
+                          fluidPage(fluidRow(box(h4("Interactive map"), style = "margin-top:-1.5em", width=12, background = "light-blue",
+                                                        column(8, leafletOutput("map", height=550, width="auto")))),
+                        tabPanel(id="table", "Table",
+                          fluidPage())
+                                           
+                                 )))
+               ) #end of dashboardBody
+             ) # end of dashboardPage
+           ), #end of tabPanel      
+
+
+
+# -----------------------------------
       # landings overview
       # -----------------------------------
         tabPanel(id="tab_fish_log", "Logbooks"
