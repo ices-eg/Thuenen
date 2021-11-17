@@ -164,18 +164,19 @@ tabPanel(id="tab_fish_landings", "Commercial Landings",
                 # -----------------------------------                
           tabPanel(id="tabstock_dash", "Species Dashboard",
                    fluidRow(column(width = 7,
+                            fluidRow(column(width = 7,
                             fluidRow(column(width=3,
                                      # We set the species list and default selection in server.R now 
                                      selectInput("species",label="Species",
-                                                 choices= list("COD", "FLE", "PLE", "DAB", "HER", "TUR"),
-                                                 selected= NULL ),
+                                                 choices = list("COD", "FLE", "PLE", "DAB", "HER", "TUR", "ALL"),
+                                                 selected = "COD"),
                                      conditionalPanel(condition = "input.fishtab == 'A'",
                                                       selectInput(inputId="biooptionselection", label="Select parameter", 
-                                                                  choices=list("None","Age","Sex","Presentation","Gear","Sample Type"),
+                                                                  choices=list("None","Age","Sex","Gear","Sample Type"),
                                                                   selected = "None")),
                                      conditionalPanel(condition = "input.fishtab == 'B'",
                                                       selectInput(inputId="ageoptionselection", label="Select parameter", 
-                                                                  choices=list("None","Age","Sex","Presentation","Gear","Sample Type"),
+                                                                  choices=list("None","Age","Sex","Gear","Sample Type"),
                                                                   selected = "None")),
                                      conditionalPanel(condition = "input.biooptionselection =='Gear' && input.fishtab == 'A'",
                                                       uiOutput("GearFilter")),
@@ -187,46 +188,35 @@ tabPanel(id="tab_fish_landings", "Commercial Landings",
                                                  selected = "All"),
                                      sliderInput("year", "Years", min=min(trip$year, na.rm=TRUE), max=max(trip$year, na.rm=TRUE),
                                                  value=max(trip$year, na.rm=TRUE), sep="", step=1)), #by one year
-                              # column(width=4,
-                              #        conditionalPanel(condition="input.fishtab == 'A'",
-                              #                         uiOutput("quarterfilter"),
-                              #                         uiOutput("yearfilter")),
-                              #        conditionalPanel(condition="input.fishtab == 'B'",
-                              #                         uiOutput("quarterfilter.a"),
-                              #                         uiOutput("yearfilter.a"))),
                               column(width=5,
                                      conditionalPanel("input.fishtab == 'A'",
                                                       radioGroupButtons(inputId = "Id",label = "",
-                                                        choices = c("ICES Area", 
-                                                                    "ICES Division"),
+                                                        choices = c("FAO Area", 
+                                                                    "Rectangle"),
                                                         direction = "horizontal",
                                                         checkIcon = list(
                                                           yes = tags$i(class = "fa fa-check-square", 
                                                                        style = "color: steelblue"),
                                                           no = tags$i(class = "fa fa-square-o", 
                                                                       style = "color: steelblue"))),
-                                                      
-                                                      
-                                                      uiOutput("spatialops.w")
-                                     ), #- SubArea filter
+                                                      uiOutput("spatialops.w")),
                                      
                                      conditionalPanel("input.fishtab == 'A'",
-                                                      downloadButton("downloadDatalw", "Download data")
-                                     ),
+                                                      downloadButton("downloadDatalw", "Download data")),
                                      conditionalPanel("input.fishtab == 'B'",
                                                       radioGroupButtons(inputId = "Id.a", label = "",
-                                                        choices = c("ICES Area", 
-                                                                    "ICES Division"),
+                                                        choices = c("FAO Area", 
+                                                                    "Rectangle"),
                                                         direction = "horizontal",
                                                         checkIcon = list(
                                                           yes = tags$i(class = "fa fa-check-square", 
                                                                        style = "color: steelblue"),
                                                           no = tags$i(class = "fa fa-square-o", 
-                                                                      style = "color: steelblue"))
-                                                      ),
-                                                      uiOutput("spatialops.a")), #- SubArea filter
+                                                                      style = "color: steelblue"))),
+                                                      uiOutput("spatialops.a")),
+                                     
                                      conditionalPanel("input.fishtab == 'B'",                 
-                                                      downloadButton("downloadDatala", "Download data",class="btn btn-outline-primary")#,
+                                                      downloadButton("downloadDatala", "Download data", class="btn btn-outline-primary")
                                                       
                                      ))),
                             ##### Fish sp tab - Maps and plots  ######                                     
