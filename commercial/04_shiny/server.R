@@ -1,16 +1,15 @@
 
 # Define server logic, re-direct to server folder
 shinyServer(function(input, output, session) {
-    
-    for (file in list.files("server")) {
-        source(file.path("server", file), local = TRUE, encoding = 'UTF-8')$value
-    }
-    
+  
+  for (file in list.files("server")) {
+    source(file.path("server", file), local = TRUE, encoding = 'UTF-8')$value
+  }
 })
 
 
 # read in sample data 
-# setwd("C:/Dateien/Datenbank 2.0/Thuenen/commercial/04_shiny")
+# setwd("C:/Dateien/Datenbank 2.0/Thuenen/commercial/04_shiny/")
 trip <- read.csv("data/trip.csv", sep=";")
 haul_fo <- read.csv("data/haul_fo.csv")
 haul_gear <- read.csv("data/haul_gear.csv")

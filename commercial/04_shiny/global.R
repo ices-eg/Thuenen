@@ -38,6 +38,6 @@ library(mapplots)
 
 # data handling
 library(rintrojs)
-library(ggrepel) # requiered by shinyappsio
-library(rgeos) # requiered by shinyappsio
+library(ggrepel) # required by shinyappsio
+library(rgeos) # required by shinyappsio
 library(sqldf)
