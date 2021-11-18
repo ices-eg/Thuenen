@@ -2,9 +2,6 @@ mapdata <-landings %>%
   group_by(jahr, fao_gebiet, rechteck, fischart) %>% 
   summarize(fangkg = sum(fangkg))
 
-#SpAggdata <- readRDS("data/SpAggdata26022019.rds")
-#sp_data_gp <- readRDS("data/sp_data_gp_20190306.rds")
-
 #------------------------------------
 # Fishery overview
 #------------------------------------
@@ -13,7 +10,6 @@ mapdata <-landings %>%
 #  fluidRow(
 #    br(),
 
-#function(input, output, session) {
   
 ##### Interactive Map - fishing areas #####
   # Create the map - leaflet 
@@ -28,9 +24,7 @@ mapdata <-landings %>%
     subset(mapdata, Year %in% input$slideryear)
   }) 
 
-#} #end of function
 
-  
 ##############  not connected to map yet, only reactive to year slider and drop-down!
 ##### Pie chart - sum of landings per species #####
 ##############
@@ -122,6 +116,7 @@ mapdata <-landings %>%
        
 ##### Infographics  #####
   info_fleet <- sqldf("select jahr, fao_gebiet, group_fish, count(distinct(eunr)) as eunr, count(distinct(fischart)) as fischart, round(sum(fangkg/1000),1) as tons from landings group by jahr, group_fish")    
+  info_fleet <- transform(info_fleet, fischart = as.integer(fischart), eunr = as.integer(eunr))
   sp_data_fleet <- reactive({subset(info_fleet, jahr %in% input$slideryear)})
  
 ## Box1
