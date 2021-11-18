@@ -10,6 +10,7 @@ shinyServer(function(input, output, session) {
 
 
 # read in sample data 
+# setwd("C:/Dateien/Datenbank 2.0/Thuenen/commercial/04_shiny")
 trip <- read.csv("data/trip.csv", sep=";")
 haul_fo <- read.csv("data/haul_fo.csv")
 haul_gear <- read.csv("data/haul_gear.csv")
