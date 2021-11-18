@@ -112,7 +112,7 @@ tabPanel(id="tab_fish_landings", "Commercial Landings",
                         tabPanel(id="table", "Table",
                           fluidPage())
                                            
-                                 )))
+                                 ))))
                ) #end of dashboardBody
              ) # end of dashboardPage
            ), #end of tabPanel      
