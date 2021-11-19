@@ -7,16 +7,31 @@
 
 
 ##### Infographics  #####
+
 select_year <- reactive({
   subset(haul_fo, year==input$year, select=c(year,quarter,ha_index,fao_area,rectangle))
 })
 
-select_gear <- reactive({
+gear_data <- reactive({
   gear <- subset(haul_gear, ha_index %in% select_year()$ha_index,
                  select=c(ha_index,gear))
-  
   gear %>%
     left_join(select_year(), by=c("ha_index"))
+})
+
+output$GearFilter <- renderUI({
+  gearlist <- unique(gear_data()$gear)
+  gearlist2 = factor(append("All", as.character(gearlist)))
+  selectInput(inputId="gearselect", label="Select gear type", choices=gearlist2, selected= "All")
+})
+
+select_gear <- reactive({
+  print(gear_data())
+  if (input$gearselect == "All"|| is.null(input$gearselect)|| input$biooptionselection=="None"){
+    gear_data()
+  } else {
+    filter(gear_data(), gear==input$gearselect)
+  }
 })
 
 select_quarter <- reactive({
@@ -69,8 +84,6 @@ select_weight <- reactive({
     left_join(select_area(), by = c("ha_index"))
 })
 
-# weight_data <- subset(sample_weight, ha_index %in% area_data$ha_index)
-
 select_species <- reactive({
   if (input$species=="All"){
     select_weight()
@@ -80,24 +93,11 @@ select_species <- reactive({
   }
 })
 
-# if (input$species=="All"){
-#     species_data <- weight_data
-# }
-# else {
-#     species_data <- subset(weight_data, species %in% input$species)
-# }
-
-# select_catch <- reactive({
-#     filter(select_weight(), catch_category)
-# })
-
 select_length <- reactive({
   le_subset <- subset(sample_length, we_index %in% select_species()$we_index)
   le_subset %>%
     left_join(select_species(), by=c("we_index"))
 })
-
-# length_data <- subset(sample_length, we_index %in% species_data$we_index)
 
 select_bio <- reactive({
   
@@ -117,27 +117,35 @@ select_bio <- reactive({
 
 output$bio_lw<- renderPlotly({
   if(input$biooptionselection=="Sex"){
-    select_bio <- filter(select_bio(), !is.na(Sex))
     p <- plot_ly(select_bio(), x = ~Length, y = ~Weight, type = 'scatter', 
+                 hoverinfo='text', color = ~Weight, colors="Set1",
                  text=~paste("length:",Length,"cm","<br>weight:",Weight,"<br>sex:",Sex), #, "grams<br>date:", Date),
-                 hoverinfo='text', color = ~Sex, colors="Set1",
                  mode = 'markers', marker =list(opacity = 0.5)) %>% 
       layout(hovermode=TRUE, title=paste(input$species,"Length vs Weight (points coloured by sex)"),
              margin=(list(t=70)), showlegend = TRUE) 
     p$elementId <- NULL
     p 
   }else if(input$biooptionselection=="Age"){
-    select_bio <- filter(select_bio(), !is.na(Age))
+    print(select_bio())
     p <- plot_ly(select_bio(), x = ~Length, y = ~Weight, type = 'scatter', mode = 'markers',hoverinfo='text',
-                 text=~paste("length:",Length,"cm","<br>weight:",Weight), #"grams<br>date:", Date, "<br>Age:", Age),
-                 color= ~Age, colors = "Set1",marker =list(opacity = 0.5)) %>%  
+                 #text=~paste("length:",Length,"cm","<br>weight:",Weight), #"grams<br>date:", Date, "<br>Age:", Age),
+                 color= ~Age, colors = "Spectral", marker =list(opacity = 0.5)) %>%  
       layout(hovermode=TRUE, title=paste(input$species,"Length vs Weight (points coloured by age)"),
              margin=(list(t=70)),
              showlegend = FALSE)
-    p$elementId <- NULL
+    # p$elementId <- NULL
     p
+    # p <- plot_ly(select_bio(), x = ~Length, y = ~Weight, type = 'scatter', color=~Weight, colors="Spectral",
+    #              mode = 'markers', marker =list(opacity = 0.5), hoverinfo='text',
+    #              text=~paste("length:",Length,"cm<br>weight:",Weight)) %>%
+    #     layout(hovermode=TRUE, title=paste(input$species," Length vs Weight", sep=""),
+    #            margin=(list(t=80)),
+    #            showlegend = FALSE)
+    # p$elementId <- NULL
+    # p
   }else if(input$biooptionselection=="Sample Type"){
     select_bio <- filter(select_bio(), !is.na(catch_category))
+    print(select_bio())
     p <- plot_ly(select_bio(), x = ~Length, y = ~Weight, type = 'scatter', mode = 'markers',hoverinfo='text',
                  text=~paste("length:",Length,"cm","<br>weight:",Weight, "<br>sample type:",catch_category), 
                  color= ~catch_category,colors =c('D'='red','L'='lightgreen')) %>%  
@@ -147,8 +155,8 @@ output$bio_lw<- renderPlotly({
     p$elementId <- NULL
     p 
   }else if(input$biooptionselection=="Gear"){
-    print(select_bio())
     select_bio <- filter(select_bio(), !is.na(gear))
+    print(select_bio())
     p <- plot_ly(select_bio(), x = ~Length, y = ~Weight, type = 'scatter', mode = 'markers',hoverinfo='text',
                  text=~paste("length:",Length,"cm","<br>weight:",Weight, "<br>gear type:",gear),
                  color= ~gear,colors = "Set1") %>%  
