@@ -174,7 +174,7 @@ shinyUI(
                                                  fluidRow(column(width=3,
                                                                  # We set the species list and default selection in server.R now 
                                                                  selectInput("species",label="Species",
-                                                                             choices = list("COD", "FLE", "PLE", "DAB", "HER", "TUR", "ALL"),
+                                                                             choices = list("All", "COD", "FLE", "PLE", "DAB", "HER", "TUR"),
                                                                              selected = "COD"),
                                                                  conditionalPanel(condition = "input.fishtab == 'A'",
                                                                                   selectInput(inputId="biooptionselection", label="Select parameter", 
