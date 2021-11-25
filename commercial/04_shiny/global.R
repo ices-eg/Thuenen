@@ -40,6 +40,8 @@ library(mapplots)
 library(rintrojs)
 library(ggrepel) # requiered by shinyappsio
 library(rgeos) # requiered by shinyappsio
+library(sqldf)
+
 
 ices.rect <- read_sf("shp/ices_rectangles/ices_squares_simple.shp")
 ices.rect<-as(ices.rect, 'Spatial')
