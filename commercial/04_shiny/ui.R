@@ -238,19 +238,7 @@ shinyUI(
                                                  conditionalPanel(condition = "input.fishtab == 'B'",
                                                                   plotlyOutput("bio_la")
                                                                   %>% withSpinner(color="#0dc5c1"))
-                                          ))#,
-                                        
-                                        # fluidRow(
-                                        #   column(width=10,
-                                        #          conditionalPanel(condition = "input.fishtab == 'C'",
-                                        #                           imageOutput("fish_b1", height="100%"),
-                                        #                           tags$style(HTML(".js-irs-0 .irs-grid-pol.small {height: 4px;}")),
-                                        #                           tags$style(HTML(".js-irs-1 .irs-grid-pol.small {height: 0px;}")),
-                                        #                           sliderInput("slideryear", "Choose Year:",
-                                        #                                       min = 2007, max = 2019, #change after yearly update..For year 2020 max year is 2019
-                                        #                                       value = 2019, step = 1,
-                                        #                                       sep = "",
-                                        #                                       animate = TRUE),htmlOutput("LandingsDisttext")),offset=4,style = "margin-top:-5em"))
+                                          ))
                         ), 
                         ##### Fish sp tab - Species tabsets #####
                         column(width = 5, tabsetPanel(id = "fishtab",
