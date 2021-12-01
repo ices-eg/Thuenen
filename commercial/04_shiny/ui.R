@@ -257,8 +257,12 @@ shinyUI(
                                                                                tags$b("Modal age is:"),h4(textOutput("mode")),
                                                                                tags$small("*age range based on age readings and lengths taken from fish sampled at ports and the stockbook"))),
                                                                hr(),
-                                                               column(width=5,actionButton("showhist",label = "Show Histogram")), 
-                                                               plotlyOutput("age_hist"))#,
+                                                               fluidRow(column(width=5,actionButton("showhist",label = "Show Histogram")),
+                                                                        column(width=7,p())),
+                                                               fluidRow(p()),
+                                                               plotlyOutput("age_hist"),
+                                                               fluidRow(p())
+                                                              )#,
                                                       # tabPanel("Distribution",value= "C",
                                                       #          
                                                       #          p(),htmlOutput("fish_distribution"),
