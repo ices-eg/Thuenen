@@ -71,7 +71,8 @@ shinyUI(
                                   column(4, id="controls", fixed=FALSE, draggable = TRUE, 
                                          fluidRow(column(12,selectInput("species_groups",label=NULL, choices = c("Total Landings kg","Demersal Species kg", "Pelagic Species kg")),
                                                          sliderInput("slideryear", "Year:", min = 2003, max(landings$jahr) #max = 2021
-                                                                     , value = 2020, step = 1, sep = "", animate = TRUE)
+                                                                     , value = 2020, step = 1, sep = "", animate = TRUE), 
+                                                         checkboxInput("rec", "ICES Rectangles"),
                                          )), 
                                          br(), br(), br(), br(), 
                                          fluidRow(column(12,plotlyOutput("sp_piechart") %>% 
@@ -89,35 +90,39 @@ shinyUI(
       ), #end of tabPanel   
       
       # -----------------------------------
-      # fleet overview
+      # Landings by area, harbor and as an output table 
       # -----------------------------------
-      tabPanel(id="tab_fish_landings", "Commercial Landings"
+      tabPanel(id="tab_fish_landings", "Commercial Landings",
+               fluidRow(column(width = 3,
+                               selectInput("species_groups",label="Species Group", choices = c("Demersal Species", "Pelagic Species", "Freshwater Species")),
+                               
+                               sliderInput("slideryear", "Year:", min = 2003, max(landings$jahr), #max = 2021
+                                           value = 2020, step = 1, sep = "", animate = TRUE),
+                               checkboxGroupInput("variable", "Select Quarter:", c("Q1" = "q1", "Q2" = "q2", "Q3" = "q3", "Q4" = "q4"))
+                               
+               ),
+               column(width=3, 
+                      selectInput("area", label="FAO Area",
+                                  choices = list("All", "27.3.c.22 (Belt)", "27.3.d.24 (Arkona)", "27.3.d.25 (Bornholm)", "27.3.d.26 (East of Gotland)"),
+                                  selected = "All"),
+                      actionButton("showres",label = "Show Results")
+               ),
                
-               ,
-               dashboardPage(
-                 dashboardHeader(disable = TRUE),
-                 dashboardSidebar(disable = TRUE),
-                 dashboardBody(
-                   fluidPage(
-                     chooseSliderSkin("Round"), #change the style of all slider in this fluidpage
-                     br(),
-                     fluidRow((column(12,selectInput("species_groups",label=NULL, choices = c("Total Landings kg","Demersal Species kg", "Pelagic Species kg")),
-                                      checkboxGroupInput("variable", "Select Quarter:",
-                                                         c("Q1" = "q1",
-                                                           "Q2" = "q2",
-                                                           "Q3" = "q3",
-                                                           "Q4" = "q4")),
-                                      sliderInput("slideryear", "Year:", min = 2003, max(landings$jahr), #max = 2021
-                                                  value = 2020, step = 1, sep = "", animate = TRUE) )
-                     )),
-                   )
-                 ) #end of dashboardBody
-               ) # end of dashboardPage
-               
-               
-               
-      ), #end of tabPanel      
-      
+               column(width = 6, 
+                      tabsetPanel(id = "fishtab",
+                                  tabPanel("Map",#value= "A", 
+                                           p(),
+                                           fluidRow(column(width=7))), 
+                                  tabPanel("Harbors",# value = "B", 
+                                           p(),
+                                           fluidRow(column(width=5))),
+                                  tabPanel("Table",# value = "B", 
+                                           p(),
+                                           fluidRow(column(width=5)))
+                      )
+               )
+               ) #end of fluidRow
+      ), #end of TabPanel      
       
       # -----------------------------------
       # landings overview
