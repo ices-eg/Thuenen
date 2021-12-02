@@ -260,7 +260,7 @@ shinyUI(
                                                                fluidRow(column(width=5,textInput("lengthcm", label = "Enter fish length in cm:"), value = 0),
                                                                         column(width=7,tags$b("Age range observed*:"), h4(textOutput("agerange")),
                                                                                tags$b("Modal age is:"),h4(textOutput("mode")),
-                                                                               tags$small("*age range based on age readings and lengths taken from fish sampled at ports and the stockbook"))),
+                                                                               tags$small("*age range based on age readings and lengths taken from fish sampled from commercial vessels"))),
                                                                hr(),
                                                                fluidRow(column(width=5,actionButton("showhist",label = "Show Histogram")),
                                                                         column(width=7,p())),
