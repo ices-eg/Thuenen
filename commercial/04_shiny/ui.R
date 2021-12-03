@@ -95,21 +95,20 @@ shinyUI(
       tabPanel(id="tab_fish_landings", "Commercial Landings",
                fluidRow(column(width = 3,
                                selectInput("species_groups",label="Species Group", choices = c("Demersal Species", "Pelagic Species", "Freshwater Species")),
-                               
                                sliderInput("slideryear", "Year:", min = 2003, max(landings$jahr), #max = 2021
                                            value = 2020, step = 1, sep = "", animate = TRUE),
                                checkboxGroupInput("variable", "Select Quarter:", c("Q1" = "q1", "Q2" = "q2", "Q3" = "q3", "Q4" = "q4"))
                                
                ),
                column(width=3, 
-                      selectInput("area", label="FAO Area",
+                      selectInput("area_lan", label="FAO Area",
                                   choices = list("All", "27.3.c.22 (Belt)", "27.3.d.24 (Arkona)", "27.3.d.25 (Bornholm)", "27.3.d.26 (East of Gotland)"),
                                   selected = "All"),
                       actionButton("showres",label = "Show Results")
                ),
                
                column(width = 6, 
-                      tabsetPanel(id = "fishtab",
+                      tabsetPanel(id = "lantab",
                                   tabPanel("Map",#value= "A", 
                                            p(),
                                            fluidRow(column(width=7))), 
