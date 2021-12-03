@@ -7,16 +7,16 @@
 #    
 ##### Interactive Map - fishing areas #####
 # Create the map - leaflet 
-output$map <- renderLeaflet({
-  leaflet() %>% 
-    addProviderTiles(providers$Esri.OceanBasemap) %>% 
-    setView(lng = 13.0000, lat = 54.800, zoom = 7)
-})
+#output$map <- renderLeaflet({
+#  leaflet() %>% 
+#    addProviderTiles(providers$Esri.OceanBasemap) %>% 
+#    setView(lng = 13.0000, lat = 54.800, zoom = 7)
+#})
 
 # Filtering for Mapping 
-mapdata1 <- reactive({
-  subset(mapdata, Year %in% input$slideryear)
-}) 
+#mapdata1 <- reactive({
+#  subset(mapdata, Year %in% input$slideryear)
+#}) 
 
   
   # Return the requested dataset ----
