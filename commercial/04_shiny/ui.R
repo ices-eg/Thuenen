@@ -69,10 +69,12 @@ shinyUI(
                      fluidRow(box(h4("Interactive map"), style = "margin-top:-1.5em", width=12, background = "light-blue",
                                   column(8, leafletOutput("map", height=550, width="auto")),
                                   column(4, id="controls", fixed=FALSE, draggable = TRUE, 
-                                         fluidRow(column(12,selectInput("species_groups",label=NULL, choices = c("Total Landings kg","Demersal Species kg", "Pelagic Species kg")),
+                                         fluidRow(column(12,
+                                                         selectInput("species_groups",label=NULL, choices = c("Total Landings kg","Demersal Species kg", "Pelagic Species kg")),
                                                          sliderInput("slideryear", "Year:", min = 2003, max(landings$jahr) #max = 2021
                                                                      , value = 2020, step = 1, sep = "", animate = TRUE), 
-                                                         checkboxInput("rec", "ICES Rectangles"),
+                                                        # checkboxInput("rec", "ICES Rectangles", FALSE),
+                                                         selectInput("spatialICES", label="spatial resolution", choices = c("FAO_area", "ICES rectangles"))
                                          )), 
                                          br(), br(), br(), br(), 
                                          fluidRow(column(12,plotlyOutput("sp_piechart") %>% 
@@ -134,9 +136,35 @@ shinyUI(
       # -----------------------------------
       # landings overview
       # -----------------------------------
-      tabPanel(id="tab_fish_invent", "Fishery Inventory"
+      tabPanel(id="tab_fish_inventory", "Inventory tables",
                
-      )
+               titlePanel("Fishery census data"),
+               helpText("These inventories contain landings and effort data after they have been processed at the Thünen-OF"),
+               helpText("The current year is considered preliminary"),
+               tabsetPanel(
+                 type = "tabs",
+                 tabPanel(
+                   "commercial landings (CL)",
+                   align = 'center',
+                   br(),
+                   downloadButton(outputId = 'download_filtered_inventorytable_CL', label = "Download the filtered dataset"),
+                   br(),
+                   #addSpinner(DT::dataTableOutput("inventorytable_CL"), spin = "circle", color = "grey")
+                   DT::dataTableOutput("inventorytable_CL"),
+                   add_busy_spinner(spin = "scaling-squares", color = "grey", timeout = 5, position = "top-right", margins = c(55,20))
+                 ),
+                 tabPanel(
+                   "fishing effort (CE)",
+                   align = 'center',
+                   br(),
+                   downloadButton(outputId = 'download_filtered_invetorytable_CE', label = "Download the filtered dataset"),
+                   br(),
+                   #addSpinner(DT::dataTableOutput("inventorytable_EFF"), spin = "circle", color = "grey")
+                   DT::dataTableOutput("inventorytable_CE"),
+                   add_busy_spinner(spin = "scaling-squares", color = "grey", timeout = 5, position = "top-right", margins = c(55,20))
+                 )
+               ) #end of TabSetPanel
+               ) #end of TabPanel inventory
       
     ), #end of Fishery NavBar       
     
