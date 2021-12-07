@@ -21,6 +21,7 @@ library(tidyr)
 library(ggplot2)
 library(lubridate)
 library(data.table)
+library(DT)
 
 # markdown scripts
 library(rmarkdown)
@@ -61,4 +62,7 @@ landings <- landings %>% mutate(group_fish = case_when(fischart %in% c("COD", "P
                                                        fischart %in% c("HER", "SPR", "GAR", "MAC", "HKE") ~ "pelagic species", 
                                                        fischart %in% c("FPE", "FRO", "FBR", "FBU", "FPI", "FPP", "FTE", "ELP", "FCC", "FCP") ~ "freshwater species",
                                                        fischart %in% c("TRS","PLN", "ELE","SAL","TRO") ~ "freshwater species", TRUE ~ "other")
-)
+                                )
+
+
+
