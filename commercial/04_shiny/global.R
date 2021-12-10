@@ -57,6 +57,7 @@ sample_bio <- read.csv("data/sample_bio.csv")
 
 landings <- read.csv("data/anlandung.csv", sep=";")
 all_vessel_cl <- read.csv("data/all_vessel_cl.csv", sep=";")
+all_vessel_ce <- read.csv("data/all_vessel_ce.csv", sep=";")
 
 # add species group to the landings 
 landings <- landings %>% mutate(group_fish = case_when(fischart %in% c("COD", "PLE", "FLE", "DAB", "SOL", "TUR", "BLL", "WHG", "LUM") ~ "demersal species", 

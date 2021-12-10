@@ -73,7 +73,7 @@ shinyUI(
                                                          selectInput("species_groups",label=NULL, choices = c("Total Landings kg","Demersal Species kg", "Pelagic Species kg")),
                                                          sliderInput("slideryear", "Year:", min = 2003, max(landings$jahr) #max = 2021
                                                                      , value = 2020, step = 1, sep = "", animate = TRUE), 
-                                                        # checkboxInput("rec", "ICES Rectangles", FALSE),
+                                                         # checkboxInput("rec", "ICES Rectangles", FALSE),
                                                          selectInput("spatialICES", label="spatial resolution", choices = c("FAO_area", "ICES rectangles"))
                                          )), 
                                          br(), br(), br(), br(), 
@@ -164,7 +164,7 @@ shinyUI(
                    add_busy_spinner(spin = "scaling-squares", color = "grey", timeout = 5, position = "top-right", margins = c(55,20))
                  )
                ) #end of TabSetPanel
-               ) #end of TabPanel inventory
+      ) #end of TabPanel inventory
       
     ), #end of Fishery NavBar       
     
@@ -294,7 +294,7 @@ shinyUI(
                                                                fluidRow(p()),
                                                                plotlyOutput("age_hist"),
                                                                fluidRow(p())
-                                                              )#,
+                                                      )#,
                                                       # tabPanel("Distribution",value= "C",
                                                       #          
                                                       #          p(),htmlOutput("fish_distribution"),
