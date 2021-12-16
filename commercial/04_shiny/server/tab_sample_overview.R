@@ -7,19 +7,16 @@
 #    br(),
 
 
-##### Interactive ggplot for sample idstrubtion #####
-##############  not connected to map yet, only reactive to year slider and drop-down!
-##### Pie chart - sum of landings per species #####
+##### Interactive ggplot for sample overviews #####
 ##############
+
 sample_data_1 <- reactive({
   subset(trip, year %in% input$slideryear_sample)
 })
 
 # define data for reactive ggplot (trip overview) 
 sample_data_2_all <- reactive({
-  sample_data_1() %>%
-    group_by(group_trip) %>% 
-    summarise(Totalkg = sum(fangkg))
+  sample_data_1() # %>%
 })
 sample_data_2_def <- reactive({
   sample_data_1() %>%  
@@ -46,10 +43,10 @@ observe({
   
   if(P1== "Total Samples") { 
     output$ggplot_sample <- renderPlot({
-      ggplot(sample_data_1(), aes(x=as.Date(start_date), y=as.character(trip_number), fill=group_trip)) +
+      ggplot(sample_data_2_all(), aes(x=as.Date(start_date), y=as.character(trip_number), fill=group_trip)) +
         geom_point(aes(colour=group_trip, shape=group_trip), size=2.5) +
-        facet_grid(quarter(start_date) ~ .) +
-        geom_point(alpha= .4)+
+        facet_grid(quarter(start_date) ~ ., scales = "free_y", switch = 'y') +
+    #    geom_point(alpha= .4)+
         labs( x="Month", y="Trip number") +
         theme(legend.position = "bottom", legend.title=element_blank()) +
         scale_x_date(date_breaks = "1 month", date_minor_breaks = "1 week", date_labels = "%b%Y", expand = c(0.07, 0))
@@ -59,8 +56,8 @@ observe({
     output$ggplot_sample <- renderPlot({
       ggplot(sample_data_2_def(), aes(x=as.Date(start_date), y=as.character(trip_number), fill=group_trip)) +
         geom_point(aes(colour=group_trip, shape=group_trip), size=2.5) +
-        facet_grid(quarter(start_date) ~ .) +
-        geom_point(alpha= .4)+
+        facet_grid(quarter(start_date) ~ ., scales = "free_y", switch = 'y') +
+      #  geom_point(alpha= .4)+
         labs( x="Month", y="Trip number") +
         theme(legend.position = "bottom", legend.title=element_blank()) +
         scale_x_date(date_breaks = "1 month", date_minor_breaks = "1 week", date_labels = "%b%Y", expand = c(0.07, 0))
@@ -70,8 +67,8 @@ observe({
     output$ggplot_sample <- renderPlot({
       ggplot(sample_data_2_spf(), aes(x=as.Date(start_date), y=as.character(trip_number), fill=group_trip)) +
         geom_point(aes(colour=group_trip, shape=group_trip), size=2.5) +
-        facet_grid(quarter(start_date) ~ .) +
-        geom_point(alpha= .4)+
+        facet_grid(quarter(start_date) ~ ., scales = "free_y", switch = 'y') +
+    #    geom_point(alpha= .4)+
         labs( x="Month", y="Trip number") +
         theme(legend.position = "bottom", legend.title=element_blank()) +
         scale_x_date(date_breaks = "1 month", date_minor_breaks = "1 week", date_labels = "%b%Y", expand = c(0.07, 0))
@@ -82,8 +79,8 @@ observe({
     output$ggplot_sample <- renderPlot({
       ggplot(sample_data_2_har(), aes(x=as.Date(start_date), y=as.character(trip_number), fill=group_trip)) +
         geom_point(aes(colour=group_trip, shape=group_trip), size=2.5) +
-        facet_grid(quarter(start_date) ~ .) +
-        geom_point(alpha= .4)+
+        facet_grid(quarter(start_date) ~ ., scales = "free_y", switch = 'y') +
+    #    geom_point(alpha= .4)+
         labs( x="Month", y="Trip number") +
         theme(legend.position = "bottom", legend.title=element_blank()) +
         scale_x_date(date_breaks = "1 month", date_minor_breaks = "1 week", date_labels = "%b%Y", expand = c(0.07, 0))
@@ -163,14 +160,14 @@ totaltriphar <- reactive({
 observe({ 
   P1 <- input$sample_groups 
   if(P1== "Total Samples") {
-    output$box2_sample <- renderValueBox({valueBox(value = totaltrip(),subtitle="Trips sampled", icon = icon("fas fa-fish"))
+    output$box2_sample <- renderValueBox({valueBox(value = totaltrip(),subtitle="Trips sampled", icon = icon("fas fa-binoculars"))
     }) 
   }else if (P1 == "Demersal Fishery") {
-    output$box2_sample <- renderValueBox({valueBox(value = totaltripdef(),subtitle="Demersal trips sampled", icon = icon("fas fa-fish"))})
+    output$box2_sample <- renderValueBox({valueBox(value = totaltripdef(),subtitle="Demersal trips sampled", icon = icon("fas fa-binoculars"))})
   }else if (P1 == "Pelagic Fishery") {
-    output$box2_sample <- renderValueBox({valueBox(value = totaltripspf(),subtitle="Pelagic trips sampled", icon = icon("fas fa-fish"))})
+    output$box2_sample <- renderValueBox({valueBox(value = totaltripspf(),subtitle="Pelagic trips sampled", icon = icon("fas fa-binoculars"))})
   }else if (P1 == "Harbor Samples") {
-    output$box2_sample <- renderValueBox({valueBox(value = totaltriphar(),subtitle="Trips sampled in harbors", icon = icon("fas fa-fish"))})
+    output$box2_sample <- renderValueBox({valueBox(value = totaltriphar(),subtitle="Trips sampled in harbors", icon = icon("fas fa-binoculars"))})
   }
 })
 
@@ -199,14 +196,14 @@ totaldayshar <- reactive({
 observe({ 
   P1 <- input$sample_groups 
   if(P1== "Total Samples") {
-    output$box3_sample <- renderValueBox({valueBox(value = totaldays(),subtitle="total days at Sea covered", icon = icon("fas fa-stroopwafel"))
+    output$box3_sample <- renderValueBox({valueBox(value = totaldays(),subtitle="total days at Sea covered", icon = icon("fas fa-calendar-alt"))
     }) 
   }else if (P1 == "Demersal Fishery") {
-    output$box3_sample <- renderValueBox({valueBox(value = totaldaysdef(),subtitle="demersal fishery days at Sea covered", icon = icon("fas fa-stroopwafel"))})
+    output$box3_sample <- renderValueBox({valueBox(value = totaldaysdef(),subtitle="demersal fishery days at Sea covered", icon = icon("fas fa-calendar-alt"))})
   }else if (P1 == "Pelagic Fishery") {
-    output$box3_sample <- renderValueBox({valueBox(value = totaldaysspf(),subtitle="pelagic fishery days at Sea covered", icon = icon("fas fa-stroopwafel"))})
+    output$box3_sample <- renderValueBox({valueBox(value = totaldaysspf(),subtitle="pelagic fishery days at Sea covered", icon = icon("fas fa-calendar-alt"))})
   }else if (P1 == "Harbor Samples") {
-    output$box3_sample <- renderValueBox({valueBox(value = totaldayshar(),subtitle="Days at Sea covered in harbor samples", icon = icon("fas fa-stroopwafel"))})
+    output$box3_sample <- renderValueBox({valueBox(value = totaldayshar(),subtitle="Days at Sea covered in harbor samples", icon = icon("fas fa-calendar-alt"))})
   }
 })  
 
