@@ -73,4 +73,6 @@ trip <- trip %>% mutate(group_trip = case_when(str_sub(trip_number,2,3) %in% c("
                  mutate(days_at_sea = as.numeric(as.Date(end_date)- as.Date(start_date)+1))
 
 
+#
+Supp_table <- read.csv("data/supplement_species.csv", header=TRUE, sep = ";")
 
