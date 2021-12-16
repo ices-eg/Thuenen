@@ -8,6 +8,11 @@ library(shiny)
 
 # setwd("C:/Dateien/Datenbank 2.0/Thuenen/commercial/04_shiny/")
 
+
+##########################################################
+# UI definition - sets the frame, Panels and starting page 
+##########################################################
+
 shinyUI(
   
   #navBarPage
@@ -45,9 +50,9 @@ shinyUI(
                       
                )),
     ),
-    # -----------------------------------
-    # Fisheries Tab
-    # -----------------------------------
+    # ------------------------------------------------------------
+    # Fisheries Panel - presents the BLE and federal fishing data 
+    # ------------------------------------------------------------
     navbarMenu(
       "Fishery",
       
@@ -126,16 +131,16 @@ shinyUI(
       ), #end of TabPanel      
       
       # -----------------------------------
-      # landings overview
+      # logbooks overview
       # -----------------------------------
       tabPanel(id="tab_fish_log", "Logbooks"
                
       ),
       
       
-      # -----------------------------------
-      # landings overview
-      # -----------------------------------
+      # ------------------------------------------------------------
+      # Inventory tables for the landings and effort (generated from the all_vessel structure)
+      # ---------------------------------------------------------------
       tabPanel(id="tab_fish_inventory", "Inventory tables",
                
                titlePanel("Fishery census data"),
@@ -169,12 +174,15 @@ shinyUI(
     ), #end of Fishery NavBar       
     
     
-    # -----------------------------------
-    # Sampling overview tab
-    # -----------------------------------
+    # -----------------------------------------------------------------------
+    # Sampling Panel - presents the sampled cruises, weight and length data 
+    # -----------------------------------------------------------------------
     navbarMenu(
       "Sampling",
-      
+
+      #----------------------      
+      # Sample overviews
+      #----------------------
       
       tabPanel(id="tab_sample_overview", "Sampling overview",
                dashboardPage(
@@ -219,143 +227,157 @@ shinyUI(
                
       )),
     
-    
-    
-    # -----------------------------------
-    # Stock overview tab
-    # -----------------------------------
-    
+   
+
+
+ 
+    # ---------------------------------------------------------
+    # Biology Panel - presents the biological single fish data 
+    # ---------------------------------------------------------
+   
     navbarMenu("Biology",
-               tabPanel(id="tabstock_over", "Biology overview"
+              
+      # -----------------------------------
+      # biological data overview
+      # -----------------------------------
+               
+                tabPanel(id="tabstock_over", "Biology overview"
                         
                ),
                
                
-               # -----------------------------------
-               # Species dashboard
-               # -----------------------------------                
-               tabPanel(id="tabstock_dash", "Species Dashboard",
-                        fluidRow(column(width = 7,
-                                        fluidRow(column(width=3,
-                                                        # We set the species list and default selection in server.R now 
-                                                        selectInput("species",label="Species",
-                                                                    choices = list("All", "COD", "FLE", "PLE", "DAB", "HER", "TUR"),
-                                                                    selected = "COD"),
-                                                        conditionalPanel(condition = "input.fishtab == 'A'",
-                                                                         selectInput(inputId="biooptionselection", label="Select parameter", 
-                                                                                     choices=list("None","Age","Sex","Gear","Sample Type"),
-                                                                                     selected = "None")),
-                                                        conditionalPanel(condition = "input.fishtab == 'B'",
-                                                                         selectInput(inputId="ageoptionselection", label="Select parameter", 
-                                                                                     choices=list("None","Age","Sex","Gear","Sample Type"),
-                                                                                     selected = "None")),
-                                                        conditionalPanel(condition = "input.biooptionselection =='Gear' && input.fishtab == 'A'",
-                                                                         uiOutput("GearFilter")),
-                                                        conditionalPanel(condition = "input.ageoptionselection =='Gear' && input.fishtab == 'B'",
-                                                                         uiOutput("GearFilter.a"))),
-                                                 column(width=4,
-                                                        selectInput("quarter", label="Quarter",
-                                                                    choices = list("All", 1, 2, 3, 4),
-                                                                    selected = "All"),
-                                                        sliderInput("year", "Years", min=min(trip$year, na.rm=TRUE), max=max(trip$year, na.rm=TRUE),
-                                                                    value=max(trip$year, na.rm=TRUE), sep="", step=1)), #by one year
-                                                 column(width=5,
-                                                        conditionalPanel("input.fishtab == 'A'",
-                                                                         radioGroupButtons(inputId = "Id",label = "",
-                                                                                           choices = c("FAO Area", 
-                                                                                                       "Rectangle"),
-                                                                                           direction = "horizontal",
-                                                                                           checkIcon = list(
-                                                                                             yes = tags$i(class = "fa fa-check-square", 
-                                                                                                          style = "color: steelblue"),
-                                                                                             no = tags$i(class = "fa fa-square-o", 
-                                                                                                         style = "color: steelblue"))),
-                                                                         uiOutput("spatialops.w")),
-                                                        
-                                                        conditionalPanel("input.fishtab == 'A'",
-                                                                         downloadButton("downloadDatalw", "Download data")),
-                                                        
-                                                        conditionalPanel("input.fishtab == 'B'",
-                                                                         radioGroupButtons(inputId = "Id.a", label = "",
-                                                                                           choices = c("FAO Area", 
-                                                                                                       "Rectangle"),
-                                                                                           direction = "horizontal",
-                                                                                           checkIcon = list(
-                                                                                             yes = tags$i(class = "fa fa-check-square", 
-                                                                                                          style = "color: steelblue"),
-                                                                                             no = tags$i(class = "fa fa-square-o", 
-                                                                                                         style = "color: steelblue"))),
-                                                                         uiOutput("spatialops.a")),
-                                                        
-                                                        conditionalPanel("input.fishtab == 'B'",                 
-                                                                         downloadButton("downloadDatala", "Download data", class="btn btn-outline-primary")
-                                                                         
-                                                        ))),
-                                        
-                                        ##### Fish sp tab - Maps and plots  ######                                     
-                                        fluidRow(
-                                          column(width=12,
-                                                 conditionalPanel(condition = "input.fishtab == 'A'",
-                                                                  plotlyOutput("bio_lw")
-                                                                  %>% withSpinner(color="#0dc5c1")),
-                                                 conditionalPanel(condition = "input.fishtab == 'B'",
-                                                                  plotlyOutput("bio_la")
-                                                                  %>% withSpinner(color="#0dc5c1"))
-                                          ))
+      # -----------------------------------
+      # Species dashboard
+      # -----------------------------------                
+       tabPanel(id="tabstock_dash", "Species Dashboard",
+                titlePanel("Species Dashboard"),
+                helpText("The species dashboard displays biological data from the commercial fishery samples"),
+                helpText("select the desired parameter below"),
+                fluidRow(column(width = 7,
+                                fluidRow(column(width=3,
+                            # We set the species list and default selection in server.R now 
+                                                selectInput("species",label="Species",
+                                                            choices = list("All", "COD", "FLE", "PLE", "DAB", "HER", "TUR"),
+                                                            selected = "COD"),
+                                                conditionalPanel(condition = "input.fishtab == 'A'",
+                                                                 selectInput(inputId="biooptionselection", label="Select parameter", 
+                                                                             choices=list("None","Age","Sex","Gear","Sample Type"),
+                                                                             selected = "None")),
+                                                conditionalPanel(condition = "input.fishtab == 'B'",
+                                                                 selectInput(inputId="ageoptionselection", label="Select parameter", 
+                                                                             choices=list("None","Age","Sex","Gear","Sample Type"),
+                                                                             selected = "None")),
+                                                conditionalPanel(condition = "input.biooptionselection =='Gear' && input.fishtab == 'A'",
+                                                                 uiOutput("GearFilter")),
+                                                conditionalPanel(condition = "input.ageoptionselection =='Gear' && input.fishtab == 'B'",
+                                                                 uiOutput("GearFilter.a"))),
+                                         column(width=4,
+                                                selectInput("quarter", label="Quarter",
+                                                            choices = list("All", 1, 2, 3, 4),
+                                                            selected = "All"),
+                                                sliderInput("year", "Years", min=min(trip$year, na.rm=TRUE), max=max(trip$year, na.rm=TRUE),
+                                                            value=max(trip$year, na.rm=TRUE), sep="", step=1)), #by one year
+                                         column(width=5,
+                                                conditionalPanel("input.fishtab == 'A'",
+                                                                 radioGroupButtons(inputId = "Id",label = "",
+                                                                                   choices = c("FAO Area", 
+                                                                                               "Rectangle"),
+                                                                                   direction = "horizontal",
+                                                                                   checkIcon = list(
+                                                                                     yes = tags$i(class = "fas fa-check-square", 
+                                                                                                  style = "color: steelblue"),
+                                                                                     no = tags$i(class = "fas fa-square-o", 
+                                                                                                 style = "color: steelblue"))),
+                                                                 uiOutput("spatialops.w")),
+                                                
+                                                conditionalPanel("input.fishtab == 'A'",
+                                                                 downloadButton("downloadDatalw", "Download data")),
+                                                
+                                                conditionalPanel("input.fishtab == 'B'",
+                                                                 radioGroupButtons(inputId = "Id.a", label = "",
+                                                                                   choices = c("FAO Area", 
+                                                                                               "Rectangle"),
+                                                                                   direction = "horizontal",
+                                                                                   checkIcon = list(
+                                                                                     yes = tags$i(class = "fas fa-check-square", 
+                                                                                                  style = "color: steelblue"),
+                                                                                     no = tags$i(class = "fas fa-square-o", 
+                                                                                                 style = "color: steelblue"))),
+                                                                 uiOutput("spatialops.a")),
+                                                
+                                                conditionalPanel("input.fishtab == 'B'",                 
+                                                                 downloadButton("downloadDatala", "Download data", class="btn btn-outline-primary")
+                                                                     
+                                                ))),
+                                      
+                                ##### Fish sp tab - Maps and plots  ######                                     
+                                fluidRow(
+                                  column(width=12,
+                                         conditionalPanel(condition = "input.fishtab == 'A'",
+                                                          plotlyOutput("bio_lw")
+                                                          %>% withSpinner(color="#0dc5c1")),
+                                         conditionalPanel(condition = "input.fishtab == 'B'",
+                                                          plotlyOutput("bio_la")
+                                                          %>% withSpinner(color="#0dc5c1"))
+                                  ))
                         ), 
-                        ##### Fish sp tab - Species tabsets #####
-                        column(width = 5, tabsetPanel(id = "fishtab",
-                                                      tabPanel("Biology",value= "A", 
-                                                               p(), htmlOutput("fish_biology"),
-                                                               fluidRow(column(width=7,imageOutput("fish_drawing", height='100%')),
-                                                                        column(width=5,conditionalPanel(condition = "input.species =='COD'",
-                                                                                                        imageOutput("monk_belly"))))),     
-                                                      tabPanel("Age", value = "B", 
-                                                               p(),
-                                                               fluidRow(column(width=5, htmlOutput("ageingtxt")),
-                                                                        column(width=7, imageOutput("speciesotolith", height='100%'))),
-                                                               p(),
-                                                               fluidRow(column(width=5,textInput("lengthcm", label = "Enter fish length in cm:"), value = 0),
-                                                                        column(width=7,tags$b("Age range observed*:"), h4(textOutput("agerange")),
-                                                                               tags$b("Modal age is:"),h4(textOutput("mode")),
-                                                                               tags$small("*age range based on age readings and lengths taken from fish sampled from commercial vessels"))),
-                                                               hr(),
-                                                               fluidRow(column(width=5,actionButton("showhist",label = "Show Histogram")),
-                                                                        column(width=7,p())),
-                                                               fluidRow(p()),
-                                                               plotlyOutput("age_hist"),
-                                                               fluidRow(p())
-                                                      )#,
-                                                      # tabPanel("Distribution",value= "C",
-                                                      #          
-                                                      #          p(),htmlOutput("fish_distribution"),
-                                                      #          p(),htmlOutput("fish_b1a"),
-                                                      #          h3("Useful links for more information:"),
-                                                      #          a(href=paste0("https://shiny.marine.ie/stockbook/"),
-                                                      #            "The Digital Stockbook",target="_blank"),
-                                                      #          p(), 
-                                                      #          a(href=paste0("https://www.marine.ie"),
-                                                      #            "The Marine Institute webpage",target="_blank"),
-                                                      #          p(),
-                                                      #          "For any quaries contact",
-                                                      #          a("informatics@marine.ie",href="informatics@marine.ie"))
-                        )
-                        )
-                        )),                
-               # -----------------------------------
-               # stock specific data and plots
-               # -----------------------------------
-               tabPanel(id="tabInventory", "Stock parameter"),
+                ##### Fish sp tab - Species tabsets #####
+                column(width = 5, tabsetPanel(id = "fishtab",
+                                              tabPanel("Biology",value= "A", 
+                                                       p(), htmlOutput("fish_biology"),
+                                                       fluidRow(column(width=7,imageOutput("fish_drawing", height='100%')),
+                                                                column(width=5,conditionalPanel(condition = "input.species =='COD'",
+                                                                                                imageOutput("monk_belly"))))),     
+                                              tabPanel("Age", value = "B", 
+                                                       p(),
+                                                       fluidRow(column(width=5, htmlOutput("ageingtxt")),
+                                                                column(width=7, imageOutput("speciesotolith", height='100%'))),
+                                                       p(),
+                                                       fluidRow(column(width=5,textInput("lengthcm", label = "Enter fish length in cm:"), value = 0),
+                                                                column(width=7,tags$b("Age range observed*:"), h4(textOutput("agerange")),
+                                                                       tags$b("Modal age is:"),h4(textOutput("mode")),
+                                                                       tags$small("*age range based on age readings and lengths taken from fish sampled from commercial vessels"))),
+                                                       hr(),
+                                                       fluidRow(column(width=5,actionButton("showhist",label = "Show Histogram")),
+                                                                column(width=7,p())),
+                                                       fluidRow(p()),
+                                                       plotlyOutput("age_hist"),
+                                                       fluidRow(p())
+                                              )#,
+                                              # tabPanel("Distribution",value= "C",
+                                              #          
+                                              #          p(),htmlOutput("fish_distribution"),
+                                              #          p(),htmlOutput("fish_b1a"),
+                                              #          h3("Useful links for more information:"),
+                                              #          a(href=paste0("https://shiny.marine.ie/stockbook/"),
+                                              #            "The Digital Stockbook",target="_blank"),
+                                              #          p(), 
+                                              #          a(href=paste0("https://www.marine.ie"),
+                                              #            "The Marine Institute webpage",target="_blank"),
+                                              #          p(),
+                                              #          "For any quaries contact",
+                                              #          a("informatics@marine.ie",href="informatics@marine.ie"))
+                )
+                )
+              )),                
+        
+      
+      # -----------------------------------
+      # stock specific data and plots
+      # -----------------------------------
+      tabPanel(id="tabInventory", "Stock parameter"),
                
                
-               # -----------------------------------
-               # stock specific data and plots
-               # -----------------------------------
-               tabPanel(id="tablength", "Length distributions",
-                        fluidPage(
-                          titlePanel("fish length test"), 
-                          sidebarLayout(
-                            sidebarPanel(
+              
+      
+      # -----------------------------------
+      # stock specific data and plots
+      # -----------------------------------
+      tabPanel(id="tablength", "Length distributions",
+               fluidPage(
+                  titlePanel("fish length test"), 
+                  sidebarLayout(
+                  sidebarPanel(
                               #                     selectInput("tbl_sample_length", "Choose a dataset:",
                               #                                 choices = c("cod", "plaice", "flounder")
                               #                                  ),
@@ -368,7 +390,8 @@ shinyUI(
                ) # end tabPanel 
     ) # end navbarmenue    
     
-    # -------                     
+
+# -------                     
     
   ) # end Navbarpage
 )# end of ui
