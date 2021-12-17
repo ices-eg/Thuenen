@@ -8,6 +8,8 @@ shinyjs::onclick("sampleID",  updateTabsetPanel(session, inputId="navbar", selec
 shinyjs::onclick("stockID",  updateTabsetPanel(session, inputId="navbar", selected="Biology overview"))
 
 
+
+
 # --------------------------------
 # modal disclaimer
 # --------------------------------
