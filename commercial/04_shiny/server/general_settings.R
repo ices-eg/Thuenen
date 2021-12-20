@@ -9,7 +9,6 @@ shinyjs::onclick("stockID",  updateTabsetPanel(session, inputId="navbar", select
 
 
 
-
 # --------------------------------
 # modal disclaimer
 # --------------------------------
@@ -31,3 +30,45 @@ showModal(disclaimer_modal)
 observeEvent(input$ok,{
   removeModal()
 })
+
+
+
+# --------------------------------
+# modal boxes (on startpage)
+# --------------------------------
+observeEvent(input$modal1,{
+  showModal(modalDialog(
+    tags$iframe(style="height:800px; width:100%; scrolling=yes", 
+                src="DCF Introduction.pdf"),
+    title= "Introduction to German DCF program",
+    easyClose = TRUE,
+    footer = NULL))
+})
+observeEvent(input$modal2,{
+  showModal(modalDialog(
+    tags$iframe(style="height:800px; width:100%; scrolling=yes", 
+                src="DCF Objectives.pdf"),
+    title= "Project Objectives",
+    easyClose = TRUE,
+    footer = NULL))
+})
+observeEvent(input$modal3,{
+  showModal(modalDialog(
+    tags$iframe(style="height:800px; width:100%; scrolling=yes", 
+                src="Sampling Design.pdf"),
+    title= "Sampling Design",
+    easyClose = TRUE,
+    footer = NULL))
+})
+observeEvent(input$modal4,{
+  showModal(modalDialog(
+    tags$iframe(style="height:800px; width:100%; scrolling=yes", 
+                src="Sampling Methodology.pdf"),
+    title= "Methodology",
+    easyClose = TRUE,
+    footer = NULL))
+})
+output$moreInfo <- renderText("Click the buttons below for more
+            information on the Thünen-OF Sampling program")
+
+

@@ -75,5 +75,5 @@ trip <- trip %>% mutate(group_trip = case_when(str_sub(trip_number,2,3) %in% c("
 
 
 #
-Supp_table <- read.csv("data/supplement_pastespecies.csv", header=TRUE, sep = ";")
+Supp_table <- read.csv("data/supplement_species.csv", header=TRUE, sep = ";")
 

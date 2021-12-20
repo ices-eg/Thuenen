@@ -47,9 +47,49 @@ shinyUI(
                       div(style="display: inline-block;",class= "image", img(id="fisheryID", src="fishery_logo_eng.png", height=250, style="cursor:pointer;margin-right:40px;")),
                       div(style="display: inline-block;",class= "image", img(id ="sampleID", src="sampling_logo_eng.png", height=250, style="cursor:pointer;margin-right:40px;")),
                       div(style="display: inline-block;",class= "image", img(id ="stockID", src="stock_logo_eng.png", height=250, style="cursor:pointer;margin-right:40px;"))
-                      
-               )),
-    ),
+                      )
+                    ),
+             br(), br(), br(), br(),
+             br(),
+             fluidRow(width =12,style = "margin-top:-4em", 
+                      box(width =12, img(src="header-fang2.jpg", width = "1200px", height = "75px", style="display: block; margin-left: auto; margin-right: auto;margin-top:0em"))
+                    ),
+             br(),
+             br(),
+             fluidRow(
+               column(12,  style= "margin-top:-4em", #align="center",
+                box(title = "Further information", width = 4, background = "green",
+                  textOutput("moreInfo"),
+                  br(),
+                  actionButton("modal1", "Introduction"),
+                  actionButton("modal2", "Project Objectives"),
+                  br(),
+                  br(),
+                  actionButton("modal3", "Sampling Design"),
+                  actionButton("modal4", "Methodology"),
+                  br(),
+                  br()),
+                box(title ="Useful links",width = 4, status = "success",
+                  a(href=paste0("https://www.dcf-germany.de/"),
+                     "The German DCF Webpage",target="_blank"),
+                  p(),
+                  a(href=paste0("https://dmar01-hro.thuenen.de/"),
+                     "The Thünen-OF Database project",target="_blank"),
+                  p(),
+                  a(href=paste0("https://www.fischbestaende-online.de/"),
+                     "The Thünen fish and fisheries information website",target="_blank"),
+                  br(),
+#                 br(),
+                  br(),
+                  br()),
+                box(title = "Disclaimer Information", width = 4, background = "green",
+                   textOutput("moreDetails"),
+                  br(),
+                  actionButton("modal5", "Read the Disclaimer again"),
+                  br()),
+    )),
+    hr()
+    ), #end of TabPanel
     # ------------------------------------------------------------
     # Fisheries Panel - presents the BLE and federal fishing data 
     # ------------------------------------------------------------
