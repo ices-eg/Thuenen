@@ -51,14 +51,14 @@ shinyUI(
                     ),
              br(), br(), br(), br(),
              br(),
-             fluidRow(width =12,style = "margin-top:-4em", 
-                      box(width =12, img(src="header-fang2.jpg", width = "1200px", height = "75px", style="display: block; margin-left: auto; margin-right: auto;margin-top:0em"))
-                    ),
+#             fluidRow(width =12,style = "margin-top:-4em", 
+#                      box(width =12, img(src="header-fang2.jpg", width = "1200px", height = "75px", style="display: block; margin-left: auto; margin-right: auto;margin-top:0em"))
+#                    ),
              br(),
              br(),
              fluidRow(
                column(12,  style= "margin-top:-4em", #align="center",
-                box(title = "Further information", width = 4, background = "green",
+                box(title = "Further information", width = 4, background = "blue",
                   textOutput("moreInfo"),
                   br(),
                   actionButton("modal1", "Introduction"),
@@ -82,7 +82,7 @@ shinyUI(
 #                 br(),
                   br(),
                   br()),
-                box(title = "Disclaimer Information", width = 4, background = "green",
+                box(title = "Disclaimer Information", width = 4, background = "blue",
                    textOutput("moreDetails"),
                   br(),
                   actionButton("modal5", "Read the Disclaimer again"),
@@ -130,8 +130,20 @@ shinyUI(
                      )),
                      fluidRow(width =12,style = "margin-top:-4em", 
                               box(width =12, img(src="header-fang2.jpg", width = "1200px", height = "75px", style="display: block; margin-left: auto; margin-right: auto;margin-top:0em"))
-                     )
-                   ) #end of fluidRow
+                              ),
+    # buttons to select the subcategories of fishery overview, work in progress,  
+    # needs to finish subcategories first 
+#                     fluidRow(
+#                       column(12, align="center",
+#                                actionButton("button","Landings"),
+#                                 tags$button(id = "landing_button",
+#                                  class = "btn action_button",   
+#                                   tags$img(src = "fas fa-ship",height = "50px")),
+#                                         
+#                             div(style="display: inline-block;",class= "image", img(id ="logbookID", src="sampling_logo_eng.png", height=100, style="cursor:pointer;margin-right:40px;")),
+#                              div(style="display: inline-block;",class= "image", img(id ="inventoryID", src="stock_logo_eng.png", height=100, style="cursor:pointer;margin-right:40px;"))
+#                     )
+                   ) #end of fluidpage
                  ) #end of dashboardBody
                ) # end of dashboardPage
       ), #end of tabPanel   
@@ -260,17 +272,45 @@ shinyUI(
       ), #end of tabPanel 
 
       
+
       # -----------------------------------
       # cruise report markdown
       # -----------------------------------
-      tabPanel(id="tabInventory", "Cruise report"
+      tabPanel(id="tab_sample_trip", "spatiotemporal coverage"
+         
+      ),
+
+
+      # -----------------------------------
+      # cruise report markdown
+      # -----------------------------------
+      tabPanel(id="tab_sample_weight", "weight and length frequencies"
+         
+      ),
+# add PSD statistics (page 113 of R book)
+
+      # -----------------------------------
+      # Sampling lists and inventory
+      # -----------------------------------
+      tabPanel(id="tab_sample_list", "Sample inventory"
+         
+      ),
+
+
+
+      # -----------------------------------
+      # cruise report markdown
+      # -----------------------------------
+      tabPanel(id="tabInventory", "create report"
                
-      )),
+      )
+
+
+
+
+    ), #end of NavBarMenu "Sampling"
     
-   
 
-
- 
     # ---------------------------------------------------------
     # Biology Panel - presents the biological single fish data 
     # ---------------------------------------------------------
