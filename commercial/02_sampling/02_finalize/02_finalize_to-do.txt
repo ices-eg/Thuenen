@@ -1,7 +1,7 @@
 To-Do for the commercial_sampling_02_finalize
 
 --> Requirements: 
- clean and chekcked sampling tables. clean and checked BLE tables
+  - clean and checked sampling tables. clean and checked BLE tables
 	
 
 --> working steps:
