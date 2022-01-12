@@ -17,9 +17,11 @@ sample_data_1 <- reactive({
 # define data for reactive ggplot (trip overview) 
 sample_data_2_all <- reactive({
   sample_data_1() # %>%
+# sample_data_1()[order(sample_data_1()$start_date), ]  
 })
 sample_data_2_def <- reactive({
   sample_data_1() %>%  
+# sample_data_1()[order(sample_data_1()$start_date), ] %>%
     subset(group_trip %in% ("demersal fishery"))
 })
 sample_data_2_spf <- reactive({
@@ -38,14 +40,15 @@ sample_data_2_har <- reactive({
 #) 
 
 # Render the interactive ggplot  
+
 observe({
   P1 <- input$sample_groups
   
   if(P1== "Total Samples") { 
     output$ggplot_sample <- renderPlot({
-      ggplot(sample_data_2_all(), aes(x=as.Date(start_date), y=as.character(trip_number), fill=group_trip)) +
+      ggplot(sample_data_2_all(), aes(x=as.Date(start_date), y=fct_reorder(as.character(trip_number), desc(start_date)), fill=group_trip)) +
         geom_point(aes(colour=group_trip, shape=group_trip), size=2.5) +
-        facet_grid(quarter(start_date) ~ ., scales = "free_y", switch = 'y') +
+        facet_grid(quarter(start_date) ~ ., scales = "free_y",space= "free_y", switch = 'y') +
     #    geom_point(alpha= .4)+
         labs( x="Month", y="Trip number") +
         theme(legend.position = "bottom", legend.title=element_blank()) +
@@ -54,9 +57,9 @@ observe({
   }else if (P1 == "Demersal Fishery") { 
     ##### Loading gif #####
     output$ggplot_sample <- renderPlot({
-      ggplot(sample_data_2_def(), aes(x=as.Date(start_date), y=as.character(trip_number), fill=group_trip)) +
+      ggplot(sample_data_2_def(), aes(x=as.Date(start_date), y=fct_reorder(as.character(trip_number), desc(start_date)), fill=group_trip)) +
         geom_point(aes(colour=group_trip, shape=group_trip), size=2.5) +
-        facet_grid(quarter(start_date) ~ ., scales = "free_y", switch = 'y') +
+        facet_grid(quarter(start_date) ~ ., scales = "free_y",space= "free_y", switch = 'y') +
       #  geom_point(alpha= .4)+
         labs( x="Month", y="Trip number") +
         theme(legend.position = "bottom", legend.title=element_blank()) +
@@ -65,9 +68,9 @@ observe({
   }else if (P1 == "Pelagic Fishery") { 
     ##### Loading gif #####
     output$ggplot_sample <- renderPlot({
-      ggplot(sample_data_2_spf(), aes(x=as.Date(start_date), y=as.character(trip_number), fill=group_trip)) +
+      ggplot(sample_data_2_spf(), aes(x=as.Date(start_date), y=fct_reorder(as.character(trip_number), desc(start_date)), fill=group_trip)) +
         geom_point(aes(colour=group_trip, shape=group_trip), size=2.5) +
-        facet_grid(quarter(start_date) ~ ., scales = "free_y", switch = 'y') +
+        facet_grid(quarter(start_date) ~ ., scales = "free_y", space= "free_y", switch = 'y') +
     #    geom_point(alpha= .4)+
         labs( x="Month", y="Trip number") +
         theme(legend.position = "bottom", legend.title=element_blank()) +
@@ -77,9 +80,9 @@ observe({
   }else if (P1 == "Harbor Samples") { 
     ##### Loading gif #####
     output$ggplot_sample <- renderPlot({
-      ggplot(sample_data_2_har(), aes(x=as.Date(start_date), y=as.character(trip_number), fill=group_trip)) +
+      ggplot(sample_data_2_har(), aes(x=as.Date(start_date), y=fct_reorder(as.character(trip_number), desc(start_date)), fill=group_trip)) +
         geom_point(aes(colour=group_trip, shape=group_trip), size=2.5) +
-        facet_grid(quarter(start_date) ~ ., scales = "free_y", switch = 'y') +
+        facet_grid(quarter(start_date) ~ ., scales = "free_y", space= "free_y", switch = 'y') +
     #    geom_point(alpha= .4)+
         labs( x="Month", y="Trip number") +
         theme(legend.position = "bottom", legend.title=element_blank()) +
