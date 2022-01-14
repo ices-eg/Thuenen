@@ -423,20 +423,11 @@ shinyUI(
                                                        fluidRow(p()),
                                                        plotlyOutput("age_hist"),
                                                        fluidRow(p())
-                                              )#,
-                                              # tabPanel("Distribution",value= "C",
-                                              #          
-                                              #          p(),htmlOutput("fish_distribution"),
-                                              #          p(),htmlOutput("fish_b1a"),
-                                              #          h3("Useful links for more information:"),
-                                              #          a(href=paste0("https://shiny.marine.ie/stockbook/"),
-                                              #            "The Digital Stockbook",target="_blank"),
-                                              #          p(), 
-                                              #          a(href=paste0("https://www.marine.ie"),
-                                              #            "The Marine Institute webpage",target="_blank"),
-                                              #          p(),
-                                              #          "For any quaries contact",
-                                              #          a("informatics@marine.ie",href="informatics@marine.ie"))
+                                              ),
+                                              tabPanel("Age-Length Correlation",value= "C",
+                                                       
+                                                       p(),htmlOutput("fish_distribution"),
+                                                       p(),htmlOutput("fish_b1a"))
                 )
                 )
               )),                
