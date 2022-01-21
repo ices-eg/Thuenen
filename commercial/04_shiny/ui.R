@@ -278,39 +278,49 @@ shinyUI(
       # -----------------------------------
       
       tabPanel(id="tab_sample_trip", "spatiotemporal coverage",
-               titlePanel("Spatiotemporal overview of sampled fishing trips"),
-               helpText("text text text"),
-               helpText("Samples of the current year are considered preliminary"),
+                titlePanel("Spatiotemporal overview of sampled fishing trips"),
+                helpText("text text text"),
+                helpText("Samples of the current year are considered preliminary"),
                
-                                       fluidRow(column(width = 3,
-                                        selectInput("species_trip",label="Species Group", choices = c("Demersal fishery", "Pelagic fishery", "Freshwater fishery", "Harbor samples")),
-                                        sliderInput("slideryear_trip", "Year:", min = 2003, max(landings$jahr), #max = 2021
-                                                    value = 2020, step = 1, sep = "", animate = TRUE),
-                                        checkboxGroupInput("variable", "Select Quarter:", c("Q1" = "q1", "Q2" = "q2", "Q3" = "q3", "Q4" = "q4"))
-                                        
-                        ),
-                        column(width=3, 
-                               selectInput("area_trip", label="FAO Area",
-                                           choices = list("All", "27.3.c.22 (Belt)", "27.3.d.24 (Arkona)", "27.3.d.25 (Bornholm)", "27.3.d.26 (East of Gotland)"),
-                                           selected = "All"),
-                               actionButton("showres",label = "Show Results")
-                        ),
+              fluidRow(
+                column(width = 4,
+                  selectInput("species_trip",label="Sampling Type", choices = c("Demersal fishery", "Pelagic fishery", "Freshwater fishery", "Harbor samples")),
+                  
+                  checkboxGroupInput("sample_type", "Fishery:", c("Active" = "active", "Passive" = "passive")),
+                  
+                  sliderInput("slideryear_trip", "Year:", min = 2003, max(landings$jahr), #max = 2021
+                              value = 2020, step = 1, sep = "", animate = TRUE),
+                  checkboxGroupInput("quarter_trip", "Select Quarter:", c("Q1" = "q1", "Q2" = "q2", "Q3" = "q3", "Q4" = "q4")),
+                 
+                  selectInput("area_trip", label="FAO Area",
+                                choices = list("All", "27.3.c.22 (Belt)", "27.3.d.24 (Arkona)", "27.3.d.25 (Bornholm)", "27.3.d.26 (East of Gotland)"),
+                                selected = "All"),
+                 
+                  actionButton("showres_trip",label = "Show Results"),
+                  actionButton("down_trip",label = "Download")
+                              ), #end of column 1
                         
-                        column(width = 6, 
-                               tabsetPanel(id = "lantab",
-                                           tabPanel("Map",#value= "A", 
-                                                    p(),
-                                                    fluidRow(column(width=7))), 
-                                           tabPanel("Harbors",# value = "B", 
-                                                    p(),
-                                                    fluidRow(column(width=5))),
-                                           tabPanel("Table",# value = "B", 
-                                                    p(),
-                                                    fluidRow(column(width=5)))
-                               )
-                        )
-                        ) #end of fluidRow
-               ), #end of TabPanel      
+                column(width = 8, 
+                  tabsetPanel(id = "trip_tabs",
+                    tabPanel("Map", 
+                             helpText("Sampling locations as recorded by the observer"), 
+                             p(),
+                             fluidRow(column(8,leafletOutput("trip_map", height=550, width="auto")),
+                                      column(4, selectInput("spatial_ICES_trip", label="spatial resolution", choices = c("FAO_area", "ICES rectangles")),
+                                                selectInput("census_data_trip", label="add commercial data", choices = c("landings", "effort")))
+                             )
+                                                    ), 
+                    tabPanel("statistics", 
+                             p(),
+                             fluidRow(column(width=5))),
+
+                    tabPanel("Data", 
+                             p(),
+                             fluidRow(column(width=5)))
+                              )
+          ) #end of coumn 2
+        ) #end of fluidRow
+      ), #end of TabPanel      
 
 
       # -----------------------------------
