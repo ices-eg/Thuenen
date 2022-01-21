@@ -204,7 +204,7 @@ shinyUI(
                    "commercial landings (CL)",
                    align = 'center',
                    br(),
-                   downloadButton(outputId = 'download_filtered_inventorytable_CL', label = "Download the filtered dataset"),
+                   downloadButton(outputId = 'download_filtered_inventorytable_CL', label = "Download the filtered dataset", icon("arrow-alt-circle-down")),
                    br(),
                    #addSpinner(DT::dataTableOutput("inventorytable_CL"), spin = "circle", color = "grey")
                    DT::dataTableOutput("inventorytable_CL"),
@@ -214,7 +214,7 @@ shinyUI(
                    "fishing effort (CE)",
                    align = 'center',
                    br(),
-                   downloadButton(outputId = 'download_filtered_invetorytable_CE', label = "Download the filtered dataset"),
+                   downloadButton(outputId = 'download_filtered_invetorytable_CE', label = "Download the filtered dataset", icon("arrow-alt-circle-down")),
                    br(),
                    #addSpinner(DT::dataTableOutput("inventorytable_EFF"), spin = "circle", color = "grey")
                    DT::dataTableOutput("inventorytable_CE"),
@@ -296,8 +296,8 @@ shinyUI(
                                 choices = list("All", "27.3.c.22 (Belt)", "27.3.d.24 (Arkona)", "27.3.d.25 (Bornholm)", "27.3.d.26 (East of Gotland)"),
                                 selected = "All"),
                  
-                  actionButton("showres_trip",label = "Show Results"),
-                  actionButton("down_trip",label = "Download")
+                  actionButton("showres_trip",label = "Show Results", icon("paper-plane"))#,
+                #  actionButton("down_trip",label = "Download")
                               ), #end of column 1
                         
                 column(width = 8, 
@@ -305,9 +305,11 @@ shinyUI(
                     tabPanel("Map", 
                              helpText("Sampling locations as recorded by the observer"), 
                              p(),
-                             fluidRow(column(8,leafletOutput("trip_map", height=550, width="auto")),
+                             fluidRow(column(8, leafletOutput("trip_map", height=550, width="auto")),
                                       column(4, selectInput("spatial_ICES_trip", label="spatial resolution", choices = c("FAO_area", "ICES rectangles")),
-                                                selectInput("census_data_trip", label="add commercial data", choices = c("landings", "effort")))
+                                                selectInput("census_data_trip", label="add commercial data", choices = c("landings", "effort")),
+                                             br(), br(),
+                                             actionButton("down_map_trip",label = "Download Map Data", icon("arrow-alt-circle-down")))
                              )
                                                     ), 
                     tabPanel("statistics", 
