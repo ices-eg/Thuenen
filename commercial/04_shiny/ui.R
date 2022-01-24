@@ -279,7 +279,7 @@ shinyUI(
       
       tabPanel(id="tab_sample_trip", "spatiotemporal coverage",
                 titlePanel("Spatiotemporal overview of sampled fishing trips"),
-                helpText("text text text"),
+    #            helpText("text text text"),
                 helpText("Samples of the current year are considered preliminary"),
                
               fluidRow(
@@ -313,10 +313,12 @@ shinyUI(
                              )
                                                     ), 
                     tabPanel("statistics", 
+                             helpText("Trip statistics"), 
                              p(),
                              fluidRow(column(width=5))),
 
                     tabPanel("Data", 
+                             helpText("Data tables"), 
                              p(),
                              fluidRow(column(width=5)))
                               )
