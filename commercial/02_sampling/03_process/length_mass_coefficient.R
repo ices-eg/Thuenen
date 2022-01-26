@@ -2,18 +2,18 @@
 # berechnet aus der SnglIOR 
 
 library("FSA")
-library("car")        # benötigt für "rename" von Tabellenspalten
-library("magrittr")       # benögtigt für joins
+library("car")        # ben?tigt f?r "rename" von Tabellenspalten
+library("magrittr")       # ben?gtigt f?r joins
 require("dplyr")
 
 require("RPostgreSQL")
 
 # Datenbankverbindung
-pw <- { "27btw3_OSF" }
+pw <- { "" }
 drv <- dbDriver("PostgreSQL")
 conn <- dbConnect(drv, dbname = "dcmap_entwicklung",
                   host = "dmar01-hro.ad.ti.bund.de",
-                  user = "stoetera",
+                  user = "",
                   password = pw)
 rm(pw)
 
