@@ -23,6 +23,7 @@ library(lubridate)
 library(data.table)
 library(DT)
 library(forcats)
+library(colorspace)
 
 # markdown scripts
 library(rmarkdown)
