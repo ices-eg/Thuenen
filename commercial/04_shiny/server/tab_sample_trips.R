@@ -18,7 +18,7 @@ output$trip_map <- renderLeaflet({
 })
 
 # load data for the map to be displayed 
-mapdata_trip <- (select(trip, tr_index, trip_number, vessel_name, vessel_sign, group_trip, days_at_sea)) %>%
+mapdata_trip <- (select(trip, tr_index, trip_number, year, vessel_name, vessel_sign, group_trip, days_at_sea)) %>%
   left_join(select(haul_fo, ha_index, tr_index, fo_start_date, fo_start_lat, fo_start_lon, fo_stop_lat, fo_stop_lon, fao_area, rectangle), by=c("tr_index")) %>%
     left_join(select(haul_gear, tr_index, ha_index, gear, metier_lvl_6, number_species, total_catch), by=c("tr_index"))
 
@@ -30,7 +30,26 @@ mapdata_trip1 <- reactive({
 
 #### add data points to map
 observe({
-leafletProxy("trip_map", data = mapdata1()) %>% 
+  colorBy <-  input$species_trip
+  if(colorBy=="Demersal Fishery") {
+    colorData <-  mapdata_trip1()$total_catch
+    pal <- colorNumeric("viridis", colorData)
+    radius <- (mapdata_trip1()$total_catch)
+  
+    }else if(colorBy=="Pelagic Fishery"){
+      colorData <-  mapdata_trip1()$total_catch
+      pal <- colorNumeric("viridis", colorData)
+      radius <- (mapdata_trip1()$total_catch)
+      
+    }else if(colorBy=="Freshwater Fishery"){
+      colorData <-  mapdata_trip1()$total_catch
+      pal <- colorNumeric("viridis", colorData)
+      radius <- (mapdata_trip1()$total_catch)
+    }
+  
+#  "Demersal fishery", "Pelagic fishery", "Freshwater fishery", "Harbor samples" 
+
+  leafletProxy("trip_map", data = mapdata_trip1()) %>% 
   clearShapes() %>% 
   addCircles(~fo_star_lon,~fo_start_lat, radius= radius, layerId=~trip_number,                  
              stroke=FALSE,fillOpacity=0.7, fillColor=pal(colorData)) %>% 

@@ -78,7 +78,8 @@ observe({
       
     })
   }else if (P1 == "Harbor Samples") { 
-    ##### Loading gif #####
+ 
+  ##### Loading gif #####
     output$ggplot_sample <- renderPlot({
       ggplot(sample_data_2_har(), aes(x=as.Date(start_date), y=fct_reorder(as.character(trip_number), desc(start_date)), fill=group_trip)) +
         geom_point(aes(colour=group_trip, shape=group_trip), size=2.5) +
