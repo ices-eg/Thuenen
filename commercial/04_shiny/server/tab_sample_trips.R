@@ -46,15 +46,17 @@ observe({
       pal <- colorNumeric("viridis", colorData)
       radius <- (mapdata_trip1()$total_catch)
     }
-  
+  #####
+  ###ACHTUNG stürzt noch ab, "ColorData wird nicht gefunden?
+  #####
 #  "Demersal fishery", "Pelagic fishery", "Freshwater fishery", "Harbor samples" 
 
-  leafletProxy("trip_map", data = mapdata_trip1()) %>% 
-  clearShapes() %>% 
-  addCircles(~fo_star_lon,~fo_start_lat, radius= radius, layerId=~trip_number,                  
-             stroke=FALSE,fillOpacity=0.7, fillColor=pal(colorData)) %>% 
-  addLegend("bottomleft", pal=pal, values=colorData, title=colorBy,
-            layerId="colorLegend")
+#  leafletProxy("trip_map", data = mapdata_trip1()) %>% 
+#  clearShapes() %>% 
+#  addCircles(~fo_star_lon,~fo_start_lat, radius= radius, layerId=~trip_number,                  
+#             stroke=FALSE,fillOpacity=0.7, fillColor=pal(colorData)) %>% 
+#  addLegend("bottomleft", pal=pal, values=colorData, title=colorBy,
+#            layerId="colorLegend")
 })
 
 
