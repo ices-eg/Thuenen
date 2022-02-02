@@ -44,15 +44,22 @@ shinyUI(
              br(),
              fluidRow(
                column(12, align="center",
-                      div(style="display: inline-block;",class= "image", img(id="fisheryID", src="fishery_logo_eng.png", height=250, style="cursor:pointer;margin-right:40px;")),
-                      div(style="display: inline-block;",class= "image", img(id ="sampleID", src="sampling_logo_eng.png", height=250, style="cursor:pointer;margin-right:40px;")),
-                      div(style="display: inline-block;",class= "image", img(id ="stockID", src="stock_logo_eng.png", height=250, style="cursor:pointer;margin-right:40px;"))
+                      div(style="display: inline-block;",class= "image",
+                          img(id="fisheryID", src="fishery_logo_eng.png",
+                              height=250, style="cursor:pointer;margin-right:40px;")),
+                      div(style="display: inline-block;",class= "image",
+                          img(id ="sampleID", src="sampling_logo_eng.png",
+                              height=250, style="cursor:pointer;margin-right:40px;")),
+                      div(style="display: inline-block;",class= "image",
+                          img(id ="stockID", src="stock_logo_eng.png", height=250,
+                              style="cursor:pointer;margin-right:40px;"))
                       )
                     ),
              br(), br(), br(), br(),
              br(),
 #             fluidRow(width =12,style = "margin-top:-4em", 
-#                      box(width =12, img(src="header-fang2.jpg", width = "1200px", height = "75px", style="display: block; margin-left: auto; margin-right: auto;margin-top:0em"))
+#                      box(width =12, img(src="header-fang2.jpg", width = "1200px", height = "75px",
+#                     style="display: block; margin-left: auto; margin-right: auto;margin-top:0em"))
 #                    ),
              br(),
              br(),
@@ -115,7 +122,8 @@ shinyUI(
                                   column(8, leafletOutput("map", height=550, width="auto")),
                                   column(4, id="controls", fixed=FALSE, draggable = TRUE, 
                                          fluidRow(column(12,
-                                                         selectInput("species_groups",label=NULL, choices = c("Total Landings kg","Demersal Species kg", "Pelagic Species kg")),
+                                                         selectInput("species_groups",label=NULL,
+                                                                     choices = c("Total Landings kg","Demersal Species kg", "Pelagic Species kg")),
                                                          sliderInput("slideryear", "Year:", min = 2003, max(landings$jahr) #max = 2021
                                                                      , value = 2020, step = 1, sep = "", animate = TRUE), 
                                                          # checkboxInput("rec", "ICES Rectangles", FALSE),
@@ -129,7 +137,8 @@ shinyUI(
                                   ), 
                      )),
                      fluidRow(width =12,style = "margin-top:-4em", 
-                              box(width =12, img(src="header-fang2.jpg", width = "1200px", height = "75px", style="display: block; margin-left: auto; margin-right: auto;margin-top:0em"))
+                              box(width =12, img(src="header-fang2.jpg", width = "1200px", height = "75px",
+                                                 style="display: block; margin-left: auto; margin-right: auto;margin-top:0em"))
                               ),
     # buttons to select the subcategories of fishery overview, work in progress,  
     # needs to finish subcategories first 
@@ -140,8 +149,12 @@ shinyUI(
 #                                  class = "btn action_button",   
 #                                   tags$img(src = "fas fa-ship",height = "50px")),
 #                                         
-#                             div(style="display: inline-block;",class= "image", img(id ="logbookID", src="sampling_logo_eng.png", height=100, style="cursor:pointer;margin-right:40px;")),
-#                              div(style="display: inline-block;",class= "image", img(id ="inventoryID", src="stock_logo_eng.png", height=100, style="cursor:pointer;margin-right:40px;"))
+#                             div(style="display: inline-block;",class= "image",
+#                                 img(id ="logbookID", src="sampling_logo_eng.png", height=100,
+#                                     style="cursor:pointer;margin-right:40px;")),
+#                              div(style="display: inline-block;",class= "image",
+#                                  img(id ="inventoryID", src="stock_logo_eng.png", height=100,
+#                                      style="cursor:pointer;margin-right:40px;"))
 #                     )
                    ) #end of fluidpage
                  ) #end of dashboardBody
@@ -153,15 +166,18 @@ shinyUI(
       # -----------------------------------
       tabPanel(id="tab_fish_landings", "Commercial Landings",
                fluidRow(column(width = 3,
-                               selectInput("species_groups",label="Species Group", choices = c("Demersal Species", "Pelagic Species", "Freshwater Species")),
+                               selectInput("species_groups",label="Species Group",
+                                           choices = c("Demersal Species", "Pelagic Species", "Freshwater Species")),
                                sliderInput("slideryear", "Year:", min = 2003, max(landings$jahr), #max = 2021
                                            value = 2020, step = 1, sep = "", animate = TRUE),
-                               checkboxGroupInput("variable", "Select Quarter:", c("Q1" = "q1", "Q2" = "q2", "Q3" = "q3", "Q4" = "q4"))
+                               checkboxGroupInput("variable", "Select Quarter:",
+                                                  c("Q1" = "q1", "Q2" = "q2", "Q3" = "q3", "Q4" = "q4"))
                                
                ),
                column(width=3, 
                       selectInput("area_lan", label="FAO Area",
-                                  choices = list("All", "27.3.c.22 (Belt)", "27.3.d.24 (Arkona)", "27.3.d.25 (Bornholm)", "27.3.d.26 (East of Gotland)"),
+                                  choices = list("All", "27.3.c.22 (Belt)", "27.3.d.24 (Arkona)",
+                                                 "27.3.d.25 (Bornholm)", "27.3.d.26 (East of Gotland)"),
                                   selected = "All"),
                       actionButton("showres",label = "Show Results")
                ),
@@ -204,7 +220,8 @@ shinyUI(
                    "commercial landings (CL)",
                    align = 'center',
                    br(),
-                   downloadButton(outputId = 'download_filtered_inventorytable_CL', label = "Download the filtered dataset", icon("arrow-alt-circle-down")),
+                   downloadButton(outputId = 'download_filtered_inventorytable_CL',
+                                  label = "Download the filtered dataset", icon("arrow-alt-circle-down")),
                    br(),
                    #addSpinner(DT::dataTableOutput("inventorytable_CL"), spin = "circle", color = "grey")
                    DT::dataTableOutput("inventorytable_CL"),
@@ -214,7 +231,8 @@ shinyUI(
                    "fishing effort (CE)",
                    align = 'center',
                    br(),
-                   downloadButton(outputId = 'download_filtered_invetorytable_CE', label = "Download the filtered dataset", icon("arrow-alt-circle-down")),
+                   downloadButton(outputId = 'download_filtered_invetorytable_CE',
+                                  label = "Download the filtered dataset", icon("arrow-alt-circle-down")),
                    br(),
                    #addSpinner(DT::dataTableOutput("inventorytable_EFF"), spin = "circle", color = "grey")
                    DT::dataTableOutput("inventorytable_CE"),
@@ -251,7 +269,9 @@ shinyUI(
                                   column(8, plotOutput("ggplot_sample", height=550, width="auto")),
                                   column(4, id="controls", fixed=FALSE, draggable = TRUE, 
                                          fluidRow(column(12,
-                                                         selectInput("sample_groups",label=NULL, choices = c("Total Samples", "Demersal Fishery","Pelagic Fishery", "Harbor Samples")),
+                                                         selectInput("sample_groups",label=NULL,
+                                                                     choices = c("Total Samples", "Demersal Fishery",
+                                                                                 "Pelagic Fishery", "Harbor Samples")),
                                                          sliderInput("slideryear_sample", "Year:", min = 2003, max(trip$year) #max = 2021
                                                                      , value = 2019, step = 1, sep = "", animate = TRUE) 
                                                          
@@ -264,7 +284,8 @@ shinyUI(
                                   ), 
                      )),
                      fluidRow(width =12,style = "margin-top:-4em", 
-                              box(width =12, img(src="header-fang2.jpg", width = "1200px", height = "75px", style="display: block; margin-left: auto; margin-right: auto;margin-top:0em"))
+                              box(width =12, img(src="header-fang2.jpg", width = "1200px", height = "75px",
+                                                 style="display: block; margin-left: auto; margin-right: auto;margin-top:0em"))
                      )
                    ) #end of fluidRow
                  ) #end of dashboardBody
@@ -284,7 +305,8 @@ shinyUI(
                
               fluidRow(
                 column(width = 4,
-                  selectInput("species_trip",label="Sampling Type", choices = c("Demersal fishery", "Pelagic fishery", "Freshwater fishery", "Harbor samples")),
+                  selectInput("species_trip",label="Sampling Type",
+                              choices = c("Demersal fishery", "Pelagic fishery", "Freshwater fishery", "Harbor samples")),
                   
                   checkboxGroupInput("sample_type", "Fishery:", c("Active" = "active", "Passive" = "passive")),
                   
@@ -293,7 +315,8 @@ shinyUI(
                   checkboxGroupInput("quarter_trip", "Select Quarter:", c("Q1" = "q1", "Q2" = "q2", "Q3" = "q3", "Q4" = "q4")),
                  
                   selectInput("area_trip", label="FAO Area",
-                                choices = list("All", "27.3.c.22 (Belt)", "27.3.d.24 (Arkona)", "27.3.d.25 (Bornholm)", "27.3.d.26 (East of Gotland)"),
+                                choices = list("All", "27.3.c.22 (Belt)", "27.3.d.24 (Arkona)",
+                                               "27.3.d.25 (Bornholm)", "27.3.d.26 (East of Gotland)"),
                                 selected = "All"),
                  
                   actionButton("showres_trip",label = "Show Results", icon("paper-plane"))#,
@@ -306,8 +329,10 @@ shinyUI(
                              helpText("Sampling locations as recorded by the observer"), 
                              p(),
                              fluidRow(column(8, leafletOutput("trip_map", height=550, width="auto")),
-                                      column(4, selectInput("spatial_ICES_trip", label="spatial resolution", choices = c("FAO_area", "ICES rectangles")),
-                                                selectInput("census_data_trip", label="add commercial data", choices = c("landings", "effort")),
+                                      column(4, selectInput("spatial_ICES_trip", label="spatial resolution",
+                                                            choices = c("FAO_area", "ICES rectangles")),
+                                                selectInput("census_data_trip", label="add commercial data",
+                                                            choices = c("landings", "effort")),
                                              br(), br(),
                                              actionButton("down_map_trip",label = "Download Map Data", icon("arrow-alt-circle-down")))
                              )
@@ -460,9 +485,11 @@ shinyUI(
                                                                 column(width=7, imageOutput("speciesotolith", height='100%'))),
                                                        p(),
                                                        fluidRow(column(width=5,textInput("lengthcm", label = "Enter fish length in cm:"), value = 0),
-                                                                column(width=7,tags$b("Age range observed*:"), h4(textOutput("agerange")),
-                                                                       tags$b("Modal age is:"),h4(textOutput("mode")),
-                                                                       tags$small("*age range based on age readings and lengths taken from fish sampled from commercial vessels"))),
+                                                                column(
+                                                                  width=7,tags$b("Age range observed*:"), h4(textOutput("agerange")),
+                                                                  tags$b("Modal age is:"),h4(textOutput("mode")),
+                                                                  tags$small("*age range based on age readings and lengths
+                                                                             taken from fish sampled from commercial vessels"))),
                                                        hr(),
                                                        fluidRow(column(width=5,actionButton("showhist",label = "Show Histogram")),
                                                                 column(width=7,p())),
@@ -470,7 +497,7 @@ shinyUI(
                                                        plotlyOutput("age_hist"),
                                                        fluidRow(p())
                                               ),
-                                              tabPanel("Age-Length Correlation",value= "C",
+                                              tabPanel("Age Cohort",value= "C",
                                                        
                                                        p(),htmlOutput("fish_distribution"),
                                                        p(),htmlOutput("fish_b1a"))
