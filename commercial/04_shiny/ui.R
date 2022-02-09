@@ -57,10 +57,12 @@ shinyUI(
                     ),
              br(), br(), br(), br(),
              br(),
-#             fluidRow(width =12,style = "margin-top:-4em", 
-#                      box(width =12, img(src="header-fang2.jpg", width = "1200px", height = "75px",
-#                     style="display: block; margin-left: auto; margin-right: auto;margin-top:0em"))
-#                    ),
+             # fluidRow(
+             #   width =12,style = "margin-top:-4em",
+             #   box(width =12, img(
+             #     src="header-fang2.jpg", width = "1200px", height = "75px",
+             #     style="display: block; margin-left: auto; margin-right: auto;
+             #     margin-top:0em"))),
              br(),
              br(),
              fluidRow(
@@ -112,38 +114,50 @@ shinyUI(
                  dashboardSidebar(disable = TRUE),
                  dashboardBody(
                    fluidPage(
-                     # setSliderColor("white", 1), #to change the color of the first slider in this fluidpage
-                     chooseSliderSkin("Round"), #change the style of all slider in this fluidpage
+                     # setSliderColor("white", 1),
+                     # to change the color of the first slider in this fluidpage
+                     chooseSliderSkin("Round"),
+                     # change the style of all slider in this fluidpage
                      fluidRow(valueBoxOutput("box1"),
                               valueBoxOutput("box2"),
                               valueBoxOutput("box3")),
                      br(), 
-                     fluidRow(box(h4("Interactive map"), style = "margin-top:-1.5em", width=12, background = "light-blue",
-                                  column(8, leafletOutput("map", height=550, width="auto")),
-                                  column(4, id="controls", fixed=FALSE, draggable = TRUE, 
-                                         fluidRow(column(12,
-                                                         selectInput("species_groups",label=NULL,
-                                                                     choices = c("Total Landings kg","Demersal Species kg",
-                                                                                 "Pelagic Species kg")),
-                                                         sliderInput("slideryear", "Year:",
-                                                                     min = 2003, max(landings$jahr), #max = 2021
-                                                                     value = 2020, step = 1, sep = "", animate = TRUE), 
-                                                         # checkboxInput("rec", "ICES Rectangles", FALSE),
-                                                         selectInput("spatialICES", label="spatial resolution",
-                                                                     choices = c("FAO_area", "ICES rectangles"))
-                                         )), 
-                                         br(), br(), br(), br(), 
-                                         fluidRow(column(12,plotlyOutput("sp_piechart") %>% 
-                                                           withSpinner(color="#0dc5c1"),
-                                                         style = "margin-top:-9em"),
-                                                  solidHeader =FALSE, collapsible = T,
-                                                  width= "auto", background = "navy")
-                                  ), 
-                     )),
+                     fluidRow(
+                       box(h4("Interactive map"), style = "margin-top:-1.5em",
+                           width=12, background = "light-blue",
+                           column(8, leafletOutput("map", height=550, width="auto")),
+                           column(
+                             4, id="controls", fixed=FALSE, draggable = TRUE,
+                             fluidRow(
+                               column(
+                                 12, selectInput(
+                                   "species_groups",label=NULL,
+                                   choices = c("Total Landings kg",
+                                               "Demersal Species kg",
+                                               "Pelagic Species kg")),
+                                 sliderInput("slideryear", "Year:",
+                                             min = 2003, max(landings$jahr), #max = 2021
+                                             value = 2020, step = 1, sep = "", animate = TRUE),
+                                 # checkboxInput("rec", "ICES Rectangles", FALSE),
+                                 selectInput("spatialICES", label="spatial resolution",
+                                             choices = c("FAO_area", "ICES rectangles"))
+                                 )),
+                             br(), br(), br(), br(),
+                             fluidRow(
+                               column(12,
+                                      plotlyOutput("sp_piechart") %>% 
+                                        withSpinner(color="#0dc5c1"),
+                                      style = "margin-top:-9em"),
+                               solidHeader =FALSE, collapsible = T,
+                               width= "auto", background = "navy")
+                             ), 
+                           )),
                      fluidRow(width =12,style = "margin-top:-4em", 
-                              box(width =12, img(src="header-fang2.jpg", width = "1200px", height = "75px",
-                                                 style="display: block; margin-left: auto;
-                                                 margin-right: auto;margin-top:0em"))
+                              box(width =12,
+                                  img(src="header-fang2.jpg",
+                                      width = "1200px", height = "75px",
+                                      style="display: block; margin-left: auto;
+                                      margin-right: auto;margin-top:0em"))
                               ),
     # buttons to select the subcategories of fishery overview, work in progress,  
     # needs to finish subcategories first 
@@ -170,20 +184,25 @@ shinyUI(
       # Landings by area, harbor and as an output table 
       # -----------------------------------
       tabPanel(id="tab_fish_landings", "Commercial Landings",
-               fluidRow(column(width = 3,
-                               selectInput("species_groups",label="Species Group",
-                                           choices = c("Demersal Species", "Pelagic Species",
-                                                       "Freshwater Species")),
-                               sliderInput("slideryear", "Year:", min = 2003, max(landings$jahr), #max = 2021
-                                           value = 2020, step = 1, sep = "", animate = TRUE),
-                               checkboxGroupInput("variable", "Select Quarter:",
-                                                  c("Q1" = "q1", "Q2" = "q2", "Q3" = "q3", "Q4" = "q4"))
+               fluidRow(
+                 column(width = 3,
+                        selectInput("species_groups",label="Species Group",
+                                    choices = c("Demersal Species", "Pelagic Species",
+                                                "Freshwater Species")),
+                        sliderInput("slideryear", "Year:", min = 2003,
+                                    max(landings$jahr), #max = 2021
+                                    value = 2020, step = 1, sep = "", animate = TRUE),
+                        checkboxGroupInput("variable", "Select Quarter:",
+                                           c("Q1" = "q1", "Q2" = "q2",
+                                             "Q3" = "q3", "Q4" = "q4"))
                                
                ),
                column(width=3, 
                       selectInput("area_lan", label="FAO Area",
-                                  choices = list("All", "27.3.c.22 (Belt)", "27.3.d.24 (Arkona)",
-                                                 "27.3.d.25 (Bornholm)", "27.3.d.26 (East of Gotland)"),
+                                  choices = list("All", "27.3.c.22 (Belt)",
+                                                 "27.3.d.24 (Arkona)",
+                                                 "27.3.d.25 (Bornholm)",
+                                                 "27.3.d.26 (East of Gotland)"),
                                   selected = "All"),
                       actionButton("showres",label = "Show Results")
                ),
@@ -191,14 +210,11 @@ shinyUI(
                column(width = 6, 
                       tabsetPanel(id = "lantab",
                                   tabPanel("Map",#value= "A", 
-                                           p(),
-                                           fluidRow(column(width=7))), 
+                                           p(), fluidRow(column(width=7))), 
                                   tabPanel("Harbors",# value = "B", 
-                                           p(),
-                                           fluidRow(column(width=5))),
+                                           p(), fluidRow(column(width=5))),
                                   tabPanel("Table",# value = "B", 
-                                           p(),
-                                           fluidRow(column(width=5)))
+                                           p(), fluidRow(column(width=5)))
                       )
                )
                ) #end of fluidRow
@@ -228,24 +244,29 @@ shinyUI(
                    align = 'center',
                    br(),
                    downloadButton(outputId = 'download_filtered_inventorytable_CL',
-                                  label = "Download the filtered dataset", icon("arrow-alt-circle-down")),
+                                  label = "Download the filtered dataset",
+                                  icon("arrow-alt-circle-down")),
                    br(),
-                   #addSpinner(DT::dataTableOutput("inventorytable_CL"), spin = "circle", color = "grey")
+                   
                    DT::dataTableOutput("inventorytable_CL"),
                    add_busy_spinner(spin = "scaling-squares", color = "grey",
-                                    timeout = 5, position = "top-right", margins = c(55,20))
+                                    timeout = 5, position = "top-right",
+                                    margins = c(55,20))
                  ),
                  tabPanel(
                    "fishing effort (CE)",
                    align = 'center',
                    br(),
-                   downloadButton(outputId = 'download_filtered_invetorytable_CE',
-                                  label = "Download the filtered dataset", icon("arrow-alt-circle-down")),
+                   downloadButton(
+                     outputId = 'download_filtered_invetorytable_CE',
+                     label = "Download the filtered dataset",
+                     icon("arrow-alt-circle-down")),
                    br(),
-                   #addSpinner(DT::dataTableOutput("inventorytable_EFF"), spin = "circle", color = "grey")
+                   
                    DT::dataTableOutput("inventorytable_CE"),
                    add_busy_spinner(spin = "scaling-squares", color = "grey",
-                                    timeout = 5, position = "top-right", margins = c(55,20))
+                                    timeout = 5, position = "top-right",
+                                    margins = c(55,20))
                  )
                ) #end of TabSetPanel
       ) #end of TabPanel inventory
@@ -269,25 +290,28 @@ shinyUI(
                  dashboardSidebar(disable = TRUE),
                  dashboardBody(
                    fluidPage(
-                     chooseSliderSkin("Round"), #change the style of all slider in this fluidpage
+                     chooseSliderSkin("Round"),
+                     # change the style of all slider in this fluidpage
                      fluidRow(valueBoxOutput("box1_sample"),
                               valueBoxOutput("box2_sample"),
                               valueBoxOutput("box3_sample")),
                      br(), 
-                     fluidRow(box(h4("Sampling coverage"), style = "margin-top:-1.5em",
-                                  width=12, background = "light-blue",
-                                  column(8, plotOutput("ggplot_sample", height=550, width="auto")),
-                                  column(4, id="controls", fixed=FALSE, draggable = TRUE, 
-                                         fluidRow(
-                                           column(12,
-                                                  selectInput("sample_groups",label=NULL,
-                                                              choices = c("Total Samples", "Demersal Fishery",
-                                                                          "Pelagic Fishery", "Harbor Samples")),
-                                                  sliderInput("slideryear_sample", "Year:",
-                                                              min = 2003, max(trip$year), #max = 2021
-                                                              value = 2019, step = 1, sep = "", animate = TRUE) 
-                                                         
-                                         )), 
+                     fluidRow(
+                       box(h4("Sampling coverage"), style = "margin-top:-1.5em",
+                           width=12, background = "light-blue",
+                           column(8, plotOutput("ggplot_sample", height=550, width="auto")),
+                           column(
+                             4, id="controls", fixed=FALSE, draggable = TRUE,
+                             fluidRow(
+                               column(
+                                 12, selectInput(
+                                   "sample_groups",label=NULL,
+                                   choices = c("Total Samples", "Demersal Fishery",
+                                               "Pelagic Fishery", "Harbor Samples")),
+                                 sliderInput("slideryear_sample", "Year:",
+                                             min = 2003, max(trip$year), #max = 2021
+                                             value = 2019, step = 1, sep = "", animate = TRUE)
+                                 )), 
 #                                         br(), br(), br(), br(), 
 #                                         fluidRow(column(
 #                                           12, plotlyOutput("sp_piechart") %>%
@@ -299,10 +323,9 @@ shinyUI(
                      )),
                      fluidRow(width =12,style = "margin-top:-4em", 
                               box(width =12,
-                                  img(src="header-fang2.jpg", width = "1200px", height = "75px",
-                                      style="display: block;
-                                      margin-left: auto;
-                                      margin-right: auto;
+                                  img(src="header-fang2.jpg", width = "1200px",
+                                      height = "75px", style="display: block;
+                                      margin-left: auto; margin-right: auto;
                                       margin-top:0em"))
                      )
                    ) #end of fluidRow
@@ -330,18 +353,23 @@ shinyUI(
                   checkboxGroupInput("sample_type", "Fishery:",
                                      c("Active" = "active", "Passive" = "passive")),
                   
-                  sliderInput("slideryear_trip", "Year:", min = 2003, max(landings$jahr), #max = 2021
+                  sliderInput("slideryear_trip", "Year:", min = 2003,
+                              max(landings$jahr), #max = 2021
                               value = 2020, step = 1, sep = "", animate = TRUE),
                   checkboxGroupInput("quarter_trip", "Select Quarter:",
                                      c("Q1" = "q1", "Q2" = "q2",
                                        "Q3" = "q3", "Q4" = "q4")),
                  
                   selectInput("area_trip", label="FAO Area",
-                                choices = list("All", "27.3.c.22 (Belt)", "27.3.d.24 (Arkona)",
-                                               "27.3.d.25 (Bornholm)", "27.3.d.26 (East of Gotland)"),
+                                choices = list("All", "27.3.c.22 (Belt)",
+                                               "27.3.d.24 (Arkona)",
+                                               "27.3.d.25 (Bornholm)",
+                                               "27.3.d.26 (East of Gotland)"),
                                 selected = "All"),
                  
-                  actionButton("showres_trip",label = "Show Results", icon("paper-plane"))#,
+                  actionButton("showres_trip",
+                               label = "Show Results",
+                               icon("paper-plane"))#,
                 #  actionButton("down_trip",label = "Download")
                               ), #end of column 1
                         
@@ -350,28 +378,29 @@ shinyUI(
                     tabPanel("Map", 
                              helpText("Sampling locations as recorded by the observer"), 
                              p(),
-                             fluidRow(column(8, leafletOutput("trip_map", height=550, width="auto")),
-                                      column(4, selectInput("spatial_ICES_trip", label="spatial resolution",
-                                                            choices = c("FAO_area", "ICES rectangles")),
-                                                selectInput("census_data_trip", label="add commercial data",
-                                                            choices = c("landings", "effort")),
-                                             br(), br(),
-                                             actionButton("down_map_trip",
-                                                          label = "Download Map Data",
-                                                          icon("arrow-alt-circle-down")))
-                             )
-                                                    ), 
-                    tabPanel("statistics", 
-                             helpText("Trip statistics"), 
-                             p(),
-                             fluidRow(column(width=5))),
+                             fluidRow(
+                               column(8, leafletOutput(
+                                 "trip_map", height=550, width="auto")),
+                               column(4, selectInput(
+                                 "spatial_ICES_trip", label="spatial resolution",
+                                 choices = c("FAO_area", "ICES rectangles")),
+                                 selectInput("census_data_trip",
+                                             label="add commercial data",
+                                             choices = c("landings", "effort")),
+                                 br(), br(),
+                                 actionButton("down_map_trip",
+                                              label = "Download Map Data",
+                                              icon("arrow-alt-circle-down")))
+                               )
+                             ),
+                    
+                    tabPanel("statistics", helpText("Trip statistics"), 
+                             p(), fluidRow(column(width=5))),
 
-                    tabPanel("Data", 
-                             helpText("Data tables"), 
-                             p(),
-                             fluidRow(column(width=5)))
-                              )
-          ) #end of coumn 2
+                    tabPanel("Data", helpText("Data tables"), 
+                             p(), fluidRow(column(width=5)))
+                    )
+          ) #end of column 2
         ) #end of fluidRow
       ), #end of TabPanel      
 
@@ -441,74 +470,81 @@ shinyUI(
                                          selected = "COD"),
                              conditionalPanel(
                                condition = "input.fishtab == 'A'",
-                               selectInput(inputId="biooptionselection", label="Select parameter",
-                                           choices=list("None","Age","Sex","Gear","Sample Type"),
-                                           selected = "None")),
+                               selectInput(
+                                 inputId="biooptionselection", label="Select parameter",
+                                 choices=list("None","Age","Sex","Gear","Sample Type"),
+                                 selected = "None")),
                              conditionalPanel(
                                condition = "input.fishtab == 'B'",
-                               selectInput(inputId="ageoptionselection", label="Select parameter",
-                                           choices=list("None","Age","Sex","Gear","Sample Type"),
-                                           selected = "None")),
-                             conditionalPanel(condition = "input.biooptionselection =='Gear'
-                                              && input.fishtab == 'A'",
-                                              uiOutput("GearFilter")),
-                             conditionalPanel(condition = "input.ageoptionselection =='Gear'
-                                              && input.fishtab == 'B'",
-                                              uiOutput("GearFilter.a"))),
+                               selectInput(
+                                 inputId="ageoptionselection", label="Select parameter",
+                                 choices=list("None","Age","Sex","Gear","Sample Type"),
+                                 selected = "None")),
+                             conditionalPanel(
+                             condition = "input.biooptionselection =='Gear'
+                             && input.fishtab == 'A'", uiOutput("GearFilter")),
+                             conditionalPanel(
+                             condition = "input.ageoptionselection =='Gear'
+                             && input.fishtab == 'B'", uiOutput("GearFilter.a"))),
                              column(width=4, selectInput(
                                "quarter", label="Quarter",
                                choices = list("All", 1, 2, 3, 4),
                                selected = "All"),
-                               sliderInput("year", "Years",
-                                           min=min(trip$year, na.rm=TRUE),
-                                           max=max(trip$year, na.rm=TRUE),
-                                           value=max(trip$year, na.rm=TRUE), sep="", step=1)), #by one year
+                               sliderInput(
+                                 "year", "Years", min=min(trip$year, na.rm=TRUE),
+                                 max=max(trip$year, na.rm=TRUE),
+                                 value=max(trip$year, na.rm=TRUE),
+                                 sep="", step=1)), #by one year
                       column(width=5,
-                             conditionalPanel("input.fishtab == 'A'",
-                                              radioGroupButtons(
-                                                inputId = "Id",label = "",
-                                                choices = c("FAO Area", "Rectangle"),
-                                                direction = "horizontal",
-                                                checkIcon = list(
-                                                  yes = tags$i(class = "fas fa-check-square",
-                                                               style = "color: steelblue"),
-                                                  no = tags$i(class = "fas fa-square-o",
-                                                              style = "color: steelblue"))),
-                                              uiOutput("spatialops.w")),
+                             conditionalPanel(
+                               "input.fishtab == 'A'",
+                               radioGroupButtons(
+                                 inputId = "Id",label = "",
+                                 choices = c("FAO Area", "Rectangle"),
+                                 direction = "horizontal",
+                                 checkIcon = list(
+                                   yes = tags$i(class = "fas fa-check-square",
+                                                style = "color: steelblue"),
+                                   no = tags$i(class = "fas fa-square-o",
+                                               style = "color: steelblue"))),
+                               uiOutput("spatialops.w")),
                              
-                             conditionalPanel("input.fishtab == 'A'",
-                                              downloadButton("downloadDatalw", "Download data")),
+                             conditionalPanel(
+                               "input.fishtab == 'A'",
+                               downloadButton("downloadDatalw", "Download data")),
                              
-                             conditionalPanel("input.fishtab == 'B'",
-                                              radioGroupButtons(
-                                                inputId = "Id.a", label = "",
-                                                choices = c("FAO Area", "Rectangle"),
-                                                direction = "horizontal",
-                                                checkIcon = list(
-                                                  yes = tags$i(class = "fas fa-check-square",
-                                                               style = "color: steelblue"),
-                                                  no = tags$i(class = "fas fa-square-o",
-                                                               style = "color: steelblue"))),
-                                              uiOutput("spatialops.a")),
+                             conditionalPanel(
+                               "input.fishtab == 'B'",
+                               radioGroupButtons(
+                                 inputId = "Id.a", label = "",
+                                 choices = c("FAO Area", "Rectangle"),
+                                 direction = "horizontal",
+                                 checkIcon = list(
+                                   yes = tags$i(class = "fas fa-check-square",
+                                                style = "color: steelblue"),
+                                   no = tags$i(class = "fas fa-square-o",
+                                               style = "color: steelblue"))),
+                               uiOutput("spatialops.a")),
                              
-                             conditionalPanel("input.fishtab == 'B'",
-                                              downloadButton(
-                                                "downloadDatala",
-                                                "Download data",
-                                                class="btn btn-outline-primary")
-                                                                     
-                                                ))),
-                                      
-                                ##### Fish sp tab - Maps and plots  ######                                     
-                                fluidRow(
-                                  column(width=12,
-                                         conditionalPanel(condition = "input.fishtab == 'A'",
-                                                          plotlyOutput("bio_lw")
-                                                          %>% withSpinner(color="#0dc5c1")),
-                                         conditionalPanel(condition = "input.fishtab == 'B'",
-                                                          plotlyOutput("bio_la")
-                                                          %>% withSpinner(color="#0dc5c1"))
-                                  ))
+                             conditionalPanel(
+                               "input.fishtab == 'B'",
+                               downloadButton(
+                                 "downloadDatala", "Download data",
+                                 class="btn btn-outline-primary")
+                               ))),
+                    
+                    ##### Fish sp tab - Maps and plots  ######
+                    
+                    fluidRow(
+                      column(width=12,
+                             conditionalPanel(
+                               condition = "input.fishtab == 'A'",
+                               plotlyOutput("bio_lw") %>%
+                                 withSpinner(color="#0dc5c1")),
+                             conditionalPanel(condition = "input.fishtab == 'B'",
+                                              plotlyOutput("bio_la") %>%
+                                                withSpinner(color="#0dc5c1"))
+                             ))
                         ), 
                 ##### Fish sp tab - Species tabsets #####
                 column(
@@ -527,10 +563,10 @@ shinyUI(
                                                                   height='100%'))),
                              p(),
                              fluidRow(
-                               column(width=5,
-                                      textInput("lengthcm",
-                                                label = "Enter fish length in cm:"),
-                                      value = 0),
+                               column(
+                                 width=5, textInput(
+                                   "lengthcm", label = "Enter fish length in cm:"),
+                                 value = 0),
                                column(
                                  width=7, tags$b("Age range observed*:"),
                                  h4(textOutput("agerange")),
