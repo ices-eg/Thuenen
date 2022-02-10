@@ -478,7 +478,7 @@ shinyUI(
                                condition = "input.fishtab == 'B'",
                                selectInput(
                                  inputId="ageoptionselection", label="Select parameter",
-                                 choices=list("None","Age","Sex","Gear","Sample Type"),
+                                 choices=list("None","Weight","Sex","Gear","Sample Type"),
                                  selected = "None")),
                              conditionalPanel(
                              condition = "input.biooptionselection =='Gear'
@@ -541,49 +541,47 @@ shinyUI(
                                condition = "input.fishtab == 'A'",
                                plotlyOutput("bio_lw") %>%
                                  withSpinner(color="#0dc5c1")),
-                             conditionalPanel(condition = "input.fishtab == 'B'",
-                                              plotlyOutput("bio_la") %>%
-                                                withSpinner(color="#0dc5c1"))
+                             conditionalPanel(
+                               condition = "input.fishtab == 'B'",
+                               plotlyOutput("bio_la") %>%
+                                 withSpinner(color="#0dc5c1"))
                              ))
                         ), 
                 ##### Fish sp tab - Species tabsets #####
                 column(
                   width = 5,
-                  tabsetPanel(id = "fishtab", tabPanel(
-                    "Biology", value= "A", p(), htmlOutput("fish_biology"),
-                    fluidRow(
-                      column(width=7, imageOutput("fish_drawing", height='100%')),
-                      column(width=5,
-                             conditionalPanel(
-                               condition = "input.species =='COD'",
-                               imageOutput("monk_belly"))))),
-                    tabPanel("Age", value = "B", p(),
-                             fluidRow(column(width=5, htmlOutput("ageingtxt")),
-                                      column(width=7, imageOutput("speciesotolith",
-                                                                  height='100%'))),
-                             p(),
-                             fluidRow(
-                               column(
-                                 width=5, textInput(
-                                   "lengthcm", label = "Enter fish length in cm:"),
-                                 value = 0),
-                               column(
-                                 width=7, tags$b("Age range observed*:"),
-                                 h4(textOutput("agerange")),
-                                 tags$b("Modal age is:"),
-                                 h4(textOutput("mode")),
-                                 tags$small("*age range based on age readings
+                  tabsetPanel(
+                    id = "fishtab",
+                    tabPanel(
+                      "Biology", value= "A", p(), htmlOutput("fish_biology"),
+                      fluidRow(
+                        column(width=7, imageOutput("fish_drawing", height='100%')),
+                        column(width=5,
+                               conditionalPanel(
+                                 condition = "input.species =='COD'",
+                                 imageOutput("monk_belly"))))),
+                    tabPanel(
+                      "Age", value = "B", p(),
+                      fluidRow(column(width=5, htmlOutput("ageingtxt")),
+                               column(width=7, imageOutput(
+                                 "speciesotolith", height='100%'))),
+                      p(),
+                      fluidRow(column(
+                        width=5, textInput(
+                          "lengthcm", label = "Enter fish length in cm:"),
+                        value = 0),
+                        column(width=7, tags$b("Age range observed*:"),
+                               h4(textOutput("agerange")),
+                               tags$b("Modal age is:"),
+                               h4(textOutput("mode")),
+                               tags$small("*age range based on age readings
                                             and lengths taken from fish sampled
                                             from commercial vessels"))),
-                             hr(),
-                             fluidRow(
-                               column(width=5, actionButton(
-                                 "showhist", label = "Show Histogram")),
-                               column(width=7,p())),
-                             fluidRow(p()),
-                             plotlyOutput("age_hist"),
-                             fluidRow(p())
-                             ),
+                      hr(),
+                      fluidRow(column(width=5, actionButton(
+                        "showhist", label = "Show Histogram")),
+                        column(width=7,p())),
+                      fluidRow(p()), plotlyOutput("age_hist"), fluidRow(p())),
                     tabPanel("Age Cohort",value= "C",
                              p(),htmlOutput("fish_distribution"),
                              p(),htmlOutput("fish_b1a"))

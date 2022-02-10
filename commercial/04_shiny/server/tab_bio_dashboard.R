@@ -44,42 +44,75 @@ select_quarter <- reactive({
   }
 })
 
+# Creating Sub Area filter based on the full data
+output$spatialops.w <- renderUI({
+  if(input$fishtab == 'A'){
+    if(input$Id=="FAO Area"){
+      pickerInput(
+        inputId = "subselect_fao",
+        label = "FAO Area",
+        choices = str_sort(as.character(
+          unique(select_quarter()$fao_area)),numeric = TRUE),
+        selected = str_sort(as.character(
+          unique(select_quarter()$fao_area)),numeric = TRUE),
+        options = list(
+          `actions-box` = TRUE
+        ),
+        multiple = TRUE
+      )}
+    else{
+      pickerInput(
+        inputId = "subselect_rect",
+        label = "Rectangle",
+        choices = str_sort(as.character(
+          unique(select_quarter()$rectangle)),numeric = TRUE),
+        selected=str_sort(as.character(
+          unique(select_quarter()$rectangle)),numeric = TRUE),
+        options = list(
+          `actions-box` = TRUE
+        ),
+        multiple = TRUE
+      )}
+  }
+})
+
+output$spatialops.a <- renderUI({
+  if(input$fishtab == 'B'){
+    if(input$Id.a=="FAO Area"){
+      pickerInput(
+        inputId = "subselect_fao",
+        label = "FAO Area",
+        choices = str_sort(as.character(
+          unique(select_quarter()$fao_area)),numeric = TRUE),
+        selected = str_sort(as.character(
+          unique(select_quarter()$fao_area)),numeric = TRUE),
+        options = list(
+          `actions-box` = TRUE
+        ),
+        multiple = TRUE
+      )}
+    else{
+      pickerInput(
+        inputId = "subselect_rect",
+        label = "Rectangle",
+        choices = str_sort(as.character(
+          unique(select_quarter()$rectangle)),numeric = TRUE),
+        selected=str_sort(as.character(
+          unique(select_quarter()$rectangle)),numeric = TRUE),
+        options = list(
+          `actions-box` = TRUE
+        ),
+        multiple = TRUE
+      )}
+  }
+})
+
 select_area <- reactive({
   if (input$Id=="FAO Area") {
     filter(select_quarter(), fao_area %in% input$subselect_fao)
   } else {
     filter(select_quarter(), rectangle %in% input$subselect_rect)
   }
-})
-
-# Creating Sub Area filter based on the full data
-output$spatialops.w <- renderUI({
-  if(input$Id=="FAO Area"){
-    pickerInput(
-      inputId = "subselect_fao",
-      label = "FAO Area",
-      choices = str_sort(as.character(
-        unique(select_quarter()$fao_area)),numeric = TRUE),
-      selected = str_sort(as.character(
-        unique(select_quarter()$fao_area)),numeric = TRUE),
-      options = list(
-        `actions-box` = TRUE
-      ),
-      multiple = TRUE
-    )}
-  else{
-    pickerInput(
-      inputId = "subselect_rect",
-      label = "Rectangle",
-      choices = str_sort(as.character(
-        unique(select_quarter()$rectangle)),numeric = TRUE),
-      selected=str_sort(as.character(
-        unique(select_quarter()$rectangle)),numeric = TRUE),
-      options = list(
-        `actions-box` = TRUE
-      ),
-      multiple = TRUE
-    )}
 })
 
 select_weight <- reactive({
@@ -119,14 +152,6 @@ select_bio <- reactive({
 })
 
 ##### Histogram #######
-observeEvent(input$showhist, {
-  output$age_hist <- renderPlotly({
-    p<-ggplot(select_bio(),aes(Age))+geom_bar(color="black",fill="white",width = 1)+
-      labs(title ='Histogram of observered ages',x="Age" )
-    ggplotly(p)
-  })
-})
-
 output$bio_lw<- renderPlotly({
   if(input$biooptionselection=="Sex"){
     select_bio_fin <- reactive({
@@ -146,7 +171,7 @@ output$bio_lw<- renderPlotly({
       
       return (reg)
     })
-    print(reg1())
+    
     fit <- reactive({
       length <- unlist(select_bio_fin()$Length)
       
@@ -157,7 +182,7 @@ output$bio_lw<- renderPlotly({
       
       return (x)
     })
-    print(fit())
+    
     p <- plot_ly() %>%
       add_trace(x = select_bio_fin()$Length, y = select_bio_fin()$Weight,
                 type = 'scatter', color = select_bio_fin()$Sex, colors = "Set1",
@@ -171,6 +196,7 @@ output$bio_lw<- renderPlotly({
              margin=(list(t=80)), showlegend = FALSE)
     p$elementId <- NULL
     p
+    
   }else if(input$biooptionselection=="Age"){
     select_bio_fin <- reactive({
       select_bio() %>%
@@ -189,7 +215,7 @@ output$bio_lw<- renderPlotly({
       
       return (reg)
     })
-    print(reg1())
+    
     fit <- reactive({
       length <- unlist(select_bio_fin()$Length)
       
@@ -200,7 +226,7 @@ output$bio_lw<- renderPlotly({
       
       return (x)
     })
-    print(fit())
+    
     p <- plot_ly() %>%
       add_trace(x = select_bio_fin()$Length, y = select_bio_fin()$Weight,
                 type = 'scatter', color = select_bio_fin()$Age, colors = "Spectral",
@@ -214,6 +240,7 @@ output$bio_lw<- renderPlotly({
              margin=(list(t=80)), showlegend = FALSE)
     p$elementId <- NULL
     p
+    
   }else if(input$biooptionselection=="Sample Type"){
     select_bio_fin <- reactive({
       select_bio() %>%
@@ -232,7 +259,7 @@ output$bio_lw<- renderPlotly({
       
       return (reg)
     })
-    print(reg1())
+    
     fit <- reactive({
       length <- unlist(select_bio_fin()$Length)
       
@@ -243,7 +270,7 @@ output$bio_lw<- renderPlotly({
       
       return (x)
     })
-    print(fit())
+    
     p <- plot_ly() %>%
       add_trace(x = select_bio_fin()$Length, y = select_bio_fin()$Weight,
                 type = 'scatter', color = select_bio_fin()$catch_category,
@@ -258,6 +285,7 @@ output$bio_lw<- renderPlotly({
              margin=(list(t=80)), showlegend = FALSE)
     p$elementId <- NULL
     p
+    
   }else if(input$biooptionselection=="Gear"){
     select_bio_fin <- reactive({
       select_bio() %>%
@@ -276,7 +304,7 @@ output$bio_lw<- renderPlotly({
       
       return (reg)
     })
-    print(reg1())
+    
     fit <- reactive({
       length <- unlist(select_bio_fin()$Length)
       
@@ -287,7 +315,7 @@ output$bio_lw<- renderPlotly({
       
       return (x)
     })
-    print(fit())
+    
     p <- plot_ly() %>%
       add_trace(x = select_bio_fin()$Length, y = select_bio_fin()$Weight,
                 type = 'scatter', color = select_bio_fin()$gear, colors = "Set1",
@@ -320,7 +348,7 @@ output$bio_lw<- renderPlotly({
       
       return (reg)
       })
-    print(reg1())
+    
     fit <- reactive({
       length <- unlist(select_bio_fin()$Length)
       
@@ -331,7 +359,7 @@ output$bio_lw<- renderPlotly({
       
       return (x)
     })
-    print(fit())
+    
     p <- plot_ly() %>%
       add_trace(x = select_bio_fin()$Length, y = select_bio_fin()$Weight,
                 type = 'scatter', color = select_bio_fin()$Weight, colors = "viridis",
@@ -348,225 +376,15 @@ output$bio_lw<- renderPlotly({
 })
 
 output$bio_la<- renderPlotly({
-  if(input$biooptionselection=="Sex"){
+  if(input$ageoptionselection=="Sex"){
     select_bio_fin <- reactive({
       select_bio() %>%
         drop_na("Length", "Age", "Sex") %>%
         mutate(Length = as.numeric(Length),
                Age = as.numeric(Age)) %>%
-        arrange(Length)
+        arrange(Age, Length)
     })
     
-    reg1 <- reactive({
-      length <- unlist(select_bio_fin()$Length)
-      age <- unlist(select_bio_fin()$Age)
-      reg <- NA
-      try(reg <- lm(log(length) ~ log(age)),
-          silent = TRUE)
-      
-      return (reg)
-    })
-    print(reg1())
-    fit <- reactive({
-      age <- unlist(select_bio_fin()$Age)
-      
-      try(x <- data.frame(Age = unique(age)),
-          silent = TRUE)
-      try(x$Length <- exp(reg1()$coef[1]) * x$Age ** (reg1()$coef[2]),
-          silent = TRUE)
-      
-      return (x)
-    })
-    print(fit())
-    p <- plot_ly() %>%
-      add_trace(x = select_bio_fin()$Age, y = select_bio_fin()$Length,
-                type = 'scatter', color = select_bio_fin()$Sex, colors = "Set1",
-                mode = 'markers', marker = list(opacity = 0.5), hoverinfo='text',
-                text = paste("Age:", select_bio_fin()$Age,
-                             "cm<br>Length:", select_bio_fin()$Length,
-                             "g<br>Sex:", select_bio_fin()$Sex)) %>%
-      add_trace(x = fit()$Age, y = fit()$Length, type = 'scatter',
-                mode = "lines", colors = "Spectral", hoverinfo='none') %>%
-      layout(title=paste(input$species, "Length vs Weight (points coloured by sex)"),
-             margin=(list(t=80)), showlegend = FALSE)
-    p$elementId <- NULL
-    p
-    # p <- plot_ly(select_bio(), x = ~Age, y = ~Length, type = 'scatter',
-    #              hoverinfo='text', color = ~Sex, colors="Set1",
-    #              text=~paste("length:",Length,"cm","<br>weight:",Weight,"<br>sex:",Sex), #, "grams<br>date:", Date),
-    #              mode = 'markers', marker =list(opacity = 0.5)) %>%
-    #   layout(hovermode=TRUE, title=paste(input$species,"Length vs Weight (points coloured by sex)"),
-    #          margin=(list(t=70)), showlegend = TRUE)
-    # p$elementId <- NULL
-    # p
-  }else if(input$biooptionselection=="Weight"){
-    select_bio_fin <- reactive({
-      select_bio() %>%
-        drop_na("Length", "Weight", "Age") %>%
-        mutate(Length = as.numeric(Length),
-               Weight = as.numeric(Weight)) %>%
-        arrange(Length)
-    })
-    
-    reg1 <- reactive({
-      length <- unlist(select_bio_fin()$Length)
-      weight <- unlist(select_bio_fin()$Weight)
-      reg <- NA
-      try(reg <- lm(log(weight) ~ log(length)),
-          silent = TRUE)
-      
-      return (reg)
-    })
-    print(reg1())
-    fit <- reactive({
-      length <- unlist(select_bio_fin()$Length)
-      
-      try(x <- data.frame(Length = unique(length)),
-          silent = TRUE)
-      try(x$Weight <- exp(reg1()$coef[1]) * x$Length ** (reg1()$coef[2]),
-          silent = TRUE)
-      
-      return (x)
-    })
-    print(fit())
-    p <- plot_ly() %>%
-      add_trace(x = select_bio_fin()$Length, y = select_bio_fin()$Weight,
-                type = 'scatter', color = select_bio_fin()$Age, colors = "Spectral",
-                mode = 'markers', marker = list(opacity = 0.5), hoverinfo='text',
-                text = paste("Length:", select_bio_fin()$Length,
-                             "cm<br>Weight:", select_bio_fin()$Weight,
-                             "g<br>Age:", select_bio_fin()$Age)) %>%
-      add_trace(x = fit()$Length, y = fit()$Weight, type = 'scatter',
-                mode = "lines", colors = "Spectral", hoverinfo='none') %>%
-      layout(title=paste(input$species, "Length vs Weight (points coloured by age)"),
-             margin=(list(t=80)), showlegend = FALSE)
-    p$elementId <- NULL
-    p
-    p <- plot_ly(select_bio(), x = ~Age, y = ~Length, type = 'scatter', mode = 'markers',hoverinfo='text',
-                 #text=~paste("length:",Length,"cm","<br>weight:",Weight), #"grams<br>date:", Date, "<br>Age:", Age),
-                 color= ~Age, colors = "Spectral", marker =list(opacity = 0.5)) %>%
-      layout(hovermode=TRUE, title=paste(input$species,"Length vs Weight (points coloured by age)"),
-             margin=(list(t=70)),
-             showlegend = FALSE)
-    p$elementId <- NULL
-    p
-  }else if(input$biooptionselection=="Sample Type"){
-    select_bio_fin <- reactive({
-      select_bio() %>%
-        drop_na("Length", "Weight", "catch_category") %>%
-        mutate(Length = as.numeric(Length),
-               Weight = as.numeric(Weight)) %>%
-        arrange(Length)
-    })
-    
-    reg1 <- reactive({
-      length <- unlist(select_bio_fin()$Length)
-      weight <- unlist(select_bio_fin()$Weight)
-      reg <- NA
-      try(reg <- lm(log(weight) ~ log(length)),
-          silent = TRUE)
-      
-      return (reg)
-    })
-    print(reg1())
-    fit <- reactive({
-      length <- unlist(select_bio_fin()$Length)
-      
-      try(x <- data.frame(Length = unique(length)),
-          silent = TRUE)
-      try(x$Weight <- exp(reg1()$coef[1]) * x$Length ** (reg1()$coef[2]),
-          silent = TRUE)
-      
-      return (x)
-    })
-    print(fit())
-    p <- plot_ly() %>%
-      add_trace(x = select_bio_fin()$Length, y = select_bio_fin()$Weight,
-                type = 'scatter', color = select_bio_fin()$catch_category,
-                colors = c('D'='red','L'='lightgreen'),
-                mode = 'markers', marker = list(opacity = 0.5), hoverinfo='text',
-                text = paste("Length:", select_bio_fin()$Length,
-                             "cm<br>Weight:", select_bio_fin()$Weight,
-                             "g<br>Sample type:", select_bio_fin()$catch_category)) %>%
-      add_trace(x = fit()$Length, y = fit()$Weight, type = 'scatter',
-                mode = "lines", colors = "Spectral", hoverinfo='none') %>%
-      layout(title=paste(input$species, "Length vs Weight (points coloured by sample type)"),
-             margin=(list(t=80)), showlegend = FALSE)
-    p$elementId <- NULL
-    p
-    select_bio <- filter(select_bio(), !is.na(catch_category))
-    print(select_bio())
-    p <- plot_ly(select_bio(), x = ~Age, y = ~Length, type = 'scatter', mode = 'markers',hoverinfo='text',
-                 text=~paste("length:",Length,"cm","<br>weight:",Weight, "<br>sample type:",catch_category),
-                 color= ~catch_category,colors =c('D'='red','L'='lightgreen')) %>%
-      layout(hovermode=TRUE, title=paste(input$species,"Length vs Weight (points coloured by sample type)"),
-             margin=(list(t=70)),
-             showlegend = TRUE)
-    p$elementId <- NULL
-    p
-  }else if(input$biooptionselection=="Gear"){
-    select_bio_fin <- reactive({
-      select_bio() %>%
-        drop_na("Length", "Weight", "gear") %>%
-        mutate(Length = as.numeric(Length),
-               Weight = as.numeric(Weight)) %>%
-        arrange(Length)
-    })
-    
-    reg1 <- reactive({
-      length <- unlist(select_bio_fin()$Length)
-      weight <- unlist(select_bio_fin()$Weight)
-      reg <- NA
-      try(reg <- lm(log(weight) ~ log(length)),
-          silent = TRUE)
-      
-      return (reg)
-    })
-    print(reg1())
-    fit <- reactive({
-      length <- unlist(select_bio_fin()$Length)
-      
-      try(x <- data.frame(Length = unique(length)),
-          silent = TRUE)
-      try(x$Weight <- exp(reg1()$coef[1]) * x$Length ** (reg1()$coef[2]),
-          silent = TRUE)
-      
-      return (x)
-    })
-    print(fit())
-    p <- plot_ly() %>%
-      add_trace(x = select_bio_fin()$Length, y = select_bio_fin()$Weight,
-                type = 'scatter', color = select_bio_fin()$gear, colors = "Set1",
-                mode = 'markers', marker = list(opacity = 0.5), hoverinfo='text',
-                text = paste("Length:", select_bio_fin()$Length,
-                             "cm<br>Weight:", select_bio_fin()$Weight,
-                             "g<br>Gear type:", select_bio_fin()$gear)) %>%
-      add_trace(x = fit()$Length, y = fit()$Weight, type = 'scatter',
-                mode = "lines", colors = "Spectral", hoverinfo='none') %>%
-      layout(title=paste(input$species, "Length vs Weight"),
-             margin=(list(t=80)), showlegend = FALSE)
-    p$elementId <- NULL
-    p
-    select_bio <- filter(select_bio(), !is.na(gear))
-    print(select_bio())
-    p <- plot_ly(select_bio(), x = ~Age, y = ~Length, type = 'scatter', mode = 'markers',hoverinfo='text',
-                 text=~paste("length:",Length,"cm","<br>weight:",Weight, "<br>gear type:",gear),
-                 color= ~gear,colors = "Set1") %>%
-      layout(hovermode=TRUE, title=paste(input$species,"Length vs Weight (points coloured by gear type)"),
-             margin=(list(t=70)),
-             showlegend = TRUE)
-    p$elementId <- NULL
-    p
-  }
-  else{
-    select_bio_fin <- reactive({
-      select_bio() %>%
-        drop_na("Length", "Age") %>%
-        mutate(Length = as.numeric(Length),
-               Age = as.numeric(Age)) %>%
-        arrange(Age)
-    })
-    print(select_bio_fin())
     reg1 <- reactive({
       length <- unlist(select_bio_fin()$Length)
       age <- unlist(select_bio_fin()$Age)
@@ -576,43 +394,227 @@ output$bio_la<- renderPlotly({
       
       return (reg)
     })
-    print(reg1())
+    
     fit <- reactive({
       age <- unlist(select_bio_fin()$Age)
       
       try(x <- data.frame(Age = unique(age)),
           silent = TRUE)
-      try(x$Length <- exp(reg1()$coef[1]) * x$Age ** (reg1()$coef[2]),
+      try(x$Length <- exp(reg1()$coef[1] + x$Age * reg1()$coef[2]),
           silent = TRUE)
       
       return (x)
     })
-    print(fit())
+    
     p <- plot_ly() %>%
       add_trace(x = select_bio_fin()$Age, y = select_bio_fin()$Length,
-                type = 'box', color = select_bio_fin()$Age, colors = "viridis"#,
-                #mode = 'markers', marker = list(opacity = 0.5), hoverinfo='text',
-                #text = paste("Length:", select_bio_fin()$Length,
-                            # "cm<br>Age:", select_bio_fin()$Age, "years")
-    ) %>%
+                type = 'scatter', color = select_bio_fin()$Sex, colors = "Set1",
+                mode = 'markers', marker = list(opacity = 0.5), hoverinfo='text',
+                text = paste("Age:", select_bio_fin()$Age,
+                             "years<br>Length:", select_bio_fin()$Length,
+                             "cm<br>Sex:", select_bio_fin()$Sex)) %>%
+      add_trace(x = fit()$Age, y = fit()$Length, type = 'scatter',
+                mode = "lines", colors = "Spectral", hoverinfo='none') %>%
+      layout(title=paste(input$species, "Age vs Length (points coloured by sex)"),
+             margin=(list(t=80)), showlegend = FALSE)
+    p$elementId <- NULL
+    p
+    
+  }else if(input$ageoptionselection=="Weight"){
+    select_bio_fin <- reactive({
+      select_bio() %>%
+        drop_na("Length", "Age", "Weight") %>%
+        mutate(Length = as.numeric(Length),
+               Age = as.numeric(Age),
+               Weight = as.numeric(Weight)) %>%
+        arrange(Age, Length)
+    })
+    
+    reg1 <- reactive({
+      length <- unlist(select_bio_fin()$Length)
+      age <- unlist(select_bio_fin()$Age)
+      reg <- NA
+      try(reg <- lm(log(length) ~ age),
+          silent = TRUE)
+      
+      return (reg)
+    })
+    
+    fit <- reactive({
+      age <- unlist(select_bio_fin()$Age)
+      
+      try(x <- data.frame(Age = unique(age)),
+          silent = TRUE)
+      try(x$Length <- exp(reg1()$coef[1] + x$Age * reg1()$coef[2]),
+          silent = TRUE)
+      
+      return (x)
+    })
+    
+    p <- plot_ly() %>%
+      add_trace(x = select_bio_fin()$Age, y = select_bio_fin()$Length,
+                type = 'scatter', color = select_bio_fin()$Weight, colors = "Spectral",
+                mode = 'markers', marker = list(opacity = 0.5), hoverinfo='text',
+                text = paste("Age:", select_bio_fin()$Age,
+                             "years<br>Length:", select_bio_fin()$Length,
+                             "cm<br>Weight:", select_bio_fin()$Weight, "g")) %>%
+      add_trace(x = fit()$Age, y = fit()$Length, type = 'scatter',
+                mode = "lines", colors = "Spectral", hoverinfo='none') %>%
+      layout(title=paste(input$species, "Age vs Length (points coloured by weight)"),
+             margin=(list(t=80)), showlegend = FALSE)
+    p$elementId <- NULL
+    p
+    
+  }else if(input$ageoptionselection=="Sample Type"){
+    select_bio_fin <- reactive({
+      select_bio() %>%
+        drop_na("Length", "Age", "catch_category") %>%
+        mutate(Length = as.numeric(Length),
+               Age = as.numeric(Age)) %>%
+        arrange(Age, Length)
+    })
+    
+    reg1 <- reactive({
+      length <- unlist(select_bio_fin()$Length)
+      age <- unlist(select_bio_fin()$Age)
+      reg <- NA
+      try(reg <- lm(log(length) ~ age),
+          silent = TRUE)
+      
+      return (reg)
+    })
+    
+    fit <- reactive({
+      age <- unlist(select_bio_fin()$Age)
+      
+      try(x <- data.frame(Age = unique(age)),
+          silent = TRUE)
+      try(x$Length <- exp(reg1()$coef[1] + x$Age * reg1()$coef[2]),
+          silent = TRUE)
+      
+      return (x)
+    })
+    
+    p <- plot_ly() %>%
+      add_trace(x = select_bio_fin()$Age, y = select_bio_fin()$Length,
+                type = 'scatter', color = select_bio_fin()$catch_category,
+                colors = c('D'='red','L'='lightgreen'),
+                mode = 'markers', marker = list(opacity = 0.5), hoverinfo='text',
+                text = paste("Age:", select_bio_fin()$Age,
+                             "years<br>Length:", select_bio_fin()$Length,
+                             "cm<br>Sample type:", select_bio_fin()$catch_category)) %>%
+      add_trace(x = fit()$Age, y = fit()$Length, type = 'scatter',
+                mode = "lines", colors = "Spectral", hoverinfo='none') %>%
+      layout(title=paste(input$species, "Age vs Length (points coloured by sample type)"),
+             margin=(list(t=80)), showlegend = FALSE)
+    p$elementId <- NULL
+    p
+    
+  }else if(input$ageoptionselection=="Gear"){
+    select_bio_fin <- reactive({
+      select_bio() %>%
+        drop_na("Length", "Age", "gear") %>%
+        mutate(Length = as.numeric(Length),
+               Age = as.numeric(Age)) %>%
+        arrange(Age, Length)
+    })
+    
+    reg1 <- reactive({
+      length <- unlist(select_bio_fin()$Length)
+      age <- unlist(select_bio_fin()$Age)
+      reg <- NA
+      try(reg <- lm(log(length) ~ age),
+          silent = TRUE)
+      
+      return (reg)
+    })
+    
+    fit <- reactive({
+      age <- unlist(select_bio_fin()$Age)
+      
+      try(x <- data.frame(Age = unique(age)),
+          silent = TRUE)
+      try(x$Length <- exp(reg1()$coef[1] + x$Age * reg1()$coef[2]),
+          silent = TRUE)
+      
+      return (x)
+    })
+    
+    p <- plot_ly() %>%
+      add_trace(x = select_bio_fin()$Age, y = select_bio_fin()$Length,
+                type = 'scatter', color = select_bio_fin()$gear, colors = "Set1",
+                mode = 'markers', marker = list(opacity = 0.5), hoverinfo='text',
+                text = paste("Age:", select_bio_fin()$Age,
+                             "years<br>Length:", select_bio_fin()$Length,
+                             "cm<br>Gear type:", select_bio_fin()$gear)) %>%
+      add_trace(x = fit()$Age, y = fit()$Length, type = 'scatter',
+                mode = "lines", colors = "Spectral", hoverinfo='none') %>%
+      layout(title=paste(input$species, "Age vs Length (points coloured by sample type)"),
+             margin=(list(t=80)), showlegend = FALSE)
+    p$elementId <- NULL
+    p
+    
+  }
+  else{
+    select_bio_fin <- reactive({
+      select_bio() %>%
+        drop_na("Length", "Age") %>%
+        mutate(Length = as.numeric(Length),
+               Age = as.numeric(Age)) %>%
+        arrange(Age, Length)
+    })
+    
+    reg1 <- reactive({
+      length <- unlist(select_bio_fin()$Length)
+      age <- unlist(select_bio_fin()$Age)
+      reg <- NA
+      try(reg <- lm(log(length) ~ age),
+          silent = TRUE)
+      
+      return (reg)
+    })
+    
+    fit <- reactive({
+      age <- unlist(select_bio_fin()$Age)
+      
+      try(x <- data.frame(Age = unique(age)),
+          silent = TRUE)
+      try(x$Length <- exp(reg1()$coef[1] + x$Age * reg1()$coef[2]),
+          silent = TRUE)
+      
+      return (x)
+    })
+    
+    p <- plot_ly() %>%
+      add_trace(x = select_bio_fin()$Age, y = select_bio_fin()$Length,
+                type = 'box', colors = "Set1") %>%
       add_trace(x = fit()$Age, y = fit()$Length, type = 'scatter',
                 mode = "lines", colors = "Spectral", hoverinfo='none') %>%
       layout(title=paste(input$species, "Age vs Length"),
              margin=(list(t=80)), showlegend = FALSE)
     p$elementId <- NULL
     p
-    # p <- plot_ly(select_bio(), x = ~Age, y = ~Length, type = 'scatter', color=~Weight, colors="Spectral",
-    #              mode = 'markers', marker =list(opacity = 0.5), hoverinfo='text',
-    #              text=~paste("length:",Length,"cm<br>Age:",Weight)) %>%
-    #   # add_markers(y = ~Ozone) %>%
-    #   add_lines(x = ~Wind, y = fitted(fit)) %>%
-    #   layout(hovermode=TRUE, title=paste(input$species," Length vs Weight", sep=""),
-    #          margin=(list(t=80)),
-    #          showlegend = FALSE)
-    # 
-    # p$elementId <- NULL
-    # p
+    
   }
+})
+
+observeEvent(input$showhist, {
+  output$age_hist <- renderPlotly({
+    
+    select_bio_hist <- reactive({
+      select_bio() %>%
+        drop_na("Length", "Age")  %>%
+        mutate(Length = as.numeric(Length),
+               Age = as.numeric(Age)) %>%
+        subset(Length == as.numeric(paste(input$lengthcm)))
+      })
+    
+    p <- ggplot(select_bio_hist(), aes(Age)) +
+      geom_bar(color="black", fill="white", width=1) +
+      labs(title = 'Histogram of observered ages', x = "Age")
+    
+    ggplotly(p)
+    })
 })
 
 # ##### Bio dashboard text and graphs
