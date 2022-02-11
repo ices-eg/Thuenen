@@ -545,8 +545,15 @@ shinyUI(
                                condition = "input.fishtab == 'B'",
                                plotlyOutput("bio_la") %>%
                                  withSpinner(color="#0dc5c1"))
-                             ))
-                        ), 
+                             )),
+                    fluidRow(
+                      column(width=12,
+                             conditionalPanel(
+                               condition = "input.fishtab == 'B'",
+                               plotlyOutput("ageVB"))
+                      ))
+                    ), 
+                  
                 ##### Fish sp tab - Species tabsets #####
                 column(
                   width = 5,

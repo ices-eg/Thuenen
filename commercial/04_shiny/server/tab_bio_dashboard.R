@@ -44,6 +44,50 @@ select_quarter <- reactive({
   }
 })
 
+select_area <- reactive({
+  if (input$Id=="FAO Area") {
+    filter(select_quarter(), fao_area %in% input$subselect_fao)
+  } else {
+    filter(select_quarter(), rectangle %in% input$subselect_rect)
+  }
+})
+
+select_weight <- reactive({
+  we_subset <- subset(sample_weight, ha_index %in% select_area()$ha_index)
+
+  we_subset %>%
+    left_join(select_area(), by = c("ha_index"))
+})
+
+select_species <- reactive({
+  if (input$species=="All"){
+    select_weight()
+  }
+  else {
+    filter(select_weight(), species == input$species)
+  }
+})
+
+select_length <- reactive({
+  le_subset <- subset(sample_length, we_index %in% select_species()$we_index)
+  le_subset %>%
+    left_join(select_species(), by=c("we_index"))
+})
+
+select_bio <- reactive({
+  clean_sample <- sample_bio[,2:5] %>% spread(parameter, value)
+  names(clean_sample)[3:8] <- c("Length","Weight","Sex","Maturity","Age","Readability")
+
+  clean_sample$Length <- lapply(clean_sample$Length, as.numeric)
+  clean_sample$Weight <- lapply(clean_sample$Weight, as.numeric)
+
+  bi_subset <- subset(clean_sample, le_index %in% select_length()$le_index)
+
+  bi_subset %>%
+    left_join(select_length(), by = c("le_index")) %>%
+    arrange("Length")
+})
+
 # Creating Sub Area filter based on the full data
 output$spatialops.w <- renderUI({
   if(input$fishtab == 'A'){
@@ -105,50 +149,6 @@ output$spatialops.a <- renderUI({
         multiple = TRUE
       )}
   }
-})
-
-select_area <- reactive({
-  if (input$Id=="FAO Area") {
-    filter(select_quarter(), fao_area %in% input$subselect_fao)
-  } else {
-    filter(select_quarter(), rectangle %in% input$subselect_rect)
-  }
-})
-
-select_weight <- reactive({
-  we_subset <- subset(sample_weight, ha_index %in% select_area()$ha_index)
-
-  we_subset %>%
-    left_join(select_area(), by = c("ha_index"))
-})
-
-select_species <- reactive({
-  if (input$species=="All"){
-    select_weight()
-  }
-  else {
-    filter(select_weight(), species == input$species)
-  }
-})
-
-select_length <- reactive({
-  le_subset <- subset(sample_length, we_index %in% select_species()$we_index)
-  le_subset %>%
-    left_join(select_species(), by=c("we_index"))
-})
-
-select_bio <- reactive({
-  clean_sample <- sample_bio[,2:5] %>% spread(parameter, value)
-  names(clean_sample)[3:8] <- c("Length","Weight","Sex","Maturity","Age","Readability")
-
-  clean_sample$Length <- lapply(clean_sample$Length, as.numeric)
-  clean_sample$Weight <- lapply(clean_sample$Weight, as.numeric)
-
-  bi_subset <- subset(clean_sample, le_index %in% select_length()$le_index)
-
-  bi_subset %>%
-    left_join(select_length(), by = c("le_index")) %>%
-    arrange("Length")
 })
 
 ##### Histogram #######
@@ -375,6 +375,341 @@ output$bio_lw<- renderPlotly({
   }
 })
 
+output$ageVB<- renderPlotly({
+  if(input$ageoptionselection=="Sex"){
+    select_bio_fin <- reactive({
+      select_bio() %>%
+        drop_na("Length", "Age", "Sex") %>%
+        mutate(Length = as.numeric(Length),
+               Age = as.numeric(Age)) %>%
+        arrange(Age, Length)
+    })
+
+    if ("COD" %in% select_bio_fin()$species){
+      select_bio_reg <- reactive({
+        select_bio_fin() %>%
+          subset(Age < 7)
+      })
+    } else {
+      select_bio_reg <- reactive({
+        select_bio_fin()
+      })
+    }
+
+    reg1 <- reactive({
+      length <- unlist(select_bio_reg()$Length)
+      age <- unlist(select_bio_reg()$Age)
+      vonBertalanffy <- cbind(data.frame(length), data.frame(age))
+      reg <- NA
+      try(reg <- vbStarts(length ~ age, data=vonBertalanffy))
+      return (reg)
+    })
+
+    reg2 <- reactive({
+      length <- unlist(select_bio_reg()$Length)
+      age <- unlist(select_bio_reg()$Age)
+      vonBertalanffy <- cbind(data.frame(length), data.frame(age))
+      reg <- NA
+      vb <- vbFuns(param="vonBertalanffy")
+      try(reg <- nls(length ~ vb(age,Linf,K,t0),
+                     data=vonBertalanffy, start=reg1()))
+      return (reg)
+    })
+    print(reg2())
+    fit <- reactive({
+      length <- unlist(select_bio_fin()$Length)
+      age <- unlist(select_bio_fin()$Age)
+
+      try(x <- data.frame(age = age, Age = age),
+          silent = TRUE)
+      try(x$Length <- predict(reg2(), x))
+
+      return (x)
+    })
+
+    fig <- plot_ly(type = 'table',
+                   header = list(
+                     values = c('<b>Linf</b>', '<b>K</b>','<b>t0</b>'),
+                     line = list(color = '#506784'),
+                     fill = list(color = '#119DFF'),
+                     align = c('left','center'),
+                     font = list(color = 'white', size = 12)),
+                   cells = list(
+                     values= rbind(round(coef(reg2())[1], 2),
+                                   round(coef(reg2())[2], 5),
+                                   round(coef(reg2())[3], 2))),
+                   align = c('left', 'center'),
+                   font = list(color = c('#506784'), size = 12)
+    )
+    
+    fig
+
+  }else if(input$ageoptionselection=="Weight"){
+    select_bio_fin <- reactive({
+      select_bio() %>%
+        drop_na("Length", "Age", "Weight") %>%
+        mutate(Length = as.numeric(Length),
+               Age = as.numeric(Age)) %>%
+        arrange(Age, Length)
+    })
+
+    if ("COD" %in% select_bio_fin()$species){
+      select_bio_reg <- reactive({
+        select_bio_fin() %>%
+          subset(Age < 7)
+      })
+    } else {
+      select_bio_reg <- reactive({
+        select_bio_fin()
+      })
+    }
+
+    reg1 <- reactive({
+      length <- unlist(select_bio_reg()$Length)
+      age <- unlist(select_bio_reg()$Age)
+      vonBertalanffy <- cbind(data.frame(length), data.frame(age))
+      reg <- NA
+      try(reg <- vbStarts(length ~ age, data=vonBertalanffy))
+      return (reg)
+    })
+
+    reg2 <- reactive({
+      length <- unlist(select_bio_reg()$Length)
+      age <- unlist(select_bio_reg()$Age)
+      vonBertalanffy <- cbind(data.frame(length), data.frame(age))
+      reg <- NA
+      vb <- vbFuns(param="vonBertalanffy")
+      try(reg <- nls(length ~ vb(age,Linf,K,t0),
+                     data=vonBertalanffy, start=reg1()))
+      return (reg)
+    })
+    print(reg2())
+    fit <- reactive({
+      length <- unlist(select_bio_fin()$Length)
+      age <- unlist(select_bio_fin()$Age)
+
+      try(x <- data.frame(age = age, Age = age),
+          silent = TRUE)
+      try(x$Length <- predict(reg2(), x))
+
+      return (x)
+    })
+    
+    fig <- plot_ly(type = 'table',
+                   header = list(
+                     values = c('<b>Linf</b>', '<b>K</b>','<b>t0</b>'),
+                     line = list(color = '#506784'),
+                     fill = list(color = '#119DFF'),
+                     align = c('left','center'),
+                     font = list(color = 'white', size = 12)),
+                   cells = list(
+                     values= rbind(round(coef(reg2())[1], 2),
+                                   round(coef(reg2())[2], 5),
+                                   round(coef(reg2())[3], 2))),
+                   align = c('left', 'center'),
+                   font = list(color = c('#506784'), size = 12)
+    )
+    
+    fig
+
+  }else if(input$ageoptionselection=="Sample Type"){
+    select_bio_fin <- reactive({
+      select_bio() %>%
+        drop_na("Length", "Age", "catch_category") %>%
+        mutate(Length = as.numeric(Length),
+               Age = as.numeric(Age)) %>%
+        arrange(Age, Length)
+    })
+
+    if ("COD" %in% select_bio_fin()$species){
+      select_bio_reg <- reactive({
+        select_bio_fin() %>%
+          subset(Age < 7)
+      })
+    } else {
+      select_bio_reg <- reactive({
+        select_bio_fin()
+      })
+    }
+
+    reg1 <- reactive({
+      length <- unlist(select_bio_reg()$Length)
+      age <- unlist(select_bio_reg()$Age)
+      vonBertalanffy <- cbind(data.frame(length), data.frame(age))
+      reg <- NA
+      try(reg <- vbStarts(length ~ age, data=vonBertalanffy))
+      return (reg)
+    })
+
+    reg2 <- reactive({
+      length <- unlist(select_bio_reg()$Length)
+      age <- unlist(select_bio_reg()$Age)
+      vonBertalanffy <- cbind(data.frame(length), data.frame(age))
+      reg <- NA
+      vb <- vbFuns(param="vonBertalanffy")
+      try(reg <- nls(length ~ vb(age,Linf,K,t0),
+                     data=vonBertalanffy, start=reg1()))
+      return (reg)
+    })
+    print(reg2())
+    fit <- reactive({
+      length <- unlist(select_bio_fin()$Length)
+      age <- unlist(select_bio_fin()$Age)
+
+      try(x <- data.frame(age = age, Age = age),
+          silent = TRUE)
+      try(x$Length <- predict(reg2(), x))
+
+      return (x)
+    })
+
+    fig <- plot_ly(type = 'table',
+                   header = list(
+                     values = c('<b>Linf</b>', '<b>K</b>','<b>t0</b>'),
+                     line = list(color = '#506784'),
+                     fill = list(color = '#119DFF'),
+                     align = c('left','center'),
+                     font = list(color = 'white', size = 12)),
+                   cells = list(
+                     values= rbind(round(coef(reg2())[1], 2),
+                                   round(coef(reg2())[2], 5),
+                                   round(coef(reg2())[3], 2))),
+                   align = c('left', 'center'),
+                   font = list(color = c('#506784'), size = 12)
+    )
+    
+    fig
+
+  }else if(input$ageoptionselection=="Gear"){
+    select_bio_fin <- reactive({
+      select_bio() %>%
+        drop_na("Length", "Age", "gear") %>%
+        mutate(Length = as.numeric(Length),
+               Age = as.numeric(Age)) %>%
+        arrange(Age, Length)
+    })
+
+    if ("COD" %in% select_bio_fin()$species){
+      select_bio_reg <- reactive({
+        select_bio_fin() %>%
+          subset(Age < 7)
+      })
+    } else {
+      select_bio_reg <- reactive({
+        select_bio_fin()
+      })
+    }
+
+    reg1 <- reactive({
+      length <- unlist(select_bio_reg()$Length)
+      age <- unlist(select_bio_reg()$Age)
+      vonBertalanffy <- cbind(data.frame(length), data.frame(age))
+      reg <- NA
+      try(reg <- vbStarts(length ~ age, data=vonBertalanffy))
+      return (reg)
+    })
+
+    reg2 <- reactive({
+      length <- unlist(select_bio_reg()$Length)
+      age <- unlist(select_bio_reg()$Age)
+      vonBertalanffy <- cbind(data.frame(length), data.frame(age))
+      reg <- NA
+      vb <- vbFuns(param="vonBertalanffy")
+      try(reg <- nls(length ~ vb(age,Linf,K,t0),
+                     data=vonBertalanffy, start=reg1()))
+      return (reg)
+    })
+    print(reg2())
+    fit <- reactive({
+      length <- unlist(select_bio_fin()$Length)
+      age <- unlist(select_bio_fin()$Age)
+
+      try(x <- data.frame(age = age, Age = age),
+          silent = TRUE)
+      try(x$Length <- predict(reg2(), x))
+
+      return (x)
+    })
+
+    fig <- plot_ly(type = 'table',
+                   header = list(
+                     values = c('<b>Linf</b>', '<b>K</b>','<b>t0</b>'),
+                     line = list(color = '#506784'),
+                     fill = list(color = '#119DFF'),
+                     align = c('left','center'),
+                     font = list(color = 'white', size = 12)),
+                   cells = list(
+                     values= rbind(round(coef(reg2())[1], 2),
+                                   round(coef(reg2())[2], 5),
+                                   round(coef(reg2())[3], 2))),
+                   align = c('left', 'center'),
+                   font = list(color = c('#506784'), size = 12)
+    )
+    
+    fig
+
+  }
+  else{
+    select_bio_fin <- reactive({
+      select_bio() %>%
+        drop_na("Length", "Age") %>%
+        mutate(Length = as.numeric(Length),
+               Age = as.numeric(Age)) %>%
+        arrange(Age, Length)
+    })
+
+    if ("COD" %in% select_bio_fin()$species){
+      select_bio_reg <- reactive({
+        select_bio_fin() %>%
+          subset(Age < 7)
+      })
+    } else {
+      select_bio_reg <- reactive({
+        select_bio_fin()
+      })
+    }
+
+    reg1 <- reactive({
+      length <- unlist(select_bio_reg()$Length)
+      age <- unlist(select_bio_reg()$Age)
+      vonBertalanffy <- cbind(data.frame(length), data.frame(age))
+      reg <- NA
+      try(reg <- vbStarts(length ~ age, data=vonBertalanffy))
+      return (reg)
+    })
+
+    reg2 <- reactive({
+      length <- unlist(select_bio_reg()$Length)
+      age <- unlist(select_bio_reg()$Age)
+      vonBertalanffy <- cbind(data.frame(length), data.frame(age))
+      reg <- NA
+      vb <- vbFuns(param="vonBertalanffy")
+      try(reg <- nls(length ~ vb(age,Linf,K,t0),
+                     data=vonBertalanffy, start=reg1()))
+      return (reg)
+    })
+    print(reg2())
+    
+    fig <- plot_ly(type = 'table',
+                   header = list(
+                     values = c('<b>Linf</b>', '<b>K</b>','<b>t0</b>'),
+                     line = list(color = '#506784'),
+                     fill = list(color = '#119DFF'),
+                     align = c('left','center'),
+                     font = list(color = 'white', size = 12)),
+                   cells = list(
+                     values= rbind(round(coef(reg2())[1], 2),
+                                   round(coef(reg2())[2], 5),
+                                   round(coef(reg2())[3], 2))),
+                   align = c('left', 'center'),
+                   font = list(color = c('#506784'), size = 12)
+    )
+    
+    fig
+
+  }
+})
+
 output$bio_la<- renderPlotly({
   if(input$ageoptionselection=="Sex"){
     select_bio_fin <- reactive({
@@ -385,23 +720,44 @@ output$bio_la<- renderPlotly({
         arrange(Age, Length)
     })
     
+    if ("COD" %in% select_bio_fin()$species){
+      select_bio_reg <- reactive({
+        select_bio_fin() %>%
+          subset(Age < 7)
+      })
+    } else {
+      select_bio_reg <- reactive({
+        select_bio_fin()
+      })
+    }
+    
     reg1 <- reactive({
-      length <- unlist(select_bio_fin()$Length)
-      age <- unlist(select_bio_fin()$Age)
+      length <- unlist(select_bio_reg()$Length)
+      age <- unlist(select_bio_reg()$Age)
+      vonBertalanffy <- cbind(data.frame(length), data.frame(age))
       reg <- NA
-      try(reg <- lm(log(length) ~ age),
-          silent = TRUE)
-      
+      try(reg <- vbStarts(length ~ age, data=vonBertalanffy))
       return (reg)
     })
     
+    reg2 <- reactive({
+      length <- unlist(select_bio_reg()$Length)
+      age <- unlist(select_bio_reg()$Age)
+      vonBertalanffy <- cbind(data.frame(length), data.frame(age))
+      reg <- NA
+      vb <- vbFuns(param="vonBertalanffy")
+      try(reg <- nls(length ~ vb(age,Linf,K,t0),
+                     data=vonBertalanffy, start=reg1()))
+      return (reg)
+    })
+    print(reg2())
     fit <- reactive({
+      length <- unlist(select_bio_fin()$Length)
       age <- unlist(select_bio_fin()$Age)
       
-      try(x <- data.frame(Age = unique(age)),
-          silent = TRUE)
-      try(x$Length <- exp(reg1()$coef[1] + x$Age * reg1()$coef[2]),
-          silent = TRUE)
+      try(x <- data.frame(age = age, Age = age),
+          silent = TRUE) 
+      try(x$Length <- predict(reg2(), x))
       
       return (x)
     })
@@ -416,6 +772,7 @@ output$bio_la<- renderPlotly({
       add_trace(x = fit()$Age, y = fit()$Length, type = 'scatter',
                 mode = "lines", colors = "Spectral", hoverinfo='none') %>%
       layout(title=paste(input$species, "Age vs Length (points coloured by sex)"),
+             x = "Age (years)", y = "Length (cm)",
              margin=(list(t=80)), showlegend = FALSE)
     p$elementId <- NULL
     p
@@ -425,28 +782,48 @@ output$bio_la<- renderPlotly({
       select_bio() %>%
         drop_na("Length", "Age", "Weight") %>%
         mutate(Length = as.numeric(Length),
-               Age = as.numeric(Age),
-               Weight = as.numeric(Weight)) %>%
+               Age = as.numeric(Age)) %>%
         arrange(Age, Length)
     })
     
+    if ("COD" %in% select_bio_fin()$species){
+      select_bio_reg <- reactive({
+        select_bio_fin() %>%
+          subset(Age < 7)
+      })
+    } else {
+      select_bio_reg <- reactive({
+        select_bio_fin()
+      })
+    }
+    
     reg1 <- reactive({
-      length <- unlist(select_bio_fin()$Length)
-      age <- unlist(select_bio_fin()$Age)
+      length <- unlist(select_bio_reg()$Length)
+      age <- unlist(select_bio_reg()$Age)
+      vonBertalanffy <- cbind(data.frame(length), data.frame(age))
       reg <- NA
-      try(reg <- lm(log(length) ~ age),
-          silent = TRUE)
-      
+      try(reg <- vbStarts(length ~ age, data=vonBertalanffy))
       return (reg)
     })
     
+    reg2 <- reactive({
+      length <- unlist(select_bio_reg()$Length)
+      age <- unlist(select_bio_reg()$Age)
+      vonBertalanffy <- cbind(data.frame(length), data.frame(age))
+      reg <- NA
+      vb <- vbFuns(param="vonBertalanffy")
+      try(reg <- nls(length ~ vb(age,Linf,K,t0),
+                     data=vonBertalanffy, start=reg1()))
+      return (reg)
+    })
+    print(reg2())
     fit <- reactive({
+      length <- unlist(select_bio_fin()$Length)
       age <- unlist(select_bio_fin()$Age)
       
-      try(x <- data.frame(Age = unique(age)),
-          silent = TRUE)
-      try(x$Length <- exp(reg1()$coef[1] + x$Age * reg1()$coef[2]),
-          silent = TRUE)
+      try(x <- data.frame(age = age, Age = age),
+          silent = TRUE) 
+      try(x$Length <- predict(reg2(), x))
       
       return (x)
     })
@@ -461,6 +838,7 @@ output$bio_la<- renderPlotly({
       add_trace(x = fit()$Age, y = fit()$Length, type = 'scatter',
                 mode = "lines", colors = "Spectral", hoverinfo='none') %>%
       layout(title=paste(input$species, "Age vs Length (points coloured by weight)"),
+             x = "Age (years)", y = "Length (cm)",
              margin=(list(t=80)), showlegend = FALSE)
     p$elementId <- NULL
     p
@@ -474,23 +852,44 @@ output$bio_la<- renderPlotly({
         arrange(Age, Length)
     })
     
+    if ("COD" %in% select_bio_fin()$species){
+      select_bio_reg <- reactive({
+        select_bio_fin() %>%
+          subset(Age < 7)
+      })
+    } else {
+      select_bio_reg <- reactive({
+        select_bio_fin()
+      })
+    }
+    
     reg1 <- reactive({
-      length <- unlist(select_bio_fin()$Length)
-      age <- unlist(select_bio_fin()$Age)
+      length <- unlist(select_bio_reg()$Length)
+      age <- unlist(select_bio_reg()$Age)
+      vonBertalanffy <- cbind(data.frame(length), data.frame(age))
       reg <- NA
-      try(reg <- lm(log(length) ~ age),
-          silent = TRUE)
-      
+      try(reg <- vbStarts(length ~ age, data=vonBertalanffy))
       return (reg)
     })
     
+    reg2 <- reactive({
+      length <- unlist(select_bio_reg()$Length)
+      age <- unlist(select_bio_reg()$Age)
+      vonBertalanffy <- cbind(data.frame(length), data.frame(age))
+      reg <- NA
+      vb <- vbFuns(param="vonBertalanffy")
+      try(reg <- nls(length ~ vb(age,Linf,K,t0),
+                     data=vonBertalanffy, start=reg1()))
+      return (reg)
+    })
+    print(reg2())
     fit <- reactive({
+      length <- unlist(select_bio_fin()$Length)
       age <- unlist(select_bio_fin()$Age)
       
-      try(x <- data.frame(Age = unique(age)),
-          silent = TRUE)
-      try(x$Length <- exp(reg1()$coef[1] + x$Age * reg1()$coef[2]),
-          silent = TRUE)
+      try(x <- data.frame(age = age, Age = age),
+          silent = TRUE) 
+      try(x$Length <- predict(reg2(), x))
       
       return (x)
     })
@@ -506,6 +905,7 @@ output$bio_la<- renderPlotly({
       add_trace(x = fit()$Age, y = fit()$Length, type = 'scatter',
                 mode = "lines", colors = "Spectral", hoverinfo='none') %>%
       layout(title=paste(input$species, "Age vs Length (points coloured by sample type)"),
+             x = "Age (years)", y = "Length (cm)",
              margin=(list(t=80)), showlegend = FALSE)
     p$elementId <- NULL
     p
@@ -519,23 +919,44 @@ output$bio_la<- renderPlotly({
         arrange(Age, Length)
     })
     
+    if ("COD" %in% select_bio_fin()$species){
+      select_bio_reg <- reactive({
+        select_bio_fin() %>%
+          subset(Age < 7)
+      })
+    } else {
+      select_bio_reg <- reactive({
+        select_bio_fin()
+      })
+    }
+    
     reg1 <- reactive({
-      length <- unlist(select_bio_fin()$Length)
-      age <- unlist(select_bio_fin()$Age)
+      length <- unlist(select_bio_reg()$Length)
+      age <- unlist(select_bio_reg()$Age)
+      vonBertalanffy <- cbind(data.frame(length), data.frame(age))
       reg <- NA
-      try(reg <- lm(log(length) ~ age),
-          silent = TRUE)
-      
+      try(reg <- vbStarts(length ~ age, data=vonBertalanffy))
       return (reg)
     })
     
+    reg2 <- reactive({
+      length <- unlist(select_bio_reg()$Length)
+      age <- unlist(select_bio_reg()$Age)
+      vonBertalanffy <- cbind(data.frame(length), data.frame(age))
+      reg <- NA
+      vb <- vbFuns(param="vonBertalanffy")
+      try(reg <- nls(length ~ vb(age,Linf,K,t0),
+                     data=vonBertalanffy, start=reg1()))
+      return (reg)
+    })
+    print(reg2())
     fit <- reactive({
+      length <- unlist(select_bio_fin()$Length)
       age <- unlist(select_bio_fin()$Age)
       
-      try(x <- data.frame(Age = unique(age)),
-          silent = TRUE)
-      try(x$Length <- exp(reg1()$coef[1] + x$Age * reg1()$coef[2]),
-          silent = TRUE)
+      try(x <- data.frame(age = age, Age = age),
+          silent = TRUE) 
+      try(x$Length <- predict(reg2(), x))
       
       return (x)
     })
@@ -549,7 +970,8 @@ output$bio_la<- renderPlotly({
                              "cm<br>Gear type:", select_bio_fin()$gear)) %>%
       add_trace(x = fit()$Age, y = fit()$Length, type = 'scatter',
                 mode = "lines", colors = "Spectral", hoverinfo='none') %>%
-      layout(title=paste(input$species, "Age vs Length (points coloured by sample type)"),
+      layout(title=paste(input$species, "Age vs Length (points coloured by gear)"),
+             x = "Age (years)", y = "Length (cm)",
              margin=(list(t=80)), showlegend = FALSE)
     p$elementId <- NULL
     p
@@ -564,24 +986,43 @@ output$bio_la<- renderPlotly({
         arrange(Age, Length)
     })
     
+    if ("COD" %in% select_bio_fin()$species){
+      select_bio_reg <- reactive({
+        select_bio_fin() %>%
+          subset(Age < 7)
+      })
+    } else {
+      select_bio_reg <- reactive({
+        select_bio_fin()
+      })
+    }
+    
     reg1 <- reactive({
-      length <- unlist(select_bio_fin()$Length)
-      age <- unlist(select_bio_fin()$Age)
+      length <- unlist(select_bio_reg()$Length)
+      age <- unlist(select_bio_reg()$Age)
+      vonBertalanffy <- cbind(data.frame(length), data.frame(age))
       reg <- NA
-      try(reg <- lm(log(length) ~ age),
-          silent = TRUE)
-      
+      try(reg <- vbStarts(length ~ age, data=vonBertalanffy))
       return (reg)
     })
     
+    reg2 <- reactive({
+      length <- unlist(select_bio_reg()$Length)
+      age <- unlist(select_bio_reg()$Age)
+      vonBertalanffy <- cbind(data.frame(length), data.frame(age))
+      reg <- NA
+      vb <- vbFuns(param="vonBertalanffy")
+      try(reg <- nls(length ~ vb(age,Linf,K,t0),
+                     data=vonBertalanffy, start=reg1()))
+      return (reg)
+    })
+    print(reg2())
     fit <- reactive({
+      length <- unlist(select_bio_fin()$Length)
       age <- unlist(select_bio_fin()$Age)
       
-      try(x <- data.frame(Age = unique(age)),
-          silent = TRUE)
-      try(x$Length <- exp(reg1()$coef[1] + x$Age * reg1()$coef[2]),
-          silent = TRUE)
-      
+      try(x <- data.frame(age = age, Age = age)) 
+      try(x$Length <- predict(reg2(), x))
       return (x)
     })
     
@@ -590,11 +1031,10 @@ output$bio_la<- renderPlotly({
                 type = 'box', colors = "Set1") %>%
       add_trace(x = fit()$Age, y = fit()$Length, type = 'scatter',
                 mode = "lines", colors = "Spectral", hoverinfo='none') %>%
-      layout(title=paste(input$species, "Age vs Length"),
-             margin=(list(t=80)), showlegend = FALSE)
+      layout(title=paste(input$species, "Age vs Length"), x = "Age (years)",
+             y = "Length (cm)", margin=(list(t=80)), showlegend = FALSE)
     p$elementId <- NULL
     p
-    
   }
 })
 
@@ -611,9 +1051,10 @@ observeEvent(input$showhist, {
     
     p <- ggplot(select_bio_hist(), aes(Age)) +
       geom_bar(color="black", fill="white", width=1) +
-      labs(title = 'Histogram of observered ages', x = "Age")
+      labs(title = 'Histogram of observered ages', x = "Age", y = "Count")
     
     ggplotly(p)
+    
     })
 })
 
