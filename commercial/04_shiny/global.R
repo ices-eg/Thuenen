@@ -44,7 +44,7 @@ library(rintrojs)
 library(ggrepel) # required by shinyappsio
 library(rgeos) # required by shinyappsio
 library(sqldf)
-
+library(FSA)
 
 ices.rect <- read_sf("shp/ices_rectangles/ices_squares_simple.shp")
 ices.rect<-as(ices.rect, 'Spatial')
@@ -61,15 +61,15 @@ landings <- read.csv("data/anlandung.csv", sep=";")
 all_vessel_cl <- read.csv("data/all_vessel_cl.csv", sep=";")
 all_vessel_ce <- read.csv("data/all_vessel_ce.csv", sep=";")
 
-# add species group to the landings 
-landings <- landings %>% mutate(group_fish = case_when(fischart %in% c("COD", "PLE", "FLE", "DAB", "SOL", "TUR", "BLL", "WHG", "LUM") ~ "demersal species", 
-                                                       fischart %in% c("HER", "SPR", "GAR", "MAC", "HKE") ~ "pelagic species", 
+# add species group to the landings
+landings <- landings %>% mutate(group_fish = case_when(fischart %in% c("COD", "PLE", "FLE", "DAB", "SOL", "TUR", "BLL", "WHG", "LUM") ~ "demersal species",
+                                                       fischart %in% c("HER", "SPR", "GAR", "MAC", "HKE") ~ "pelagic species",
                                                        fischart %in% c("FPE", "FRO", "FBR", "FBU", "FPI", "FPP", "FTE", "ELP", "FCC", "FCP") ~ "freshwater species",
                                                        fischart %in% c("TRS","PLN", "ELE","SAL","TRO") ~ "freshwater species", TRUE ~ "other")
                                 )
 # add trip type to the sampled trip_numbers
-trip <- trip %>% mutate(group_trip = case_when(str_sub(trip_number,2,3) %in% c("01", "02", "03", "04", "05", "06", "07", "11", "12", "13") ~ "demersal fishery", 
-                                               str_sub(trip_number,2,3) %in% c("08", "09") ~ "pelagic fishery", 
+trip <- trip %>% mutate(group_trip = case_when(str_sub(trip_number,2,3) %in% c("01", "02", "03", "04", "05", "06", "07", "11", "12", "13") ~ "demersal fishery",
+                                               str_sub(trip_number,2,3) %in% c("08", "09") ~ "pelagic fishery",
                                                str_sub(trip_number,2,3) %in% c("14", "15", "16") ~ "harbor samples",
                                                TRUE ~ "other")) %>%
                  mutate(days_at_sea = as.numeric(as.Date(end_date)- as.Date(start_date)+1))
