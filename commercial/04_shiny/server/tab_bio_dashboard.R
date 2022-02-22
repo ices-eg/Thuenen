@@ -1058,17 +1058,17 @@ observeEvent(input$showhist, {
     })
 })
 
-# ##### Bio dashboard text and graphs
-#   output$fish_biology<- renderText({
-#     as.character(Supp_table[which(Supp_table[,"Fish_Code"] %in% input$species),"biology"])
-#   })
-# 
-# # add fish images to "Bio" sub table
-#   output$fish_drawing<- renderImage({
-#     filename <- paste("www/FishSketches/",
-#                       Supp_table[which(Supp_table[,"Fish_Code"] %in% input$species),
-#                                  "Fish_Code"],
-#                       ".png", sep="")
-#     list(src = filename, filetype = "png",width= "auto", height = 150)},
-#     deleteFile = FALSE)
-# 
+##### Bio dashboard text and graphs
+  output$fish_biology<- renderText({
+    as.character(Supp_table[which(Supp_table[,"Fish_Code"] %in% input$species),"biology"])
+  })
+
+# add fish images to "Bio" sub table
+  output$fish_drawing<- renderImage({
+    filename <- paste("www/FishSketches/",
+                      Supp_table[which(Supp_table[,"Fish_Code"] %in% input$species),
+                                 "Fish_Code"],
+                      ".png", sep="")
+    list(src = filename, filetype = "png",width= "auto", height = 150)},
+    deleteFile = FALSE)
+
