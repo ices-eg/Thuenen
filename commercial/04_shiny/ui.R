@@ -481,17 +481,26 @@ shinyUI(
                                  choices=list("None","Weight","Sex","Gear","Sample Type"),
                                  selected = "None")),
                              conditionalPanel(
+                               condition = "input.fishtab == 'C'",
+                               selectInput(
+                                 inputId="cohortoptionselection", label="Select parameter",
+                                 choices=list("None","Weight","Sex","Gear","Sample Type"),
+                                 selected = "None")),
+                             conditionalPanel(
                              condition = "input.biooptionselection =='Gear'
                              && input.fishtab == 'A'", uiOutput("GearFilter")),
                              conditionalPanel(
                              condition = "input.ageoptionselection =='Gear'
-                             && input.fishtab == 'B'", uiOutput("GearFilter.a"))),
+                             && input.fishtab == 'B'", uiOutput("GearFilter.a")),
+                             conditionalPanel(
+                             condition = "input.cohortoptionselection =='Gear'
+                             && input.fishtab == 'C'", uiOutput("GearFilter.c"))),
                              column(width=4, selectInput(
                                "quarter", label="Quarter",
                                choices = list("All", 1, 2, 3, 4),
                                selected = "All"),
                                sliderInput(
-                                 "year", "Years", min=min(trip$year, na.rm=TRUE),
+                                 "year", "Years", min=2010,
                                  max=max(trip$year, na.rm=TRUE),
                                  value=max(trip$year, na.rm=TRUE),
                                  sep="", step=1)), #by one year
@@ -531,7 +540,27 @@ shinyUI(
                                downloadButton(
                                  "downloadDatala", "Download data",
                                  class="btn btn-outline-primary")
-                               ))),
+                               ),
+                             
+                             conditionalPanel(
+                               "input.fishtab == 'C'",
+                               radioGroupButtons(
+                                 inputId = "Id.c", label = "",
+                                 choices = c("FAO Area", "Rectangle"),
+                                 direction = "horizontal",
+                                 checkIcon = list(
+                                   yes = tags$i(class = "fas fa-check-square",
+                                                style = "color: steelblue"),
+                                   no = tags$i(class = "fas fa-square-o",
+                                               style = "color: steelblue"))),
+                               uiOutput("spatialops.c")),
+                             
+                             conditionalPanel(
+                               "input.fishtab == 'C'",
+                               downloadButton(
+                                 "downloadDatalc", "Download data",
+                                 class="btn btn-outline-primary")
+                             ))),
                     
                     ##### Fish sp tab - Maps and plots  ######
                     
@@ -544,6 +573,10 @@ shinyUI(
                              conditionalPanel(
                                condition = "input.fishtab == 'B'",
                                plotlyOutput("bio_la") %>%
+                                 withSpinner(color="#0dc5c1")),
+                             conditionalPanel(
+                               condition = "input.fishtab == 'C'",
+                               plotlyOutput("bio_lc") %>%
                                  withSpinner(color="#0dc5c1"))
                              )),
                     fluidRow(
